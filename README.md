@@ -71,3 +71,33 @@ Nest is an MIT-licensed open source project. It can grow thanks to the sponsors 
 ## License
 
 Nest is [MIT licensed](LICENSE).
+
+---
+
+## Docker Development Environment
+
+This project is containerized using Docker Compose.
+
+### Quick Start
+
+1.  **Start Services:**
+    The project comes with a pre-configured `docker-compose.yml`.
+    ```bash
+    # Start everything in background
+    docker-compose up -d --build
+    ```
+    This will start:
+    - **API:** http://localhost:3281 (Hot Reload Enabled)
+    - **PostgreSQL:** localhost:5432
+    - **Redis:** localhost:6379
+    - **PgAdmin:** http://localhost:5050 (Login: admin@ebusatis.com / admin)
+
+2.  **View Logs:**
+    ```bash
+    docker-compose logs -f api
+    ```
+
+3.  **Stop:**
+    ```bash
+    docker-compose down
+    ```

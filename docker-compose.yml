@@ -1,0 +1,64 @@
+version: '3.8'
+
+services:
+  # Backend Application
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ebusatis-api
+    ports:
+      - "3281:3281"
+      - "9229:9229" # Debug port
+    environment:
+      - DATABASE_HOST=postgres
+      - DATABASE_PORT=5432
+      - DATABASE_USER=ebusatis_user
+      - DATABASE_PASSWORD=ebusatis_pass
+      - DATABASE_NAME=ebusatis_db
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - NODE_ENV=development
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - ebusatis-network
+    command: pnpm run start:dev
+
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: ebusatis-postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: ebusatis_user
+      POSTGRES_PASSWORD: ebusatis_pass
+      POSTGRES_DB: ebusatis_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - ebusatis-network
+
+  # Redis
+  redis:
+    image: redis:7-alpine
+    container_name: ebusatis-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - ebusatis-network
+
+volumes:
+  postgres_data:
+  redis_data:
+
+networks:
+  ebusatis-network:
+    driver: bridge
