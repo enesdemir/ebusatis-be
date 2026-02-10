@@ -65,6 +65,17 @@
           "length": 255,
           "mappedType": "string"
         },
+        "assignable_scope": {
+          "name": "assignable_scope",
+          "type": "varchar(255)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": 255,
+          "default": "'TENANT'",
+          "mappedType": "string"
+        },
         "description": {
           "name": "description",
           "type": "varchar(255)",
@@ -193,6 +204,15 @@
             "TRIAL"
           ],
           "mappedType": "enum"
+        },
+        "features": {
+          "name": "features",
+          "type": "jsonb",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "json"
         }
       },
       "name": "tenants",

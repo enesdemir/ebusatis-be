@@ -37,6 +37,7 @@ Sistemdeki tüm eylemlerin atomik tanımıdır. Bu tablo genellikle geliştirici
 *   `slug`: String (Unique) -> Örn: `order.create`, `stock.view_cost_price`, `report.financial`
 *   `category`: String -> 'Inventory', 'Finance', 'Settings'
 *   `description`: Açıklama
+*   `assignable_scope`: String -> 'PLATFORM' | 'TENANT' (Hangi seviyedeki rollerin bu yetkiye sahip olabileceğini belirler).
 
 #### `Roles` (Roller)
 *   `id`: Integer (PK)

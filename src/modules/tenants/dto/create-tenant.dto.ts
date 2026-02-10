@@ -18,4 +18,15 @@ export class CreateTenantDto {
   @IsOptional()
   @IsEnum(TenantType)
   type?: TenantType;
+
+  @ApiProperty({ example: 'admin@mytextile.com', description: 'Admin email for the new tenant' })
+  @IsString()
+  @IsNotEmpty()
+  adminEmail: string;
+
+  @ApiProperty({ example: 'Password123!', description: 'Admin password for the new tenant' })
+  @IsString()
+  @IsNotEmpty()
+  @IsOptional() // Optional because we might generate it or use a default if not provided, but mostly required. Let's make it required for now.
+  adminPassword?: string;
 }

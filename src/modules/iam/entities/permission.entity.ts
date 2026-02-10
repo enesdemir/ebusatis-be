@@ -10,15 +10,19 @@ export class Permission extends BaseEntity {
   @Property()
   category: string; // e.g., 'Inventory'
 
+  @Property({ default: 'TENANT' })
+  assignableScope: string = 'TENANT'; // 'PLATFORM' | 'TENANT'
+
   @Property({ nullable: true })
   description?: string;
 
   @ManyToMany(() => Role, role => role.permissions)
   roles = new Collection<Role>(this);
 
-  constructor(slug: string, category: string) {
+  constructor(slug: string, category: string, assignableScope: string = 'TENANT') {
     super();
     this.slug = slug;
     this.category = category;
+    this.assignableScope = assignableScope;
   }
 }

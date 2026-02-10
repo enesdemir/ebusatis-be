@@ -17,7 +17,7 @@ export class AdminSeeder extends Seeder {
     }
 
     // 2. Create Super Admin Role
-    let adminRole = await em.findOne(Role, { name: 'Super Admin', tenant: null });
+    let adminRole: Role | null = await em.findOne(Role, { name: 'Super Admin', tenant: null }, { populate: ['permissions'] });
     if (!adminRole) {
       adminRole = new Role('Super Admin');
       adminRole.isSystemRole = true;
@@ -26,19 +26,27 @@ export class AdminSeeder extends Seeder {
 
     // 3. Create All Permissions (Basic Set)
     const permissionsData = [
-      { slug: 'tenants.manage', category: 'System' },
-      { slug: 'users.manage', category: 'System' },
-      { slug: 'roles.manage', category: 'System' },
-      { slug: 'dashboard.view', category: 'System' },
+      { slug: 'tenants.manage', category: 'System', scope: 'PLATFORM' },
+      { slug: 'users.manage', category: 'System', scope: 'PLATFORM' },
+      { slug: 'roles.manage', category: 'System', scope: 'PLATFORM' },
+      { slug: 'dashboard.view', category: 'System', scope: 'PLATFORM' },
+      // Example Tenant Permissions
+      { slug: 'orders.view', category: 'Sales', scope: 'TENANT' },
+      { slug: 'orders.create', category: 'Sales', scope: 'TENANT' },
     ];
 
     for (const p of permissionsData) {
       let perm = await em.findOne(Permission, { slug: p.slug });
       if (!perm) {
-        perm = new Permission(p.slug, p.category);
+        perm = new Permission(p.slug, p.category, p.scope);
         em.persist(perm);
+      } else {
+        // Update scope if it changed
+        perm.assignableScope = p.scope;
       }
-      if (!adminRole.permissions.contains(perm)) {
+      
+      // Only assign PLATFORM permissions to Super Admin for now
+      if (p.scope === 'PLATFORM' && !adminRole.permissions.contains(perm)) {
         adminRole.permissions.add(perm);
       }
     }

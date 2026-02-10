@@ -24,6 +24,28 @@ export class AuthService {
     return null;
   }
 
+  async impersonate(userId: string) {
+    const user = await this.userRepository.findOne({ id: userId }, { populate: ['tenant'] });
+    if (!user) {
+      throw new UnauthorizedException('User not found for impersonation');
+    }
+
+    const payload = { 
+      sub: user.id, 
+      email: user.email, 
+      tenantId: user.tenant.id 
+    };
+
+    return {
+      access_token: this.jwtService.sign(payload),
+      user: {
+        id: user.id,
+        email: user.email,
+        tenant: user.tenant.name
+      }
+    };
+  }
+
   async login(loginDto: LoginDto) {
     const user = await this.validateUser(loginDto.email, loginDto.password);
     if (!user) {

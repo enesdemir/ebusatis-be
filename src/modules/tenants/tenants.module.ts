@@ -4,8 +4,13 @@ import { Tenant } from './entities/tenant.entity';
 import { TenantsService } from './tenants.service';
 import { TenantsController } from './tenants.controller';
 
+import { AuthModule } from '../auth/auth.module';
+
 @Module({
-  imports: [MikroOrmModule.forFeature([Tenant])],
+  imports: [
+    MikroOrmModule.forFeature([Tenant]),
+    AuthModule,
+  ],
   controllers: [TenantsController],
   providers: [TenantsService],
   exports: [MikroOrmModule, TenantsService],

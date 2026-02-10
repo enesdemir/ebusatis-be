@@ -4,6 +4,8 @@ import { EntityRepository, wrap } from '@mikro-orm/postgresql';
 import { Tenant } from './entities/tenant.entity';
 import { CreateTenantDto } from './dto/create-tenant.dto';
 import { UpdateTenantDto } from './dto/update-tenant.dto';
+import * as bcrypt from 'bcrypt';
+import { User } from '../users/entities/user.entity';
 
 @Injectable()
 export class TenantsService {
@@ -18,12 +20,26 @@ export class TenantsService {
       throw new ConflictException(`Tenant with domain '${createTenantDto.domain}' already exists.`);
     }
 
+    const em = this.tenantRepository.getEntityManager();
     const tenant = new Tenant(createTenantDto.name, createTenantDto.domain);
     if (createTenantDto.type) {
       tenant.type = createTenantDto.type;
     }
 
-    await this.tenantRepository.getEntityManager().persistAndFlush(tenant);
+    await em.persistAndFlush(tenant);
+
+    // Create Admin User
+    const password = createTenantDto.adminPassword || 'Start123!';
+    const salt = await bcrypt.genSalt();
+    const hashedPassword = await bcrypt.hash(password, salt);
+
+    const adminUser = new User(createTenantDto.adminEmail, tenant);
+    adminUser.passwordHash = hashedPassword;
+    adminUser.isTenantOwner = true;
+    adminUser.locale = 'tr'; // Default locale
+
+    await em.persistAndFlush(adminUser);
+    
     return tenant;
   }
 
@@ -32,7 +48,7 @@ export class TenantsService {
   }
 
   async findOne(id: string): Promise<Tenant> {
-    const tenant = await this.tenantRepository.findOne({ id });
+    const tenant = await this.tenantRepository.findOne({ id }, { populate: ['users'] });
     if (!tenant) {
       throw new NotFoundException(`Tenant with ID '${id}' not found.`);
     }
