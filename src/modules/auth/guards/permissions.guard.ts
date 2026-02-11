@@ -22,6 +22,11 @@ export class PermissionsGuard implements CanActivate {
       throw new ForbiddenException('User context missing');
     }
 
+    // Super Admin bypasses all permission checks
+    if (user.isSuperAdmin) {
+      return true;
+    }
+
     // Flatten all permissions from all roles
     const userPermissions = user.roles
       .getItems()

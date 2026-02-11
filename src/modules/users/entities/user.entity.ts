@@ -12,18 +12,27 @@ export class User extends BaseEntity {
   passwordHash: string;
 
   @Property({ default: false })
+  isSuperAdmin: boolean = false;
+
+  @Property({ default: false })
   isTenantOwner: boolean = false;
+
+  @Property({ default: true })
+  isActive: boolean = true;
 
   @Property({ default: 'tr' })
   locale: string = 'tr';
 
-  @ManyToOne(() => Tenant)
-  tenant: Tenant;
+  @Property({ nullable: true, type: 'datetime' })
+  lastLoginAt?: Date;
+
+  @ManyToOne(() => Tenant, { nullable: true })
+  tenant?: Tenant;
 
   @ManyToMany(() => Role, role => role.users, { owner: true })
   roles = new Collection<Role>(this);
 
-  constructor(email: string, tenant: Tenant) {
+  constructor(email: string, tenant?: Tenant) {
     super();
     this.email = email;
     this.tenant = tenant;

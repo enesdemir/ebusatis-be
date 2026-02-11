@@ -1,14 +1,12 @@
 
 import { Controller, Get, Post, Put, Delete, Body, Param, UseGuards, Request } from '@nestjs/common';
+import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { RolesService } from '../services/roles.service';
-// import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard'; // Assuming this exists
-// import { PermissionsGuard } from '../../auth/guards/permissions.guard'; // Assuming this exists
-// import { RequirePermission } from '../../auth/decorators/require-permission.decorator'; // Assuming this exists
+import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 
-// Mocking decorators for now until I confirm auth structure, 
-// using generic UseGuards or assuming validation handles tenant extraction
-// Since I don't see Auth module structure fully, I will assume a standard Request with user.
-
+@ApiTags('Roles')
+@ApiBearerAuth()
+@UseGuards(JwtAuthGuard)
 @Controller('roles')
 export class RolesController {
   constructor(private readonly rolesService: RolesService) {}
