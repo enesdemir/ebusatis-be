@@ -58,7 +58,7 @@ export class AdminSeeder extends Seeder {
       adminUser = new User(adminEmail, systemTenant);
       adminUser.passwordHash = await bcrypt.hash('admin123', 10);
       adminUser.isSuperAdmin = true;
-      adminUser.isTenantOwner = true;
+      adminUser.isTenantOwner = false;
       adminUser.roles.add(adminRole);
       em.persist(adminUser);
       console.log(`Admin user created: ${adminEmail} / admin123`);
