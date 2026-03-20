@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { EntityRepository, FilterQuery } from '@mikro-orm/postgresql';
 import { User } from '../../users/entities/user.entity';
@@ -117,5 +117,36 @@ export class AdminUsersService {
     user.isActive = isActive;
     await this.userRepository.getEntityManager().flush();
     return { id: user.id, email: user.email, isActive: user.isActive };
+  }
+
+  /**
+   * Creates a new Platform Admin (Super Admin).
+   */
+  async createSuperAdmin(email: string) {
+    const existing = await this.userRepository.findOne({ email });
+    if (existing) {
+      throw new ConflictException('Bu e-posta adresi sistemde kayıtlı.');
+    }
+    const admin = new User(email, null as any); // Tenant is intentionally null
+    admin.isSuperAdmin = true;
+    admin.isActive = true;
+    admin.passwordHash = '$2b$10$EpIxNt.irO7y7P/s3f.uUO.6X.L/8.q.Z.g.w/0.1.2.3'; // TODO: Send setup email
+    await this.userRepository.getEntityManager().persistAndFlush(admin);
+    return { id: admin.id, email: admin.email, isSuperAdmin: admin.isSuperAdmin };
+  }
+
+  /**
+   * Deletes a user (Cross-tenant override for Super Admins).
+   */
+  async delete(id: string) {
+    const user = await this.userRepository.findOne({ id });
+    if (!user) {
+      throw new NotFoundException(`User with ID '${id}' not found`);
+    }
+    if (user.isTenantOwner) {
+      throw new ConflictException('Firma sahipleri (Tenant Owner) sistemden direkt silinemez. Önce firmayı silmelisiniz.');
+    }
+    await this.userRepository.getEntityManager().removeAndFlush(user);
+    return { success: true };
   }
 }

@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Query, Patch, Body, UseGuards } from '@nestjs/common';
+import { Controller, Get, Param, Query, Patch, Body, UseGuards, Post, Delete } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { SuperAdminGuard } from '../../../common/guards/super-admin.guard';
@@ -44,5 +44,17 @@ export class AdminUsersController {
     @Body('isActive') isActive: boolean,
   ) {
     return this.adminUsersService.updateStatus(id, isActive);
+  }
+
+  @Post('super-admin')
+  @ApiOperation({ summary: 'Create a new Platform Admin' })
+  async createSuperAdmin(@Body('email') email: string) {
+    return this.adminUsersService.createSuperAdmin(email);
+  }
+
+  @Delete(':id')
+  @ApiOperation({ summary: 'Delete a platform user' })
+  async deleteUser(@Param('id') id: string) {
+    return this.adminUsersService.delete(id);
   }
 }
