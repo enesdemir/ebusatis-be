@@ -5,21 +5,35 @@ import { ProductVariant } from './entities/product-variant.entity';
 import { Attribute } from './entities/attribute.entity';
 import { ProductAttributeValue } from './entities/product-attribute-value.entity';
 import { ProductVariantAttributeValue } from './entities/product-variant-attribute-value.entity';
+import { DigitalCatalog } from './entities/digital-catalog.entity';
+import { DigitalCatalogItem } from './entities/digital-catalog-item.entity';
+import { SupplierPriceList } from './entities/supplier-price-list.entity';
+import { SupplierPriceListItem } from './entities/supplier-price-list-item.entity';
+
 import { AttributesController } from './controllers/attributes.controller';
+import { ProductController } from './controllers/product.controller';
 import { AttributesService } from './services/attributes.service';
+import { ProductService } from './services/product.service';
+
+import { AuthModule } from '../auth/auth.module';
 
 @Module({
   imports: [
     MikroOrmModule.forFeature([
-      Product, 
-      ProductVariant, 
-      Attribute, 
-      ProductAttributeValue, 
-      ProductVariantAttributeValue
-    ])
+      Product,
+      ProductVariant,
+      Attribute,
+      ProductAttributeValue,
+      ProductVariantAttributeValue,
+      DigitalCatalog,
+      DigitalCatalogItem,
+      SupplierPriceList,
+      SupplierPriceListItem,
+    ]),
+    AuthModule,
   ],
-  controllers: [AttributesController],
-  providers: [AttributesService],
-  exports: [MikroOrmModule, AttributesService],
+  controllers: [AttributesController, ProductController],
+  providers: [AttributesService, ProductService],
+  exports: [MikroOrmModule, AttributesService, ProductService],
 })
 export class ProductsModule {}
