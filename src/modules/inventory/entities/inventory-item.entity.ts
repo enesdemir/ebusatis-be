@@ -1,5 +1,5 @@
 import { Entity, Property, ManyToOne, Enum } from '@mikro-orm/core';
-import { BaseEntity } from '../../../common/entities/base.entity';
+import { BaseTenantEntity } from '../../../common/entities/base-tenant.entity';
 import { ProductVariant } from '../../products/entities/product-variant.entity';
 import { Tenant } from '../../tenants/entities/tenant.entity';
 
@@ -12,12 +12,9 @@ export enum InventoryItemStatus {
 }
 
 @Entity({ tableName: 'inventory_items' })
-export class InventoryItem extends BaseEntity {
+export class InventoryItem extends BaseTenantEntity {
   @ManyToOne(() => ProductVariant)
   variant: ProductVariant;
-
-  @ManyToOne(() => Tenant)
-  tenant: Tenant;
 
   @Property({ unique: true })
   barcode: string;

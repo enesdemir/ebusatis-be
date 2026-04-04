@@ -1,5 +1,5 @@
-import { Entity, Property, Enum, ManyToOne } from '@mikro-orm/core';
-import { BaseEntity } from '../../../common/entities/base.entity';
+import { Entity, Property, Enum } from '@mikro-orm/core';
+import { BaseTenantEntity } from '../../../common/entities/base-tenant.entity';
 import { Tenant } from '../../tenants/entities/tenant.entity';
 
 export enum AttributeType {
@@ -9,7 +9,7 @@ export enum AttributeType {
 }
 
 @Entity({ tableName: 'attributes' })
-export class Attribute extends BaseEntity {
+export class Attribute extends BaseTenantEntity {
   @Property()
   name: string; // Örn: "En (Width)", "Gramaj", "Materyal"
 
@@ -18,9 +18,6 @@ export class Attribute extends BaseEntity {
 
   @Enum(() => AttributeType)
   type: AttributeType;
-
-  @ManyToOne(() => Tenant)
-  tenant: Tenant; // Her firma (Tenant) sistemi kendi sektörüne göre özelleştirebilir
 
   constructor(name: string, code: string, type: AttributeType, tenant: Tenant) {
     super();

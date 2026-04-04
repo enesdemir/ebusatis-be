@@ -1,11 +1,11 @@
-import { Entity, Property, OneToMany, Collection, ManyToOne } from '@mikro-orm/core';
-import { BaseEntity } from '../../../common/entities/base.entity';
+import { Entity, Property, OneToMany, Collection } from '@mikro-orm/core';
+import { BaseTenantEntity } from '../../../common/entities/base-tenant.entity';
 import { ProductVariant } from './product-variant.entity';
 import { Tenant } from '../../tenants/entities/tenant.entity';
 import { ProductAttributeValue } from './product-attribute-value.entity';
 
 @Entity({ tableName: 'products' })
-export class Product extends BaseEntity {
+export class Product extends BaseTenantEntity {
   @Property()
   name: string;
 
@@ -17,9 +17,6 @@ export class Product extends BaseEntity {
 
   @Property({ default: 'Meter' })
   baseUnit: string = 'Meter';
-
-  @ManyToOne(() => Tenant)
-  tenant: Tenant;
 
   @OneToMany(() => ProductVariant, variant => variant.product)
   variants = new Collection<ProductVariant>(this);
