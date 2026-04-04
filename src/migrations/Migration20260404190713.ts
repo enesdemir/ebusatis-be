@@ -1,6 +1,6 @@
 import { Migration } from '@mikro-orm/migrations';
 
-export class Migration20260404190713_pim-expansion extends Migration {
+export class Migration20260404190713 extends Migration {
 
   override async up(): Promise<void> {
     this.addSql(`create table "supplier_price_lists" ("id" uuid not null, "created_at" timestamptz not null, "updated_at" timestamptz not null, "deleted_at" timestamptz null, "tenant_id" uuid not null, "supplier_id" uuid not null, "name" varchar(255) not null, "currency_id" uuid null, "valid_from" date null, "valid_to" date null, "is_active" boolean not null default true, constraint "supplier_price_lists_pkey" primary key ("id"));`);
