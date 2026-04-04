@@ -13,6 +13,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { ProductsModule } from './modules/products/products.module';
 import { InventoryModule } from './modules/inventory/inventory.module';
 import { AdminModule } from './modules/admin/admin.module';
+import { DefinitionsModule } from './modules/definitions/definitions.module';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { AdminModule } from './modules/admin/admin.module';
     ProductsModule,
     InventoryModule,
     AdminModule,
+    DefinitionsModule,
   ],
   controllers: [AppController],
   providers: [
