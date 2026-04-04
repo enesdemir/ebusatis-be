@@ -15,6 +15,7 @@ import { InventoryModule } from './modules/inventory/inventory.module';
 import { AdminModule } from './modules/admin/admin.module';
 import { DefinitionsModule } from './modules/definitions/definitions.module';
 import { PartnersModule } from './modules/partners/partners.module';
+import { OrdersModule } from './modules/orders/orders.module';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { PartnersModule } from './modules/partners/partners.module';
     AdminModule,
     DefinitionsModule,
     PartnersModule,
+    OrdersModule,
   ],
   controllers: [AppController],
   providers: [
