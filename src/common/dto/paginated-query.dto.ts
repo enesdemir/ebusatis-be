@@ -31,4 +31,9 @@ export class PaginatedQueryDto {
   @IsOptional()
   @IsIn(['ASC', 'DESC'])
   sortOrder?: 'ASC' | 'DESC' = 'DESC';
+
+  @ApiPropertyOptional({ description: 'Search term for filtering results' })
+  @IsOptional()
+  @IsString()
+  search?: string;
 }
