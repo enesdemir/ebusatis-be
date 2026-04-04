@@ -3,6 +3,7 @@ import { MikroOrmModule } from '@mikro-orm/nestjs';
 import { Tenant } from './entities/tenant.entity';
 import { TenantsService } from './tenants.service';
 import { TenantsController } from './tenants.controller';
+import { TenantOnboardingService } from './services/tenant-onboarding.service';
 
 import { AuthModule } from '../auth/auth.module';
 
@@ -12,7 +13,7 @@ import { AuthModule } from '../auth/auth.module';
     AuthModule,
   ],
   controllers: [TenantsController],
-  providers: [TenantsService],
-  exports: [MikroOrmModule, TenantsService],
+  providers: [TenantsService, TenantOnboardingService],
+  exports: [MikroOrmModule, TenantsService, TenantOnboardingService],
 })
 export class TenantsModule {}

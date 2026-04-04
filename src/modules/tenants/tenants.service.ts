@@ -4,6 +4,7 @@ import { EntityRepository, FilterQuery, wrap } from '@mikro-orm/postgresql';
 import { Tenant, SubscriptionStatus } from './entities/tenant.entity';
 import { CreateTenantDto } from './dto/create-tenant.dto';
 import { UpdateTenantDto } from './dto/update-tenant.dto';
+import { TenantOnboardingService } from './services/tenant-onboarding.service';
 import * as bcrypt from 'bcrypt';
 import { User } from '../users/entities/user.entity';
 
@@ -23,6 +24,7 @@ export class TenantsService {
   constructor(
     @InjectRepository(Tenant)
     private readonly tenantRepository: EntityRepository<Tenant>,
+    private readonly onboardingService: TenantOnboardingService,
   ) {}
 
   /**
@@ -48,6 +50,10 @@ export class TenantsService {
     adminUser.isTenantOwner = true;
     adminUser.locale = 'tr';
     await em.persistAndFlush(adminUser);
+
+    // Tenant onboarding: varsayılan verileri seed et
+    await this.onboardingService.onboardTenant(tenant);
+
     return tenant;
   }
 
