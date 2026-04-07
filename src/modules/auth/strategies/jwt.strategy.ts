@@ -5,6 +5,7 @@ import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { EntityRepository } from '@mikro-orm/postgresql';
 import { User } from '../../users/entities/user.entity';
+import { Request } from 'express';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
@@ -17,13 +18,11 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
       secretOrKey: configService.get<string>('JWT_SECRET') || 'secretKey',
+      passReqToCallback: true,
     });
   }
 
-  async validate(payload: any) {
-    // Payload contains the decoded JWT (e.g. sub: userId, email: ...).
-    // We attach the full user (or partial) to the request context.
-    
+  async validate(req: Request, payload: any) {
     const user = await this.userRepository.findOne(
       { id: payload.sub },
       { populate: ['roles', 'roles.permissions', 'tenant'] }
@@ -33,7 +32,12 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       throw new UnauthorizedException();
     }
 
-    // Return the user object, which will be available in req.user
+    // tenantId kaynağı:
+    // 1. User'ın kendi tenant'ı (normal kullanıcı)
+    // 2. x-tenant-id header'ı (SuperAdmin tenant seçtiğinde)
+    const headerTenantId = req.headers['x-tenant-id'] as string;
+    (user as any).tenantId = user.tenant?.id ?? headerTenantId ?? null;
+
     return user;
   }
 }

@@ -6,12 +6,13 @@ import { Tenant } from '../../modules/tenants/entities/tenant.entity';
  * Tüm tenant-scoped entity'lerin base class'ı.
  * MikroORM @Filter ile otomatik tenant izolasyonu sağlar.
  *
+ * TenantContextMiddleware her request'te setFilterParams çağırır:
+ * - x-tenant-id header varsa → gerçek tenantId set edilir
+ * - Header yoksa → sahte UUID set edilir (platform endpoint'leri boş sonuç döner)
+ *
  * Kullanım:
  *   @Entity()
  *   class Product extends BaseTenantEntity { ... }
- *
- * Bu sayede `em.find(Product, {})` çağrısı otomatik olarak
- * `WHERE tenant_id = :tenantId` filtresi uygular.
  *
  * SuperAdmin cross-tenant erişimi için:
  *   em.find(Product, {}, { filters: { tenant: false } })

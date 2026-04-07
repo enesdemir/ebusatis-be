@@ -1,12 +1,37 @@
 import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
+import { MikroORM, RequestContext } from '@mikro-orm/core';
 import helmet from 'helmet';
 import { AppModule } from './app.module';
 import { TransformInterceptor } from './common/interceptors/transform.interceptor';
 import { GlobalExceptionFilter } from './common/filters/global-exception.filter';
+import { TenantContext } from './common/context/tenant.context';
+
+const EMPTY_TENANT = '00000000-0000-0000-0000-000000000000';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
+  // ── MikroORM RequestContext ──
+  // Express seviyesinde kayıt → Guards, Interceptors, Controllers hepsinden ÖNCE çalışır.
+  // forMiddleware() yerine manuel kayıt, çünkü forMiddleware() sıralama garantisi vermiyor.
+  const orm = app.get(MikroORM);
+  app.use((req: any, _res: any, next: any) => {
+    RequestContext.create(orm.em, () => {
+      // Tenant filter: fork'lanmış EM'ye set et
+      const tenantId = req.headers['x-tenant-id'] as string;
+      const em = RequestContext.getEntityManager()!;
+      em.setFilterParams('tenant', {
+        tenantId: tenantId || EMPTY_TENANT,
+      });
+
+      if (tenantId) {
+        TenantContext.run(tenantId, () => next());
+      } else {
+        next();
+      }
+    });
+  });
 
   // ── Security: Helmet (HTTP security headers) ──
   app.use(helmet());

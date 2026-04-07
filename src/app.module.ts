@@ -23,6 +23,7 @@ import { ReportsModule } from './modules/reports/reports.module';
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
     MikroOrmModule.forRoot(config),
+    // RequestContext artık main.ts'de Express seviyesinde oluşturuluyor (Guards dahil her yerde çalışsın diye)
     // Rate Limiting: 60 requests per 60 seconds (per IP)
     ThrottlerModule.forRoot([{
       ttl: parseInt(process.env.THROTTLE_TTL || '60000', 10),
