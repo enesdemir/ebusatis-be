@@ -41,7 +41,7 @@ export class ClassificationService {
 
   /** Tek dugum getir */
   async findOne(id: string): Promise<ClassificationNode> {
-    const node = await this.repo.findOne({ id }, { populate: ['parent', 'children'] });
+    const node = await this.repo.findOne({ id }, { populate: ['parent'] });
     if (!node) throw new NotFoundException('Classification node not found');
     return node;
   }
@@ -223,21 +223,48 @@ export class ClassificationService {
     }
   }
 
-  /** Flat listeden agac olustur */
-  private buildTree(nodes: ClassificationNode[]): ClassificationNode[] {
-    const map = new Map<string, ClassificationNode & { children: ClassificationNode[] }>();
-    const roots: ClassificationNode[] = [];
+  /** Entity'yi serialize edilebilir DTO'ya cevir */
+  private toDto(node: ClassificationNode): any {
+    return {
+      id: node.id,
+      classificationType: node.classificationType,
+      module: node.module,
+      parentId: (node.parent as any)?.id || null,
+      path: node.path,
+      depth: node.depth,
+      code: node.code,
+      key: node.key,
+      names: node.names,
+      descriptions: node.descriptions,
+      properties: node.properties,
+      tags: node.tags,
+      icon: node.icon,
+      color: node.color,
+      isRoot: node.isRoot,
+      isSystem: node.isSystem,
+      isActive: node.isActive,
+      selectable: node.selectable,
+      sortOrder: node.sortOrder,
+      children: [],
+    };
+  }
+
+  /** Flat listeden agac olustur (DTO olarak — circular ref yok) */
+  private buildTree(nodes: ClassificationNode[]): any[] {
+    const map = new Map<string, any>();
+    const roots: any[] = [];
 
     for (const node of nodes) {
-      map.set(node.id, Object.assign(node, { children: [] }));
+      map.set(node.id, this.toDto(node));
     }
 
     for (const node of nodes) {
+      const dto = map.get(node.id)!;
       const parentId = (node.parent as any)?.id;
       if (parentId && map.has(parentId)) {
-        map.get(parentId)!.children.push(map.get(node.id)!);
+        map.get(parentId)!.children.push(dto);
       } else {
-        roots.push(map.get(node.id)!);
+        roots.push(dto);
       }
     }
 
