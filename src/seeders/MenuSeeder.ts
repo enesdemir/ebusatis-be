@@ -37,6 +37,7 @@ export class MenuSeeder extends Seeder {
         code: 'partners', label: 'İş Ortakları', icon: 'Users', sortOrder: 10, scope: MenuScope.TENANT,
         children: [
           { code: 'partners.list', label: 'Müşteri & Tedarikçi', path: '/partners', sortOrder: 0, scope: MenuScope.TENANT },
+          { code: 'partners.new', label: 'Yeni İş Ortağı', path: '/partners/new', sortOrder: 1, scope: MenuScope.TENANT },
         ],
       },
 
@@ -54,6 +55,7 @@ export class MenuSeeder extends Seeder {
         code: 'wms', label: 'Depo & Stok', icon: 'Warehouse', sortOrder: 30, scope: MenuScope.TENANT,
         children: [
           { code: 'wms.inventory', label: 'Stok Listesi', path: '/wms/inventory', sortOrder: 0, scope: MenuScope.TENANT },
+          { code: 'wms.receiving', label: 'Mal Kabul', path: '/wms/receiving', sortOrder: 1, scope: MenuScope.TENANT },
         ],
       },
 
@@ -62,6 +64,8 @@ export class MenuSeeder extends Seeder {
         code: 'orders', label: 'Siparişler', icon: 'ShoppingCart', sortOrder: 40, scope: MenuScope.TENANT,
         children: [
           { code: 'orders.sales', label: 'Satış Siparişleri', path: '/orders/sales', sortOrder: 0, scope: MenuScope.TENANT },
+          { code: 'orders.sales-new', label: 'Yeni Sipariş', path: '/orders/sales/new', sortOrder: 1, scope: MenuScope.TENANT },
+          { code: 'orders.purchase', label: 'Satınalma Siparişleri', path: '/orders/purchase', sortOrder: 2, scope: MenuScope.TENANT },
         ],
       },
 
@@ -97,6 +101,7 @@ export class MenuSeeder extends Seeder {
               { code: 'settings.definitions.statuses', label: 'Durumlar', path: '/settings/definitions/statuses', sortOrder: 5, scope: MenuScope.TENANT },
               { code: 'settings.definitions.payment-methods', label: 'Ödeme Yöntemleri', path: '/settings/definitions/payment-methods', sortOrder: 6, scope: MenuScope.TENANT },
               { code: 'settings.definitions.delivery-methods', label: 'Teslimat Yöntemleri', path: '/settings/definitions/delivery-methods', sortOrder: 7, scope: MenuScope.TENANT },
+              { code: 'settings.definitions.categories', label: 'Kategoriler', path: '/settings/definitions/categories', sortOrder: 8, scope: MenuScope.TENANT },
             ],
           },
           { code: 'settings.attributes', label: 'Özellikler (EAV)', path: '/settings/attributes', sortOrder: 1, scope: MenuScope.TENANT },

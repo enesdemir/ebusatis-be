@@ -18,6 +18,7 @@ import { PartnersModule } from './modules/partners/partners.module';
 import { OrdersModule } from './modules/orders/orders.module';
 import { FinanceModule } from './modules/finance/finance.module';
 import { ReportsModule } from './modules/reports/reports.module';
+import { ClassificationsModule } from './modules/classifications/classifications.module';
 
 @Module({
   imports: [
@@ -41,6 +42,7 @@ import { ReportsModule } from './modules/reports/reports.module';
     OrdersModule,
     FinanceModule,
     ReportsModule,
+    ClassificationsModule,
   ],
   controllers: [AppController],
   providers: [

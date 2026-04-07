@@ -1,0 +1,246 @@
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import { InjectRepository } from '@mikro-orm/nestjs';
+import { EntityRepository, EntityManager } from '@mikro-orm/postgresql';
+import { ClassificationNode } from '../entities/classification-node.entity';
+import { ClassificationModules } from '../entities/classification-types';
+import { CreateClassificationNodeDto, UpdateClassificationNodeDto, MoveNodeDto, ReorderDto } from '../dto';
+
+@Injectable()
+export class ClassificationService {
+  constructor(
+    @InjectRepository(ClassificationNode)
+    private readonly repo: EntityRepository<ClassificationNode>,
+    private readonly em: EntityManager,
+  ) {}
+
+  // ════════════════════════════════════════════════════════
+  //  TREE QUERIES
+  // ════════════════════════════════════════════════════════
+
+  /** Tip bazinda tum agaci dondur */
+  async getTree(classificationType: string): Promise<ClassificationNode[]> {
+    const all = await this.repo.find(
+      { classificationType },
+      { orderBy: { sortOrder: 'ASC', names: 'ASC' }, populate: ['parent'] },
+    );
+    return this.buildTree(all);
+  }
+
+  /** Moduldeki tum classification tiplerinin ozetini dondur */
+  async getSummary(module?: string): Promise<Array<{ type: string; module: string; count: number }>> {
+    const qb = this.em.createQueryBuilder(ClassificationNode, 'c')
+      .select(['c.classification_type as type', 'c.module as module', 'count(*) as count'])
+      .groupBy(['c.classification_type', 'c.module']);
+
+    if (module) {
+      qb.where({ module });
+    }
+
+    return qb.execute();
+  }
+
+  /** Tek dugum getir */
+  async findOne(id: string): Promise<ClassificationNode> {
+    const node = await this.repo.findOne({ id }, { populate: ['parent', 'children'] });
+    if (!node) throw new NotFoundException('Classification node not found');
+    return node;
+  }
+
+  /** Bir dugumun tum cocuklarini getir (recursive) */
+  async getChildren(id: string, recursive = false): Promise<ClassificationNode[]> {
+    if (!recursive) {
+      return this.repo.find({ parent: id } as any, { orderBy: { sortOrder: 'ASC' } });
+    }
+    // Path-based recursive query
+    const parent = await this.findOne(id);
+    const all = await this.repo.find(
+      { classificationType: parent.classificationType, path: { $like: `${parent.path}.%` } },
+      { orderBy: { path: 'ASC', sortOrder: 'ASC' } },
+    );
+    return all;
+  }
+
+  // ════════════════════════════════════════════════════════
+  //  CRUD
+  // ════════════════════════════════════════════════════════
+
+  async create(dto: CreateClassificationNodeDto, tenantId?: string): Promise<ClassificationNode> {
+    const module = (ClassificationModules as any)[dto.classificationType] || 'other';
+
+    const node = new ClassificationNode(dto.classificationType, module, dto.code, dto.names);
+    node.descriptions = dto.descriptions;
+    node.properties = dto.properties;
+    node.tags = dto.tags;
+    node.icon = dto.icon;
+    node.color = dto.color;
+    node.isRoot = dto.isRoot ?? false;
+    node.isSystem = dto.isSystem ?? false;
+    node.selectable = dto.selectable ?? true;
+    node.sortOrder = dto.sortOrder ?? 0;
+
+    // Tenant
+    if (tenantId) {
+      node.tenant = this.em.getReference('Tenant', tenantId) as any;
+    }
+
+    // Parent
+    if (dto.parentId) {
+      const parent = await this.repo.findOne({ id: dto.parentId });
+      if (!parent) throw new NotFoundException('Parent node not found');
+      node.parent = parent;
+      node.depth = parent.depth + 1;
+      node.path = `${parent.path}.${dto.code.toLowerCase().replace(/[^a-z0-9]/g, '_')}`;
+    } else {
+      node.depth = 0;
+      node.path = `${dto.classificationType.toLowerCase()}.${dto.code.toLowerCase().replace(/[^a-z0-9]/g, '_')}`;
+    }
+
+    this.em.persist(node);
+    await this.em.flush();
+    return node;
+  }
+
+  async update(id: string, dto: UpdateClassificationNodeDto): Promise<ClassificationNode> {
+    const node = await this.findOne(id);
+    if (node.isSystem && dto.isActive === false) {
+      throw new BadRequestException('System nodes cannot be deactivated');
+    }
+
+    if (dto.names !== undefined) node.names = dto.names;
+    if (dto.descriptions !== undefined) node.descriptions = dto.descriptions;
+    if (dto.properties !== undefined) node.properties = { ...node.properties, ...dto.properties };
+    if (dto.tags !== undefined) node.tags = dto.tags;
+    if (dto.icon !== undefined) node.icon = dto.icon;
+    if (dto.color !== undefined) node.color = dto.color;
+    if (dto.isActive !== undefined) node.isActive = dto.isActive;
+    if (dto.selectable !== undefined) node.selectable = dto.selectable;
+    if (dto.sortOrder !== undefined) node.sortOrder = dto.sortOrder;
+
+    await this.em.flush();
+    return node;
+  }
+
+  async remove(id: string): Promise<void> {
+    const node = await this.findOne(id);
+    if (node.isSystem) throw new BadRequestException('System nodes cannot be deleted');
+
+    // Child var mi kontrol et
+    const childCount = await this.repo.count({ parent: id } as any);
+    if (childCount > 0) {
+      throw new BadRequestException(`Cannot delete: ${childCount} child nodes exist. Remove children first.`);
+    }
+
+    node.deletedAt = new Date();
+    await this.em.flush();
+  }
+
+  // ════════════════════════════════════════════════════════
+  //  TREE OPERATIONS
+  // ════════════════════════════════════════════════════════
+
+  /** Dugumu baska parent'a tasi */
+  async move(id: string, dto: MoveNodeDto): Promise<ClassificationNode> {
+    const node = await this.findOne(id);
+    const newParent = await this.findOne(dto.newParentId);
+
+    // Dongusal referans kontrolu
+    if (await this.isDescendant(id, dto.newParentId)) {
+      throw new BadRequestException('Cannot move node to its own descendant');
+    }
+
+    // Ayni tip olmali
+    if (node.classificationType !== newParent.classificationType) {
+      throw new BadRequestException('Cannot move between different classification types');
+    }
+
+    const oldPath = node.path;
+    node.parent = newParent;
+    node.depth = newParent.depth + 1;
+    node.path = `${newParent.path}.${node.code.toLowerCase().replace(/[^a-z0-9]/g, '_')}`;
+
+    // Alt agacin path'lerini guncelle
+    await this.updateChildPaths(oldPath, node.path, node.classificationType);
+
+    await this.em.flush();
+    return node;
+  }
+
+  /** Cascade deaktif: Bir dugumu pasif yapinca tum alt agac pasif olur */
+  async deactivate(id: string): Promise<void> {
+    const node = await this.findOne(id);
+    if (node.isSystem) throw new BadRequestException('System nodes cannot be deactivated');
+
+    node.isActive = false;
+    // Alt agaci da deaktif et
+    const descendants = await this.getChildren(id, true);
+    for (const child of descendants) {
+      child.isActive = false;
+    }
+    await this.em.flush();
+  }
+
+  /** Tekrar aktif et (sadece kendisi, cocuklar manuel) */
+  async activate(id: string): Promise<void> {
+    const node = await this.findOne(id);
+    node.isActive = true;
+    await this.em.flush();
+  }
+
+  /** Sibling siralama */
+  async reorder(dto: ReorderDto): Promise<void> {
+    for (const item of dto.items) {
+      const node = await this.repo.findOne({ id: item.id });
+      if (node) {
+        node.sortOrder = item.sortOrder;
+      }
+    }
+    await this.em.flush();
+  }
+
+  // ════════════════════════════════════════════════════════
+  //  HELPERS
+  // ════════════════════════════════════════════════════════
+
+  /** nodeId, potentialDescendantId'nin alt agacinda mi? */
+  private async isDescendant(nodeId: string, potentialDescendantId: string): Promise<boolean> {
+    let current = await this.repo.findOne({ id: potentialDescendantId }, { populate: ['parent'] });
+    while (current?.parent) {
+      if ((current.parent as any).id === nodeId || current.parent.id === nodeId) return true;
+      current = await this.repo.findOne({ id: current.parent.id }, { populate: ['parent'] });
+    }
+    return false;
+  }
+
+  /** Alt agacin path'lerini toplu guncelle */
+  private async updateChildPaths(oldPathPrefix: string, newPathPrefix: string, type: string): Promise<void> {
+    const descendants = await this.repo.find({
+      classificationType: type,
+      path: { $like: `${oldPathPrefix}.%` },
+    });
+    for (const desc of descendants) {
+      desc.path = desc.path.replace(oldPathPrefix, newPathPrefix);
+      desc.depth = desc.path.split('.').length - 1;
+    }
+  }
+
+  /** Flat listeden agac olustur */
+  private buildTree(nodes: ClassificationNode[]): ClassificationNode[] {
+    const map = new Map<string, ClassificationNode & { children: ClassificationNode[] }>();
+    const roots: ClassificationNode[] = [];
+
+    for (const node of nodes) {
+      map.set(node.id, Object.assign(node, { children: [] }));
+    }
+
+    for (const node of nodes) {
+      const parentId = (node.parent as any)?.id;
+      if (parentId && map.has(parentId)) {
+        map.get(parentId)!.children.push(map.get(node.id)!);
+      } else {
+        roots.push(map.get(node.id)!);
+      }
+    }
+
+    return roots;
+  }
+}
