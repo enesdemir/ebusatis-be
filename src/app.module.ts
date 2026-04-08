@@ -20,6 +20,7 @@ import { FinanceModule } from './modules/finance/finance.module';
 import { ReportsModule } from './modules/reports/reports.module';
 import { ClassificationsModule } from './modules/classifications/classifications.module';
 import { ProductionModule } from './modules/production/production.module';
+import { LogisticsModule } from './modules/logistics/logistics.module';
 
 @Module({
   imports: [
@@ -45,6 +46,7 @@ import { ProductionModule } from './modules/production/production.module';
     ReportsModule,
     ClassificationsModule,
     ProductionModule,
+    LogisticsModule,
   ],
   controllers: [AppController],
   providers: [
