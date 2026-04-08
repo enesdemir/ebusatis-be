@@ -47,17 +47,18 @@ export class ClassificationService {
   }
 
   /** Bir dugumun tum cocuklarini getir (recursive) */
-  async getChildren(id: string, recursive = false): Promise<ClassificationNode[]> {
+  async getChildren(id: string, recursive = false): Promise<any[]> {
     if (!recursive) {
-      return this.repo.find({ parent: id } as any, { orderBy: { sortOrder: 'ASC' } });
+      const nodes = await this.repo.find({ parent: id } as any, { orderBy: { sortOrder: 'ASC' }, populate: ['parent'] });
+      return nodes.map((n) => this.toDto(n));
     }
     // Path-based recursive query
     const parent = await this.findOne(id);
     const all = await this.repo.find(
       { classificationType: parent.classificationType, path: { $like: `${parent.path}.%` } },
-      { orderBy: { path: 'ASC', sortOrder: 'ASC' } },
+      { orderBy: { path: 'ASC', sortOrder: 'ASC' }, populate: ['parent'] },
     );
-    return all;
+    return all.map((n) => this.toDto(n));
   }
 
   // ════════════════════════════════════════════════════════
