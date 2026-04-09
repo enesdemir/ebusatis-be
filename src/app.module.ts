@@ -21,6 +21,7 @@ import { ReportsModule } from './modules/reports/reports.module';
 import { ClassificationsModule } from './modules/classifications/classifications.module';
 import { ProductionModule } from './modules/production/production.module';
 import { LogisticsModule } from './modules/logistics/logistics.module';
+import { SourcingModule } from './modules/sourcing/sourcing.module';
 import { SalesChannelsModule } from './modules/sales-channels/sales-channels.module';
 import { AccountingModule } from './modules/accounting/accounting.module';
 
@@ -49,6 +50,7 @@ import { AccountingModule } from './modules/accounting/accounting.module';
     ClassificationsModule,
     ProductionModule,
     LogisticsModule,
+    SourcingModule,
     SalesChannelsModule,
     AccountingModule,
   ],
