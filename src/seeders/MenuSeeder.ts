@@ -69,12 +69,7 @@ export class MenuSeeder extends Seeder {
         { code: 'wms.inventory', label: 'Stok Kartları', path: '/wms/inventory', sortOrder: 3, scope: MenuScope.TENANT },
       ]},
 
-      // ── Satış Kanalları ──
-      { code: 'sales-channels', label: 'Satış Kanalları', icon: 'ShoppingCart', sortOrder: 60, scope: MenuScope.TENANT, children: [
-        { code: 'sales-channels.manage', label: 'Kanal Yönetimi', path: '/sales-channels', sortOrder: 0, scope: MenuScope.TENANT },
-        { code: 'sales-channels.mapping', label: 'Ürün Eşleştirme', path: '/sales-channels/mapping', sortOrder: 1, scope: MenuScope.TENANT },
-        { code: 'sales-channels.sync', label: 'Fiyat & Stok Sync', path: '/sales-channels/sync', sortOrder: 2, scope: MenuScope.TENANT },
-      ]},
+      // Satış Kanalları şimdilik devre dışı — ileride aktif edilecek
 
       // ── Sipariş & Sevkiyat ──
       { code: 'orders', label: 'Sipariş & Sevkiyat', icon: 'Package', sortOrder: 70, scope: MenuScope.TENANT, children: [
