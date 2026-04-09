@@ -24,6 +24,7 @@ import { LogisticsModule } from './modules/logistics/logistics.module';
 import { SourcingModule } from './modules/sourcing/sourcing.module';
 import { SalesChannelsModule } from './modules/sales-channels/sales-channels.module';
 import { AccountingModule } from './modules/accounting/accounting.module';
+import { StorageModule } from './modules/storage/storage.module';
 
 @Module({
   imports: [
@@ -53,6 +54,7 @@ import { AccountingModule } from './modules/accounting/accounting.module';
     SourcingModule,
     SalesChannelsModule,
     AccountingModule,
+    StorageModule,
   ],
   controllers: [AppController],
   providers: [
