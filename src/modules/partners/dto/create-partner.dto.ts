@@ -39,6 +39,33 @@ export class CreateCounterpartyDto {
   @IsOptional() @IsBoolean() isDefault?: boolean;
 }
 
+export class CreateAddressDto {
+  @IsString() partnerId: string;
+  @IsOptional() @IsString() label?: string;
+  @IsOptional() @IsString() type?: string;
+  @IsOptional() @IsString() addressLine1?: string;
+  @IsOptional() @IsString() addressLine2?: string;
+  @IsOptional() @IsString() countryId?: string;
+  @IsOptional() @IsString() countryName?: string;
+  @IsOptional() @IsString() stateId?: string;
+  @IsOptional() @IsString() stateName?: string;
+  @IsOptional() @IsString() cityId?: string;
+  @IsOptional() @IsString() cityName?: string;
+  @IsOptional() @IsString() district?: string;
+  @IsOptional() @IsString() postalCode?: string;
+  @IsOptional() @IsBoolean() isDefault?: boolean;
+}
+
+export class CreateContactDto {
+  @IsString() partnerId: string;
+  @IsString() fullName: string;
+  @IsOptional() @IsString() title?: string;
+  @IsOptional() @IsString() phone?: string;
+  @IsOptional() @IsEmail() email?: string;
+  @IsOptional() @IsBoolean() isPrimary?: boolean;
+  @IsOptional() @IsString() note?: string;
+}
+
 export class CreateInteractionDto {
   @IsString() partnerId: string;
   @IsString() type: string;
