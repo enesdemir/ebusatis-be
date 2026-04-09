@@ -1,6 +1,8 @@
 import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
 import { EntityManager, FilterQuery } from '@mikro-orm/postgresql';
 import { Partner } from '../entities/partner.entity';
+import { PartnerAddress } from '../entities/partner-address.entity';
+import { PartnerContact } from '../entities/partner-contact.entity';
 import { Counterparty } from '../entities/counterparty.entity';
 import { Interaction } from '../entities/interaction.entity';
 import { TenantContext } from '../../../common/context/tenant.context';
@@ -8,7 +10,8 @@ import { QueryBuilderHelper, PaginatedResponse } from '../../../common/helpers/q
 import { PaginatedQueryDto } from '../../../common/dto/paginated-query.dto';
 import { Tenant } from '../../tenants/entities/tenant.entity';
 import { User } from '../../users/entities/user.entity';
-import { CreatePartnerDto, UpdatePartnerDto, CreateCounterpartyDto, CreateInteractionDto } from '../dto/create-partner.dto';
+import { ClassificationNode } from '../../classifications/entities/classification-node.entity';
+import { CreatePartnerDto, UpdatePartnerDto, CreateAddressDto, CreateContactDto, CreateCounterpartyDto, CreateInteractionDto } from '../dto/create-partner.dto';
 
 @Injectable()
 export class PartnerService {
@@ -32,7 +35,8 @@ export class PartnerService {
 
   async findOne(id: string): Promise<Partner> {
     const partner = await this.em.findOne(Partner, { id }, {
-      populate: ['addresses', 'contacts', 'counterparties', 'assignedReps', 'defaultCurrency', 'tags'] as any,
+      populate: ['addresses', 'addresses.country', 'addresses.state', 'addresses.city', 'contacts', 'counterparties', 'assignedReps', 'defaultCurrency', 'tags'] as any,
+      populateWhere: { addresses: { deletedAt: null }, contacts: { deletedAt: null }, counterparties: { deletedAt: null } } as any,
     });
     if (!partner) throw new NotFoundException(`Partner bulunamadı: ${id}`);
     return partner;
@@ -69,6 +73,90 @@ export class PartnerService {
     await this.em.flush();
   }
 
+  // ─── Address ──────────────────────────────────────────────
+
+  async getAddresses(partnerId: string): Promise<PartnerAddress[]> {
+    return this.em.find(PartnerAddress, { partner: partnerId, deletedAt: null } as any);
+  }
+
+  private resolveAddressRefs(dto: Partial<CreateAddressDto>) {
+    const { partnerId, countryId, stateId, cityId, ...rest } = dto;
+    const refs: any = { ...rest };
+    if (countryId) refs.country = this.em.getReference(ClassificationNode, countryId);
+    if (stateId) refs.state = this.em.getReference(ClassificationNode, stateId);
+    if (cityId) refs.city = this.em.getReference(ClassificationNode, cityId);
+    // null gonderilirse relation'i temizle
+    if (countryId === null) refs.country = null;
+    if (stateId === null) refs.state = null;
+    if (cityId === null) refs.city = null;
+    return refs;
+  }
+
+  async createAddress(dto: CreateAddressDto): Promise<PartnerAddress> {
+    const tenantId = TenantContext.getTenantId();
+    const tenant = await this.em.findOneOrFail(Tenant, { id: tenantId });
+    const partner = await this.em.findOneOrFail(Partner, { id: dto.partnerId });
+
+    const refs = this.resolveAddressRefs(dto);
+    const address = this.em.create(PartnerAddress, {
+      ...refs,
+      tenant,
+      partner,
+    } as any);
+
+    await this.em.persistAndFlush(address);
+    return address;
+  }
+
+  async updateAddress(addressId: string, dto: Partial<CreateAddressDto>): Promise<PartnerAddress> {
+    const address = await this.em.findOneOrFail(PartnerAddress, { id: addressId, deletedAt: null } as any);
+    const refs = this.resolveAddressRefs(dto);
+    this.em.assign(address, refs as any);
+    await this.em.flush();
+    return address;
+  }
+
+  async removeAddress(addressId: string): Promise<void> {
+    const address = await this.em.findOneOrFail(PartnerAddress, { id: addressId, deletedAt: null } as any);
+    address.deletedAt = new Date();
+    await this.em.flush();
+  }
+
+  // ─── Contact ──────────────────────────────────────────────
+
+  async getContacts(partnerId: string): Promise<PartnerContact[]> {
+    return this.em.find(PartnerContact, { partner: partnerId, deletedAt: null } as any);
+  }
+
+  async createContact(dto: CreateContactDto): Promise<PartnerContact> {
+    const tenantId = TenantContext.getTenantId();
+    const tenant = await this.em.findOneOrFail(Tenant, { id: tenantId });
+    const partner = await this.em.findOneOrFail(Partner, { id: dto.partnerId });
+
+    const contact = this.em.create(PartnerContact, {
+      ...dto,
+      tenant,
+      partner,
+    } as any);
+
+    await this.em.persistAndFlush(contact);
+    return contact;
+  }
+
+  async updateContact(contactId: string, dto: Partial<CreateContactDto>): Promise<PartnerContact> {
+    const contact = await this.em.findOneOrFail(PartnerContact, { id: contactId, deletedAt: null } as any);
+    const { partnerId, ...updateData } = dto;
+    this.em.assign(contact, updateData as any);
+    await this.em.flush();
+    return contact;
+  }
+
+  async removeContact(contactId: string): Promise<void> {
+    const contact = await this.em.findOneOrFail(PartnerContact, { id: contactId, deletedAt: null } as any);
+    contact.deletedAt = new Date();
+    await this.em.flush();
+  }
+
   // ─── Counterparty (Cari Hesap) ────────────────────────────
 
   async getCounterparties(partnerId: string): Promise<Counterparty[]> {
@@ -88,6 +176,20 @@ export class PartnerService {
 
     await this.em.persistAndFlush(counterparty);
     return counterparty;
+  }
+
+  async updateCounterparty(counterpartyId: string, dto: Partial<CreateCounterpartyDto>): Promise<Counterparty> {
+    const cp = await this.em.findOneOrFail(Counterparty, { id: counterpartyId, deletedAt: null } as any);
+    const { partnerId, ...updateData } = dto;
+    this.em.assign(cp, updateData as any);
+    await this.em.flush();
+    return cp;
+  }
+
+  async removeCounterparty(counterpartyId: string): Promise<void> {
+    const cp = await this.em.findOneOrFail(Counterparty, { id: counterpartyId, deletedAt: null } as any);
+    cp.deletedAt = new Date();
+    await this.em.flush();
   }
 
   // ─── Interaction (CRM Etkileşim Logu) ────────────────────
