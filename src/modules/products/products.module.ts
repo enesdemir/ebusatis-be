@@ -17,8 +17,11 @@ import { BomComponent } from './entities/bom-component.entity';
 
 import { AttributesController } from './controllers/attributes.controller';
 import { ProductController } from './controllers/product.controller';
+import { DigitalCatalogController } from './controllers/digital-catalog.controller';
+import { PublicCatalogController } from './controllers/public-catalog.controller';
 import { AttributesService } from './services/attributes.service';
 import { ProductService } from './services/product.service';
+import { DigitalCatalogService } from './services/digital-catalog.service';
 
 import { AuthModule } from '../auth/auth.module';
 
@@ -50,8 +53,18 @@ import { AuthModule } from '../auth/auth.module';
     ]),
     AuthModule,
   ],
-  controllers: [AttributesController, ProductController],
-  providers: [AttributesService, ProductService],
-  exports: [MikroOrmModule, AttributesService, ProductService],
+  controllers: [
+    AttributesController,
+    ProductController,
+    DigitalCatalogController,
+    PublicCatalogController,
+  ],
+  providers: [AttributesService, ProductService, DigitalCatalogService],
+  exports: [
+    MikroOrmModule,
+    AttributesService,
+    ProductService,
+    DigitalCatalogService,
+  ],
 })
 export class ProductsModule {}
