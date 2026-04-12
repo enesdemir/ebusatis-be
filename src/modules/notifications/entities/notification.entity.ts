@@ -3,6 +3,7 @@ import { BaseTenantEntity } from '../../../common/entities/base-tenant.entity';
 import { User } from '../../users/entities/user.entity';
 import { NotificationTemplate } from './notification-template.entity';
 import { UserGroup } from '../../iam/entities/user-group.entity';
+import { NotificationChannel } from './notification-routing-config.entity';
 
 export enum NotificationType {
   ORDER = 'ORDER',
@@ -88,4 +89,14 @@ export class Notification extends BaseTenantEntity {
   /** User group this notification was targeted at (for analytics). */
   @ManyToOne(() => UserGroup, { nullable: true })
   targetGroup?: UserGroup;
+
+  /**
+   * Channels this notification was (or will be) delivered through.
+   *
+   * The IN_APP channel is the row itself; EMAIL / SMS are dispatched
+   * by the EmailService / SmsService side-effects in the notification
+   * service. Defaults to `[IN_APP]` for ad-hoc notifications.
+   */
+  @Enum({ items: () => NotificationChannel, array: true })
+  channels: NotificationChannel[] = [NotificationChannel.IN_APP];
 }
