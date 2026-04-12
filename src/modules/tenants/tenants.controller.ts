@@ -7,9 +7,11 @@ import {
   Param,
   Delete,
   Query,
+  Req,
   UseGuards,
   NotFoundException,
 } from '@nestjs/common';
+import { Request as ExpressRequest } from 'express';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { TenantsService } from './tenants.service';
 import { CreateTenantDto } from './dto/create-tenant.dto';
@@ -33,7 +35,13 @@ export class TenantsController {
   @Post(':id/impersonate')
   @RequirePermissions('tenants.manage')
   @ApiOperation({ summary: 'Login as the tenant owner (Impersonation)' })
-  async impersonate(@Param('id') id: string) {
+  async impersonate(
+    @Param('id') id: string,
+    @Req()
+    req: ExpressRequest & {
+      user?: { sub?: string; id?: string; email?: string };
+    },
+  ) {
     const tenant = await this.tenantsService.findOne(id);
     if (!tenant.users || tenant.users.length === 0) {
       throw new NotFoundException(
@@ -41,7 +49,11 @@ export class TenantsController {
       );
     }
     const targetUser = tenant.users[0] as { id: string };
-    return this.authService.impersonate(targetUser.id);
+    const impersonatorId = req.user?.sub ?? req.user?.id;
+    return this.authService.impersonate(targetUser.id, {
+      id: impersonatorId,
+      email: req.user?.email,
+    });
   }
 
   @Post()

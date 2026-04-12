@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { JwtService } from '@nestjs/jwt';
 import { UnauthorizedException } from '@nestjs/common';
 import { getRepositoryToken } from '@mikro-orm/nestjs';
+import { EntityManager } from '@mikro-orm/postgresql';
 import * as bcrypt from 'bcrypt';
 import { AuthService } from '../auth.service';
 import { User } from '../../users/entities/user.entity';
@@ -39,11 +40,17 @@ describe('AuthService', () => {
       sign: jest.fn().mockReturnValue('signed-jwt-token'),
     };
 
+    const mockEm = {
+      persist: jest.fn(),
+      flush: jest.fn(),
+    };
+
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         AuthService,
         { provide: getRepositoryToken(User), useValue: mockUserRepo },
         { provide: JwtService, useValue: mockJwtService },
+        { provide: EntityManager, useValue: mockEm },
       ],
     }).compile();
 
