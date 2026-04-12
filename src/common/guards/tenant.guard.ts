@@ -1,16 +1,21 @@
-import { CanActivate, ExecutionContext, Injectable, ForbiddenException } from '@nestjs/common';
+import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { TenantContext } from '../context/tenant.context';
+import { TenantForbiddenException } from '../errors/app.exceptions';
 
 /**
- * Tenant-scoped endpoint'lerde aktif bir tenant context'i zorunlu kılar.
+ * Enforces an active tenant context on tenant-scoped endpoints.
  *
- * Kullanım:
+ * Usage:
  *   @UseGuards(JwtAuthGuard, TenantGuard)
  *   @Controller('products')
  *   export class ProductsController { ... }
  *
- * SuperAdmin platform modunda (tenant seçmeden) bu endpoint'lere erişemez.
- * Önce workspace seçimi yapmalıdır.
+ * A SuperAdmin in platform mode (without a selected tenant) cannot
+ * reach these endpoints — workspace selection must happen first.
+ *
+ * Error contract: throws TenantForbiddenException so the response
+ * carries the stable error code TENANT_FORBIDDEN and the i18n key
+ * `errors.tenant.forbidden` for the frontend to translate.
  */
 @Injectable()
 export class TenantGuard implements CanActivate {
@@ -19,9 +24,7 @@ export class TenantGuard implements CanActivate {
     const tenantId = TenantContext.getTenantId() || request.headers['x-tenant-id'];
 
     if (!tenantId) {
-      throw new ForbiddenException(
-        'Bu işlem için bir çalışma alanı (tenant) seçilmiş olmalıdır. Lütfen önce workspace seçimi yapın.',
-      );
+      throw new TenantForbiddenException();
     }
 
     return true;

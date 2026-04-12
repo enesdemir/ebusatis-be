@@ -28,11 +28,19 @@ export interface PaginatedApiResponse<T = any> {
 /**
  * Error API response envelope.
  * Returned by the GlobalExceptionFilter for all error responses.
+ *
+ * - `error` is a stable error code (e.g. 'TENANT_CONTEXT_MISSING').
+ * - `message` is an i18n key (e.g. 'errors.tenant.context_missing').
+ * - `metadata` carries optional template variables for interpolation
+ *   (e.g. `{ entity: 'Product', id: '...' }`).
+ *
+ * Frontend interceptor reads `message` and runs `t(message, metadata)`.
  */
 export interface ErrorApiResponse {
   success: false;
   error: string;
   message: string;
+  metadata?: Record<string, unknown>;
   statusCode: number;
   timestamp: string;
   path: string;

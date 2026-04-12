@@ -1,16 +1,23 @@
-import { NotFoundException, ConflictException } from '@nestjs/common';
 import { EntityManager, FilterQuery } from '@mikro-orm/postgresql';
 import { BaseDefinitionEntity } from '../entities/base-definition.entity';
 import { TenantContext } from '../context/tenant.context';
 import { QueryBuilderHelper, PaginatedResponse } from '../helpers/query-builder.helper';
 import { PaginatedQueryDto } from '../dto/paginated-query.dto';
 import { Tenant } from '../../modules/tenants/entities/tenant.entity';
+import {
+  EntityNotFoundException,
+  TenantContextMissingException,
+  CodeDuplicateException,
+} from '../errors/app.exceptions';
 
 /**
  * Generic CRUD service for all definition (master data) entities.
- * Tenant-scoped: MikroORM filter + manual TenantContext kontrolü (defense-in-depth).
  *
- * Kullanım:
+ * Tenant scoping is enforced both by the MikroORM `@Filter('tenant')`
+ * (automatic, query-time) and by an explicit `TenantContext.getTenantId()`
+ * check at write time (defense in depth).
+ *
+ * Usage:
  *   @Injectable()
  *   export class UnitOfMeasureService extends BaseDefinitionService<UnitOfMeasure> {
  *     constructor(em: EntityManager) {
@@ -22,13 +29,13 @@ export abstract class BaseDefinitionService<T extends BaseDefinitionEntity> {
   constructor(
     protected readonly em: EntityManager,
     protected readonly entityClass: new (...args: any[]) => T,
-    /** Arama yapılacak alanlar (search parametresi ile) */
+    /** Fields searched when the `search` query parameter is provided. */
     protected readonly searchFields: string[] = ['name', 'code'],
   ) {}
 
   /**
-   * Paginated list with search, sort, pagination.
-   * Tenant filtresi MikroORM @Filter ile otomatik uygulanır.
+   * Paginated list with search, sort and pagination.
+   * Tenant filter is applied automatically by MikroORM `@Filter('tenant')`.
    */
   async findAll(query: PaginatedQueryDto): Promise<PaginatedResponse<T>> {
     return QueryBuilderHelper.paginate(this.em, this.entityClass, query, {
@@ -38,35 +45,37 @@ export abstract class BaseDefinitionService<T extends BaseDefinitionEntity> {
   }
 
   /**
-   * Find one by ID.
+   * Find one entity by ID.
+   * Throws `EntityNotFoundException` if not found.
    */
   async findOne(id: string): Promise<T> {
     const entity = await this.em.findOne(this.entityClass, { id } as FilterQuery<T>);
     if (!entity) {
-      throw new NotFoundException(`Kayıt bulunamadı: ${id}`);
+      throw new EntityNotFoundException(this.entityClass.name, id);
     }
     return entity;
   }
 
   /**
    * Create a new definition entity.
-   * Tenant context'ten tenant'ı alır ve code uniqueness kontrolü yapar.
+   * Reads the tenant from `TenantContext` (defense in depth) and enforces
+   * the (tenant_id, code) composite uniqueness contract.
    */
   async create(data: Partial<T>): Promise<T> {
     const tenantId = TenantContext.getTenantId();
     if (!tenantId) {
-      throw new ConflictException('Tenant context bulunamadı');
+      throw new TenantContextMissingException();
     }
 
     const tenant = await this.em.findOneOrFail(Tenant, { id: tenantId });
 
-    // Code uniqueness kontrolü (tenant + code)
+    // (tenant_id, code) composite uniqueness check.
     if (data.code) {
       const existing = await this.em.findOne(this.entityClass, {
         code: data.code,
       } as FilterQuery<T>);
       if (existing) {
-        throw new ConflictException(`Bu kod zaten kullanılıyor: ${data.code}`);
+        throw new CodeDuplicateException(data.code);
       }
     }
 
@@ -81,18 +90,18 @@ export abstract class BaseDefinitionService<T extends BaseDefinitionEntity> {
 
   /**
    * Update an existing definition entity.
+   * Re-runs the (tenant_id, code) uniqueness check when `code` changes.
    */
   async update(id: string, data: Partial<T>): Promise<T> {
     const entity = await this.findOne(id);
 
-    // Code değişiyorsa uniqueness kontrolü
     if (data.code && data.code !== entity.code) {
       const existing = await this.em.findOne(this.entityClass, {
         code: data.code,
         id: { $ne: id },
       } as FilterQuery<T>);
       if (existing) {
-        throw new ConflictException(`Bu kod zaten kullanılıyor: ${data.code}`);
+        throw new CodeDuplicateException(data.code);
       }
     }
 
@@ -102,7 +111,7 @@ export abstract class BaseDefinitionService<T extends BaseDefinitionEntity> {
   }
 
   /**
-   * Soft delete by setting deletedAt.
+   * Soft-delete by setting `deletedAt`.
    */
   async remove(id: string): Promise<void> {
     const entity = await this.findOne(id);
@@ -111,8 +120,8 @@ export abstract class BaseDefinitionService<T extends BaseDefinitionEntity> {
   }
 
   /**
-   * Reorder: Toplu sortOrder güncelleme.
-   * Body: [{ id: "xxx", sortOrder: 0 }, { id: "yyy", sortOrder: 1 }]
+   * Bulk reorder of `sortOrder`.
+   * Body shape: [{ id: "xxx", sortOrder: 0 }, { id: "yyy", sortOrder: 1 }]
    */
   async reorder(items: Array<{ id: string; sortOrder: number }>): Promise<void> {
     for (const item of items) {
@@ -123,7 +132,7 @@ export abstract class BaseDefinitionService<T extends BaseDefinitionEntity> {
   }
 
   /**
-   * Toggle isActive durumu.
+   * Toggle the `isActive` flag.
    */
   async toggleActive(id: string): Promise<T> {
     const entity = await this.findOne(id);
