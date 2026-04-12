@@ -4,7 +4,13 @@ import { InjectRepository } from '@mikro-orm/nestjs';
 import { Role } from '../entities/role.entity';
 import { Permission } from '../entities/permission.entity';
 import { Tenant } from '../../tenants/entities/tenant.entity';
-import { EntityNotFoundException } from '../../../common/errors/app.exceptions';
+import {
+  EntityNotFoundException,
+  SystemRoleDeleteForbiddenException,
+  SystemRoleUpdateForbiddenException,
+} from '../../../common/errors/app.exceptions';
+import { CreateRoleDto } from '../dto/create-role.dto';
+import { UpdateRoleDto } from '../dto/update-role.dto';
 
 @Injectable()
 export class RolesService {
@@ -81,10 +87,11 @@ export class RolesService {
   async deleteSystemRole(id: string): Promise<void> {
     const role = await this.findOneSystemRole(id);
     if (role.isSystemRole) {
-      throw new Error('Cannot delete a protected system role');
+      throw new SystemRoleDeleteForbiddenException();
     }
     await this.em.removeAndFlush(role);
   }
+
   // Tenant Methods
 
   async findAll(tenantId: string): Promise<Role[]> {
@@ -112,10 +119,7 @@ export class RolesService {
     return role;
   }
 
-  async create(
-    tenantId: string,
-    dto: { name: string; permissions: string[] },
-  ): Promise<Role> {
+  async create(tenantId: string, dto: CreateRoleDto): Promise<Role> {
     const role = new Role(dto.name);
     role.tenant = this.em.getReference(Tenant, tenantId);
 
@@ -134,7 +138,7 @@ export class RolesService {
   async update(
     id: string,
     tenantId: string,
-    dto: { name: string; permissions: string[] },
+    dto: UpdateRoleDto,
   ): Promise<Role> {
     const role = await this.roleRepository.findOne(
       { id, tenant: tenantId },
@@ -146,7 +150,7 @@ export class RolesService {
     }
 
     if (!role.tenant) {
-      throw new Error('Cannot update system roles via tenant API');
+      throw new SystemRoleUpdateForbiddenException();
     }
 
     role.name = dto.name;
@@ -174,7 +178,7 @@ export class RolesService {
     }
 
     if (role.isSystemRole) {
-      throw new Error('Cannot delete system roles');
+      throw new SystemRoleDeleteForbiddenException();
     }
 
     await this.em.removeAndFlush(role);

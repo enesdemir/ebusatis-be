@@ -12,23 +12,22 @@ import {
 import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { RolesService } from '../services/roles.service';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
+import { TenantGuard } from '../../../common/guards/tenant.guard';
+import { TenantContextMissingException } from '../../../common/errors/app.exceptions';
+import { CreateRoleDto } from '../dto/create-role.dto';
+import { UpdateRoleDto } from '../dto/update-role.dto';
 
 @ApiTags('Roles')
 @ApiBearerAuth()
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, TenantGuard)
 @Controller('roles')
 export class RolesController {
   constructor(private readonly rolesService: RolesService) {}
 
   @Get()
   async findAll(@Request() req) {
-    // Assuming req.user exists and has tenantId
-    // For development without Auth guard, hardcoding or extracting from header might be needed?
-    // User context says "Standard NestJS".
-    // I will assume req.user is populated by a global guard or similar.
-    // If not, I might need to add AuthGuard.
     const tenantId = req.user?.tenantId;
-    if (!tenantId) throw new Error('Tenant context missing');
+    if (!tenantId) throw new TenantContextMissingException();
 
     return this.rolesService.findAll(tenantId);
   }
@@ -36,18 +35,15 @@ export class RolesController {
   @Get(':id')
   async findOne(@Request() req, @Param('id') id: string) {
     const tenantId = req.user?.tenantId;
-    if (!tenantId) throw new Error('Tenant context missing');
+    if (!tenantId) throw new TenantContextMissingException();
 
     return this.rolesService.findOne(id, tenantId);
   }
 
   @Post()
-  async create(
-    @Request() req,
-    @Body() createRoleDto: { name: string; permissions: string[] },
-  ) {
+  async create(@Request() req, @Body() createRoleDto: CreateRoleDto) {
     const tenantId = req.user?.tenantId;
-    if (!tenantId) throw new Error('Tenant context missing');
+    if (!tenantId) throw new TenantContextMissingException();
 
     return this.rolesService.create(tenantId, createRoleDto);
   }
@@ -56,10 +52,10 @@ export class RolesController {
   async update(
     @Request() req,
     @Param('id') id: string,
-    @Body() updateRoleDto: { name: string; permissions: string[] },
+    @Body() updateRoleDto: UpdateRoleDto,
   ) {
     const tenantId = req.user?.tenantId;
-    if (!tenantId) throw new Error('Tenant context missing');
+    if (!tenantId) throw new TenantContextMissingException();
 
     return this.rolesService.update(id, tenantId, updateRoleDto);
   }
@@ -67,7 +63,7 @@ export class RolesController {
   @Delete(':id')
   async remove(@Request() req, @Param('id') id: string) {
     const tenantId = req.user?.tenantId;
-    if (!tenantId) throw new Error('Tenant context missing');
+    if (!tenantId) throw new TenantContextMissingException();
 
     return this.rolesService.remove(id, tenantId);
   }

@@ -12,6 +12,8 @@ import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { SuperAdminGuard } from '../../../common/guards/super-admin.guard';
 import { PlatformConfigService } from '../services/platform-config.service';
 import { ConfigCategory } from '../entities/platform-config.entity';
+import { UpsertConfigDto } from '../dto/upsert-config.dto';
+import { BulkUpdateConfigDto } from '../dto/bulk-update-config.dto';
 
 @ApiTags('Admin - Platform Config')
 @ApiBearerAuth()
@@ -28,16 +30,7 @@ export class AdminConfigController {
 
   @Put(':key')
   @ApiOperation({ summary: 'Create or update a config value' })
-  async upsert(
-    @Param('key') key: string,
-    @Body()
-    body: {
-      value: string;
-      category?: ConfigCategory;
-      description?: string;
-      valueType?: string;
-    },
-  ) {
+  async upsert(@Param('key') key: string, @Body() body: UpsertConfigDto) {
     return this.configService.upsert(
       key,
       body.value,
@@ -49,9 +42,7 @@ export class AdminConfigController {
 
   @Put()
   @ApiOperation({ summary: 'Bulk update config values' })
-  async bulkUpdate(
-    @Body() body: { configs: { key: string; value: string }[] },
-  ) {
+  async bulkUpdate(@Body() body: BulkUpdateConfigDto) {
     return this.configService.bulkUpdate(body.configs);
   }
 }

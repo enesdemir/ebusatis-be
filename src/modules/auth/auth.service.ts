@@ -1,10 +1,15 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { EntityRepository } from '@mikro-orm/postgresql';
 import * as bcrypt from 'bcrypt';
 import { User } from '../users/entities/user.entity';
 import { LoginDto } from './dto/login.dto';
+import {
+  InvalidCredentialsException,
+  AccountDeactivatedException,
+  UserNotFoundForImpersonationException,
+} from '../../common/errors/app.exceptions';
 
 /** JWT payload shape */
 interface JwtPayload {
@@ -86,7 +91,7 @@ export class AuthService {
       { populate: ['tenant'] },
     );
     if (!user) {
-      throw new UnauthorizedException('User not found for impersonation');
+      throw new UserNotFoundForImpersonationException(userId);
     }
     const payload = this.buildJwtPayload(user);
     return {
@@ -101,10 +106,10 @@ export class AuthService {
   async login(loginDto: LoginDto): Promise<LoginResponse> {
     const user = await this.validateUser(loginDto.email, loginDto.password);
     if (!user) {
-      throw new UnauthorizedException('Invalid credentials');
+      throw new InvalidCredentialsException();
     }
     if (!user.isActive) {
-      throw new UnauthorizedException('Account is deactivated');
+      throw new AccountDeactivatedException();
     }
     // Update last login timestamp
     user.lastLoginAt = new Date();

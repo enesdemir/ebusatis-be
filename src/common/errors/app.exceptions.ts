@@ -3,6 +3,7 @@ import {
   NotFoundException,
   ConflictException,
   ForbiddenException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { ErrorCode } from './error-codes';
 
@@ -288,6 +289,56 @@ export class SupplierClaimAlreadyOpenException extends ConflictException {
       error: ErrorCode.SUPPLIER_CLAIM_ALREADY_OPEN,
       message: 'errors.inventory.supplier_claim_already_open',
       metadata: { goodsReceiveLineId, existingClaimId },
+    });
+  }
+}
+
+// ── IAM (roles) ──
+
+export class SystemRoleDeleteForbiddenException extends ForbiddenException {
+  constructor() {
+    super({
+      error: ErrorCode.ROLE_SYSTEM_DELETE_FORBIDDEN,
+      message: 'errors.iam.system_role_delete_forbidden',
+    });
+  }
+}
+
+export class SystemRoleUpdateForbiddenException extends ForbiddenException {
+  constructor() {
+    super({
+      error: ErrorCode.ROLE_SYSTEM_UPDATE_FORBIDDEN,
+      message: 'errors.iam.system_role_update_forbidden',
+    });
+  }
+}
+
+// ── Auth ──
+
+export class InvalidCredentialsException extends UnauthorizedException {
+  constructor() {
+    super({
+      error: ErrorCode.AUTH_INVALID_CREDENTIALS,
+      message: 'errors.auth.invalid_credentials',
+    });
+  }
+}
+
+export class AccountDeactivatedException extends UnauthorizedException {
+  constructor() {
+    super({
+      error: ErrorCode.AUTH_ACCOUNT_DEACTIVATED,
+      message: 'errors.auth.account_deactivated',
+    });
+  }
+}
+
+export class UserNotFoundForImpersonationException extends UnauthorizedException {
+  constructor(userId: string) {
+    super({
+      error: ErrorCode.AUTH_USER_NOT_FOUND_FOR_IMPERSONATION,
+      message: 'errors.auth.user_not_found_for_impersonation',
+      metadata: { userId },
     });
   }
 }

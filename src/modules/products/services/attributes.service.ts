@@ -5,7 +5,10 @@ import { Attribute } from '../entities/attribute.entity';
 import { CreateAttributeDto } from '../dto/create-attribute.dto';
 import { UpdateAttributeDto } from '../dto/update-attribute.dto';
 import { TenantContext } from '../../../common/context/tenant.context';
-import { EntityNotFoundException } from '../../../common/errors/app.exceptions';
+import {
+  EntityNotFoundException,
+  TenantContextMissingException,
+} from '../../../common/errors/app.exceptions';
 
 @Injectable()
 export class AttributesService {
@@ -17,9 +20,7 @@ export class AttributesService {
   async create(dto: CreateAttributeDto): Promise<Attribute> {
     const tenantId = TenantContext.getTenantId();
     if (!tenantId) {
-      throw new Error(
-        'Tenant context is missing. Cannot create attribute without a tenant.',
-      );
+      throw new TenantContextMissingException();
     }
 
     // Tenant assignemnt handles multitenancy security seamlessly (ALS pattern)

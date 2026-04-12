@@ -1,6 +1,5 @@
 import { Entity, Property, ManyToOne, Index, Enum } from '@mikro-orm/core';
-import { BaseEntity } from '../../../common/entities/base.entity';
-import { Tenant } from '../../tenants/entities/tenant.entity';
+import { BaseTenantEntity } from '../../../common/entities/base-tenant.entity';
 import { User } from '../../users/entities/user.entity';
 import { NotificationTemplate } from './notification-template.entity';
 import { UserGroup } from '../../iam/entities/user-group.entity';
@@ -38,10 +37,7 @@ export enum NotificationSeverity {
   properties: ['tenant', 'createdAt'],
   name: 'idx_notification_tenant_date',
 })
-export class Notification extends BaseEntity {
-  @ManyToOne(() => Tenant)
-  tenant!: Tenant;
-
+export class Notification extends BaseTenantEntity {
   @ManyToOne(() => User)
   recipient!: User;
 

@@ -1,13 +1,16 @@
-import {
-  Injectable,
-  NotFoundException,
-  ConflictException,
-} from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { EntityRepository, EntityManager } from '@mikro-orm/core';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { User } from './entities/user.entity';
 import { Role } from '../iam/entities/role.entity';
 import { Tenant } from '../tenants/entities/tenant.entity';
+import {
+  EntityNotFoundException,
+  UserEmailDuplicateException,
+  UserTenantOwnerDeleteForbiddenException,
+} from '../../common/errors/app.exceptions';
+import { CreateUserDto } from './dto/create-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
 
 @Injectable()
 export class UsersService {
@@ -32,22 +35,19 @@ export class UsersService {
       { populate: ['roles'] },
     );
     if (!user) {
-      throw new NotFoundException(`User not found`);
+      throw new EntityNotFoundException('User', id);
     }
     return user;
   }
 
-  async create(
-    tenantId: string,
-    dto: { email: string; roleIds?: string[] },
-  ): Promise<User> {
+  async create(tenantId: string, dto: CreateUserDto): Promise<User> {
     const existing = await this.userRepository.findOne({ email: dto.email });
     if (existing) {
-      throw new ConflictException('Email already in use');
+      throw new UserEmailDuplicateException(dto.email);
     }
 
     const tenant = await this.em.findOne(Tenant, tenantId);
-    if (!tenant) throw new NotFoundException('Tenant not found');
+    if (!tenant) throw new EntityNotFoundException('Tenant', tenantId);
 
     const user = new User(dto.email, tenant);
 
@@ -69,7 +69,7 @@ export class UsersService {
   async update(
     id: string,
     tenantId: string,
-    dto: { roleIds?: string[] },
+    dto: UpdateUserDto,
   ): Promise<User> {
     const user = await this.findOne(id, tenantId);
 
@@ -89,7 +89,7 @@ export class UsersService {
     const user = await this.findOne(id, tenantId);
 
     if (user.isTenantOwner) {
-      throw new ConflictException('Cannot delete tenant owner');
+      throw new UserTenantOwnerDeleteForbiddenException();
     }
 
     await this.em.removeAndFlush(user);
