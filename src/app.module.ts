@@ -26,6 +26,7 @@ import { SalesChannelsModule } from './modules/sales-channels/sales-channels.mod
 import { AccountingModule } from './modules/accounting/accounting.module';
 import { StorageModule } from './modules/storage/storage.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
+import { DocumentsModule } from './modules/documents/documents.module';
 
 @Module({
   imports: [
@@ -59,6 +60,7 @@ import { NotificationsModule } from './modules/notifications/notifications.modul
     AccountingModule,
     StorageModule,
     NotificationsModule,
+    DocumentsModule,
   ],
   controllers: [AppController],
   providers: [
