@@ -9,6 +9,15 @@ import {
   UseGuards,
   Request,
 } from '@nestjs/common';
+import { Request as ExpressRequest } from 'express';
+
+interface AuthenticatedRequest extends ExpressRequest {
+  user?: {
+    isSuperAdmin?: boolean;
+    permissions?: string[];
+    [key: string]: unknown;
+  };
+}
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { MenuService } from '../services/menu.service';
@@ -27,7 +36,7 @@ export class MenuController {
    */
   @Get('tree')
   @ApiOperation({ summary: 'Get menu tree for current user context' })
-  async getTree(@Request() req: any) {
+  async getTree(@Request() req: AuthenticatedRequest) {
     const isSuperAdmin = req.user?.isSuperAdmin === true;
     // For SuperAdmins, scope is determined by the x-tenant-id header only.
     // JWT may contain a tenantId from the system tenant — we ignore that.

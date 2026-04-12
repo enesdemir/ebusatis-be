@@ -24,7 +24,9 @@ describe('InvoiceService', () => {
 
   const mockTenant = { id: 'tenant-1', name: 'Test Tekstil' };
 
-  const createMockInvoice = (overrides: Partial<any> = {}): any => ({
+  const createMockInvoice = (
+    overrides: Record<string, unknown> = {},
+  ): Record<string, unknown> => ({
     id: 'inv-1',
     invoiceNumber: 'INV-2026-0001',
     type: InvoiceType.SALES,
@@ -147,7 +149,12 @@ describe('InvoiceService', () => {
       };
 
       // create returns an object we can inspect
-      const invoiceObj: any = {
+      const invoiceObj: {
+        tenant: typeof mockTenant;
+        subtotal: number;
+        taxAmount: number;
+        grandTotal: number;
+      } = {
         tenant: mockTenant,
         subtotal: 0,
         taxAmount: 0,
@@ -185,7 +192,12 @@ describe('InvoiceService', () => {
         ],
       };
 
-      const invoiceObj: any = {
+      const invoiceObj: {
+        tenant: typeof mockTenant;
+        subtotal: number;
+        taxAmount: number;
+        grandTotal: number;
+      } = {
         tenant: mockTenant,
         subtotal: 0,
         taxAmount: 0,

@@ -17,7 +17,7 @@ export class ChannelOrder extends BaseTenantEntity {
   externalStatus?: string;
 
   @Property({ type: 'json', nullable: true })
-  orderData?: Record<string, any>; // Kanalin ham siparis verisi
+  orderData?: Record<string, unknown>; // Kanalin ham siparis verisi
 
   @Property({ nullable: true })
   linkedSalesOrderId?: string; // Ic siparis ID'si

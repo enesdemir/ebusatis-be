@@ -35,7 +35,7 @@ export class Tenant extends BaseEntity {
   };
 
   @OneToMany('User', 'tenant')
-  users = new Collection<any>(this);
+  users = new Collection<object>(this);
 
   constructor(name: string, domain: string) {
     super();

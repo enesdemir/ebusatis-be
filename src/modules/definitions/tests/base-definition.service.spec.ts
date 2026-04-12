@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { EntityManager } from '@mikro-orm/postgresql';
 import { UnitOfMeasureService } from '../services/unit-of-measure.service';
+import { UnitOfMeasure } from '../entities/unit-of-measure.entity';
 import {
   TenantContextMissingException,
   EntityNotFoundException,
@@ -57,8 +58,8 @@ describe('BaseDefinitionService (via UnitOfMeasureService)', () => {
     em = {
       findOne: jest.fn(),
       findOneOrFail: jest.fn().mockResolvedValue(tenantStub),
-      create: jest.fn((EntityClass: any, data: any) => ({ ...data })),
-      assign: jest.fn((target: any, source: any) =>
+      create: jest.fn((_EntityClass: unknown, data: object) => ({ ...data })),
+      assign: jest.fn((target: object, source: object) =>
         Object.assign(target, source),
       ),
       persist: jest.fn(),
@@ -99,7 +100,7 @@ describe('BaseDefinitionService (via UnitOfMeasureService)', () => {
     it('should throw TenantContextMissingException without tenant context', async () => {
       (TenantContext.getTenantId as jest.Mock).mockReturnValue(undefined);
       await expect(
-        service.create({ name: 'Test', code: 'TST' } as any),
+        service.create({ name: 'Test', code: 'TST' } as Partial<UnitOfMeasure>),
       ).rejects.toThrow(TenantContextMissingException);
     });
 
@@ -111,19 +112,19 @@ describe('BaseDefinitionService (via UnitOfMeasureService)', () => {
       const result = await service.create({
         name: 'Yard',
         code: 'yd',
-      } as any);
+      } as Partial<UnitOfMeasure>);
 
       expect(result).toBe(created);
       expect(em.persistAndFlush).toHaveBeenCalledWith(created);
       // Verify the tenant was set from TenantContext, not from the caller.
-      const createCall = em.create.mock.calls[0][1] as any;
+      const createCall = em.create.mock.calls[0][1] as Record<string, unknown>;
       expect(createCall.tenant).toBe(tenantStub);
     });
 
     it('should throw CodeDuplicateException when code already exists', async () => {
       em.findOne.mockResolvedValue({ id: 'existing', code: 'yd' }); // duplicate found
       await expect(
-        service.create({ name: 'Yard', code: 'yd' } as any),
+        service.create({ name: 'Yard', code: 'yd' } as Partial<UnitOfMeasure>),
       ).rejects.toThrow(CodeDuplicateException);
     });
 
@@ -131,7 +132,9 @@ describe('BaseDefinitionService (via UnitOfMeasureService)', () => {
       const created = { id: 'u-new', name: 'No Code' };
       em.create.mockReturnValue(created);
 
-      const result = await service.create({ name: 'No Code' } as any);
+      const result = await service.create({
+        name: 'No Code',
+      } as Partial<UnitOfMeasure>);
       expect(result).toBe(created);
       // findOne for duplicate check should NOT have been called because
       // data.code is falsy.
@@ -144,7 +147,7 @@ describe('BaseDefinitionService (via UnitOfMeasureService)', () => {
     it('should throw EntityNotFoundException when entity does not exist', async () => {
       em.findOne.mockResolvedValue(null);
       await expect(
-        service.update('missing', { name: 'X' } as any),
+        service.update('missing', { name: 'X' } as Partial<UnitOfMeasure>),
       ).rejects.toThrow(EntityNotFoundException);
     });
 
@@ -154,7 +157,9 @@ describe('BaseDefinitionService (via UnitOfMeasureService)', () => {
         .mockResolvedValueOnce(existing) // findOne in update
         .mockResolvedValueOnce(null); // code uniqueness check (no dup)
 
-      const result = await service.update('u-1', { name: 'New' } as any);
+      const result = await service.update('u-1', {
+        name: 'New',
+      } as Partial<UnitOfMeasure>);
 
       expect(result.name).toBe('New');
       expect(em.flush).toHaveBeenCalled();
@@ -167,7 +172,7 @@ describe('BaseDefinitionService (via UnitOfMeasureService)', () => {
         .mockResolvedValueOnce({ id: 'u-other', code: 'yd' }); // duplicate code found
 
       await expect(
-        service.update('u-1', { code: 'yd' } as any),
+        service.update('u-1', { code: 'yd' } as Partial<UnitOfMeasure>),
       ).rejects.toThrow(CodeDuplicateException);
     });
 
@@ -175,7 +180,10 @@ describe('BaseDefinitionService (via UnitOfMeasureService)', () => {
       const existing = { id: 'u-1', name: 'Metre', code: 'm' };
       em.findOne.mockResolvedValueOnce(existing);
 
-      await service.update('u-1', { name: 'Meter', code: 'm' } as any);
+      await service.update('u-1', {
+        name: 'Meter',
+        code: 'm',
+      } as Partial<UnitOfMeasure>);
 
       // Only one findOne call (for the entity itself), not two.
       expect(em.findOne).toHaveBeenCalledTimes(1);
@@ -185,7 +193,10 @@ describe('BaseDefinitionService (via UnitOfMeasureService)', () => {
   // ── remove (soft delete) ──
   describe('remove', () => {
     it('should set deletedAt and flush', async () => {
-      const entity: any = { id: 'u-1', deletedAt: undefined };
+      const entity: { id: string; deletedAt: Date | undefined } = {
+        id: 'u-1',
+        deletedAt: undefined,
+      };
       em.findOne.mockResolvedValue(entity);
 
       await service.remove('u-1');
@@ -205,7 +216,10 @@ describe('BaseDefinitionService (via UnitOfMeasureService)', () => {
   // ── toggleActive ──
   describe('toggleActive', () => {
     it('should flip isActive from true to false', async () => {
-      const entity: any = { id: 'u-1', isActive: true };
+      const entity: { id: string; isActive: boolean } = {
+        id: 'u-1',
+        isActive: true,
+      };
       em.findOne.mockResolvedValue(entity);
 
       const result = await service.toggleActive('u-1');
@@ -214,7 +228,10 @@ describe('BaseDefinitionService (via UnitOfMeasureService)', () => {
     });
 
     it('should flip isActive from false to true', async () => {
-      const entity: any = { id: 'u-1', isActive: false };
+      const entity: { id: string; isActive: boolean } = {
+        id: 'u-1',
+        isActive: false,
+      };
       em.findOne.mockResolvedValue(entity);
 
       const result = await service.toggleActive('u-1');
@@ -226,8 +243,8 @@ describe('BaseDefinitionService (via UnitOfMeasureService)', () => {
   // ── reorder ──
   describe('reorder', () => {
     it('should update sortOrder for each item', async () => {
-      const e1: any = { id: 'u-1', sortOrder: 0 };
-      const e2: any = { id: 'u-2', sortOrder: 1 };
+      const e1: { id: string; sortOrder: number } = { id: 'u-1', sortOrder: 0 };
+      const e2: { id: string; sortOrder: number } = { id: 'u-2', sortOrder: 1 };
       em.findOne.mockResolvedValueOnce(e1).mockResolvedValueOnce(e2);
 
       await service.reorder([

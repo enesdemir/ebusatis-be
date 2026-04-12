@@ -113,17 +113,17 @@ export class Partner extends BaseTenantEntity {
   tags = new Collection<Tag>(this);
 
   @OneToMany('PartnerAddress', 'partner')
-  addresses = new Collection<any>(this);
+  addresses = new Collection<object>(this);
 
   @OneToMany('PartnerContact', 'partner')
-  contacts = new Collection<any>(this);
+  contacts = new Collection<object>(this);
 
   @OneToMany('Counterparty', 'partner')
-  counterparties = new Collection<any>(this);
+  counterparties = new Collection<object>(this);
 
   @OneToMany('PartnerRep', 'partner')
-  assignedReps = new Collection<any>(this);
+  assignedReps = new Collection<object>(this);
 
   @OneToMany('Interaction', 'partner')
-  interactions = new Collection<any>(this);
+  interactions = new Collection<object>(this);
 }

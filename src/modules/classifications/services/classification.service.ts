@@ -1,6 +1,10 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@mikro-orm/nestjs';
-import { EntityRepository, EntityManager } from '@mikro-orm/postgresql';
+import {
+  EntityRepository,
+  EntityManager,
+  FilterQuery,
+} from '@mikro-orm/postgresql';
 import { ClassificationNode } from '../entities/classification-node.entity';
 import { ClassificationModules } from '../entities/classification-types';
 import {
@@ -10,6 +14,30 @@ import {
   ReorderDto,
 } from '../dto';
 import { EntityNotFoundException } from '../../../common/errors/app.exceptions';
+
+/** DTO shape returned by toDto / buildTree */
+export interface ClassificationNodeDto {
+  id: string;
+  classificationType: string;
+  module: string;
+  parentId: string | null;
+  path: string;
+  depth: number;
+  code: string;
+  key: string;
+  names: Record<string, string>;
+  descriptions?: Record<string, string>;
+  properties?: Record<string, unknown>;
+  tags?: string[];
+  icon?: string;
+  color?: string;
+  isRoot: boolean;
+  isSystem: boolean;
+  isActive: boolean;
+  selectable: boolean;
+  sortOrder: number;
+  children: ClassificationNodeDto[];
+}
 
 @Injectable()
 export class ClassificationService {
@@ -24,7 +52,7 @@ export class ClassificationService {
   // ════════════════════════════════════════════════════════
 
   /** Tip bazinda tum agaci dondur */
-  async getTree(classificationType: string): Promise<ClassificationNode[]> {
+  async getTree(classificationType: string): Promise<ClassificationNodeDto[]> {
     const all = await this.repo.find(
       { classificationType },
       { orderBy: { sortOrder: 'ASC', names: 'ASC' }, populate: ['parent'] },
@@ -60,12 +88,18 @@ export class ClassificationService {
   }
 
   /** Bir dugumun tum cocuklarini getir (recursive) */
-  async getChildren(id: string, recursive = false): Promise<any[]> {
+  async getChildren(
+    id: string,
+    recursive = false,
+  ): Promise<ClassificationNodeDto[]> {
     if (!recursive) {
-      const nodes = await this.repo.find({ parent: id } as any, {
-        orderBy: { sortOrder: 'ASC' },
-        populate: ['parent'],
-      });
+      const nodes = await this.repo.find(
+        { parent: id } as FilterQuery<ClassificationNode>,
+        {
+          orderBy: { sortOrder: 'ASC' },
+          populate: ['parent'],
+        },
+      );
       return nodes.map((n) => this.toDto(n));
     }
     // Path-based recursive query
@@ -89,7 +123,9 @@ export class ClassificationService {
     tenantId?: string,
   ): Promise<ClassificationNode> {
     const module =
-      (ClassificationModules as any)[dto.classificationType] || 'other';
+      (ClassificationModules as Record<string, string>)[
+        dto.classificationType
+      ] || 'other';
 
     const node = new ClassificationNode(
       dto.classificationType,
@@ -109,7 +145,10 @@ export class ClassificationService {
 
     // Tenant
     if (tenantId) {
-      node.tenant = this.em.getReference('Tenant', tenantId) as any;
+      node.tenant = this.em.getReference(
+        'Tenant',
+        tenantId,
+      ) as unknown as typeof node.tenant;
     }
 
     // Parent
@@ -166,7 +205,9 @@ export class ClassificationService {
       });
 
     // Child var mi kontrol et
-    const childCount = await this.repo.count({ parent: id } as any);
+    const childCount = await this.repo.count({
+      parent: id,
+    } as FilterQuery<ClassificationNode>);
     if (childCount > 0) {
       throw new BadRequestException({
         error: 'NODE_HAS_CHILDREN',
@@ -265,7 +306,10 @@ export class ClassificationService {
       { populate: ['parent'] },
     );
     while (current?.parent) {
-      if ((current.parent as any).id === nodeId || current.parent.id === nodeId)
+      if (
+        (current.parent as { id?: string }).id === nodeId ||
+        current.parent.id === nodeId
+      )
         return true;
       current = await this.repo.findOne(
         { id: current.parent.id },
@@ -292,12 +336,12 @@ export class ClassificationService {
   }
 
   /** Entity'yi serialize edilebilir DTO'ya cevir */
-  private toDto(node: ClassificationNode): any {
+  private toDto(node: ClassificationNode): ClassificationNodeDto {
     return {
       id: node.id,
       classificationType: node.classificationType,
       module: node.module,
-      parentId: (node.parent as any)?.id || null,
+      parentId: (node.parent as { id?: string } | undefined)?.id || null,
       path: node.path,
       depth: node.depth,
       code: node.code,
@@ -318,9 +362,9 @@ export class ClassificationService {
   }
 
   /** Flat listeden agac olustur (DTO olarak — circular ref yok) */
-  private buildTree(nodes: ClassificationNode[]): any[] {
-    const map = new Map<string, any>();
-    const roots: any[] = [];
+  private buildTree(nodes: ClassificationNode[]): ClassificationNodeDto[] {
+    const map = new Map<string, ClassificationNodeDto>();
+    const roots: ClassificationNodeDto[] = [];
 
     for (const node of nodes) {
       map.set(node.id, this.toDto(node));
@@ -328,7 +372,7 @@ export class ClassificationService {
 
     for (const node of nodes) {
       const dto = map.get(node.id)!;
-      const parentId = (node.parent as any)?.id;
+      const parentId = (node.parent as { id?: string } | undefined)?.id;
       if (parentId && map.has(parentId)) {
         map.get(parentId)!.children.push(dto);
       } else {

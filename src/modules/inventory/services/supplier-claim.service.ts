@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { EntityManager } from '@mikro-orm/postgresql';
+import { EntityManager, FilterQuery } from '@mikro-orm/postgresql';
 import { TenantContext } from '../../../common/context/tenant.context';
 import {
   TenantContextMissingException,
@@ -54,7 +54,7 @@ export class SupplierClaimService {
         'goodsReceive',
         'purchaseOrder',
         'currency',
-      ] as any,
+      ] as never[],
     });
   }
 
@@ -72,7 +72,7 @@ export class SupplierClaimService {
           'lines',
           'lines.variant',
           'lines.goodsReceiveLine',
-        ] as any,
+        ] as never[],
       },
     );
     if (!claim) throw new SupplierClaimNotFoundException(id);
@@ -103,7 +103,7 @@ export class SupplierClaimService {
     const goodsReceive = await this.em.findOne(
       GoodsReceive,
       { id: dto.goodsReceiveId },
-      { populate: ['supplier', 'purchaseOrder'] as any },
+      { populate: ['supplier', 'purchaseOrder'] as never[] },
     );
     if (!goodsReceive) {
       // Surface a non-finding here so the caller doesn't see a generic
@@ -117,7 +117,7 @@ export class SupplierClaimService {
       const grLine = await this.em.findOne(
         GoodsReceiveLine,
         { id: lineDto.goodsReceiveLineId },
-        { populate: ['claim'] as any },
+        { populate: ['claim'] as never[] },
       );
       if (!grLine) {
         throw new GoodsReceiveLineNotFoundException(lineDto.goodsReceiveLineId);
@@ -130,7 +130,7 @@ export class SupplierClaimService {
       if (grLine.claim) {
         throw new SupplierClaimAlreadyOpenException(
           lineDto.goodsReceiveLineId,
-          (grLine.claim as any).id,
+          (grLine.claim as unknown as { id: string }).id,
         );
       }
       grLines.set(lineDto.goodsReceiveLineId, grLine);
@@ -139,7 +139,7 @@ export class SupplierClaimService {
     // Tenant-scoped sequence number for the claim.
     const count = await this.em.count(SupplierClaim, {
       tenant: tenantId,
-    } as any);
+    } as FilterQuery<SupplierClaim>);
     const claimNumber = `CLM-${new Date().getFullYear()}-${String(count + 1).padStart(4, '0')}`;
 
     // Total claimed amount = sum of (affectedQuantity * unitPrice) over the lines.
@@ -151,9 +151,9 @@ export class SupplierClaimService {
     const claim = this.em.create(SupplierClaim, {
       tenant,
       claimNumber,
-      supplier: goodsReceive.supplier as any,
+      supplier: goodsReceive.supplier,
       goodsReceive,
-      purchaseOrder: goodsReceive.purchaseOrder as any,
+      purchaseOrder: goodsReceive.purchaseOrder,
       claimType: dto.claimType,
       status: ClaimStatus.OPEN,
       claimedAmount,
@@ -164,7 +164,7 @@ export class SupplierClaimService {
       photoUrls: dto.photoUrls,
       openedAt: new Date(),
       openedBy: this.em.getReference(User, userId),
-    } as any);
+    } as unknown as SupplierClaim);
     this.em.persist(claim);
 
     for (const lineDto of dto.lines) {
@@ -175,12 +175,12 @@ export class SupplierClaimService {
         tenant,
         claim,
         goodsReceiveLine: grLine,
-        variant: grLine.variant as any,
+        variant: grLine.variant,
         affectedQuantity: lineDto.affectedQuantity,
         unitPrice: lineDto.unitPrice,
         lineTotal: round2(lineDto.affectedQuantity * lineDto.unitPrice),
         note: lineDto.note,
-      } as any);
+      } as unknown as SupplierClaimLine);
       this.em.persist(claimLine);
 
       // Round-trip pointer so the goods receive UI can show the claim.

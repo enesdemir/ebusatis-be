@@ -58,7 +58,7 @@ export class AccountingController {
   // ── Tax reports ──
 
   @Get('tax-reports')
-  findTaxReports(@Query() query: PaginatedQueryDto) {
+  findTaxReports(@Query() query: PaginatedQueryDto & { type?: string }) {
     return this.service.findTaxReports(query);
   }
 

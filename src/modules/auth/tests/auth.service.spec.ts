@@ -22,7 +22,7 @@ describe('AuthService', () => {
     isSuperAdmin: false,
     isTenantOwner: false,
     isActive: true,
-    tenant: mockTenant as any,
+    tenant: mockTenant as unknown as User['tenant'],
     lastLoginAt: undefined,
     ...overrides,
   });

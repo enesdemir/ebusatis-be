@@ -102,7 +102,7 @@ export class InventoryItem extends BaseTenantEntity {
   // ─── İşlemler ─────────────────────────────────────────────
 
   @OneToMany('InventoryTransaction', 'item')
-  transactions = new Collection<any>(this);
+  transactions = new Collection<object>(this);
 
   constructor(
     variant: ProductVariant,

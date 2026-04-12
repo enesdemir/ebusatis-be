@@ -21,7 +21,7 @@ describe('SalesOrderService', () => {
 
   const mockTenant = { id: 'tenant-1', name: 'Test Tekstil' };
 
-  const createMockOrder = (overrides: any = {}) => ({
+  const createMockOrder = (overrides: Record<string, unknown> = {}) => ({
     id: 'order-1',
     orderNumber: 'SO-2026-0001',
     partner: { id: 'partner-1', name: 'Test Customer' },
@@ -219,7 +219,7 @@ describe('SalesOrderService', () => {
         id,
       }));
 
-      const orderObj: any = createMockOrder();
+      const orderObj = createMockOrder();
       const lineObj = { id: 'line-1', lineNumber: 1, lineTotal: 900 };
 
       // First create call returns order, second returns line

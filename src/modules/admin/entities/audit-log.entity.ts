@@ -49,7 +49,7 @@ export class AuditLog extends BaseEntity {
   userAgent?: string;
 
   @Property({ type: 'json', nullable: true })
-  details?: Record<string, any>;
+  details?: Record<string, unknown>;
 
   @Property({ nullable: true })
   entityType?: string;

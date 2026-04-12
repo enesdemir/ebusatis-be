@@ -1,10 +1,17 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@mikro-orm/nestjs';
-import { EntityRepository, EntityManager } from '@mikro-orm/postgresql';
+import {
+  EntityRepository,
+  EntityManager,
+  FilterQuery,
+} from '@mikro-orm/postgresql';
 import { SalesChannel } from '../entities/sales-channel.entity';
 import { ChannelProductMapping } from '../entities/channel-product-mapping.entity';
 import { ChannelOrder } from '../entities/channel-order.entity';
 import { EntityNotFoundException } from '../../../common/errors/app.exceptions';
+import { CreateChannelDto } from '../dto/create-channel.dto';
+import { UpdateChannelDto } from '../dto/update-channel.dto';
+import { CreateChannelMappingDto } from '../dto/create-channel-mapping.dto';
 
 @Injectable()
 export class SalesChannelsService {
@@ -31,13 +38,13 @@ export class SalesChannelsService {
     return ch;
   }
 
-  async createChannel(data: any) {
-    const ch = this.channelRepo.create(data);
+  async createChannel(data: CreateChannelDto) {
+    const ch = this.channelRepo.create(data as unknown as SalesChannel);
     await this.em.persistAndFlush(ch);
     return ch;
   }
 
-  async updateChannel(id: string, data: any) {
+  async updateChannel(id: string, data: UpdateChannelDto) {
     const ch = await this.findChannelById(id);
     Object.assign(ch, data);
     await this.em.flush();
@@ -46,22 +53,25 @@ export class SalesChannelsService {
 
   // Mappings
   async findMappings(channelId: string) {
-    return this.mappingRepo.find({ channel: channelId } as any, {
-      populate: ['variant', 'channel'],
-      orderBy: { createdAt: 'DESC' },
-    });
+    return this.mappingRepo.find(
+      { channel: channelId } as FilterQuery<ChannelProductMapping>,
+      {
+        populate: ['variant', 'channel'],
+        orderBy: { createdAt: 'DESC' },
+      },
+    );
   }
 
-  async createMapping(data: any) {
-    const m = this.mappingRepo.create(data);
+  async createMapping(data: CreateChannelMappingDto) {
+    const m = this.mappingRepo.create(data as unknown as ChannelProductMapping);
     await this.em.persistAndFlush(m);
     return m;
   }
 
   // Orders
   async findChannelOrders(channelId?: string) {
-    const where: any = {};
-    if (channelId) where.channel = channelId;
+    const where: FilterQuery<ChannelOrder> = {};
+    if (channelId) (where as Record<string, unknown>).channel = channelId;
     return this.orderRepo.find(where, {
       populate: ['channel'],
       orderBy: { createdAt: 'DESC' },

@@ -8,8 +8,17 @@ import {
   UseGuards,
   Request,
 } from '@nestjs/common';
+import { Request as ExpressRequest } from 'express';
 import { NotificationService } from '../services/notification.service';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
+
+interface AuthenticatedRequest extends ExpressRequest {
+  user: {
+    id: string;
+    sub: string;
+    [key: string]: unknown;
+  };
+}
 
 @UseGuards(JwtAuthGuard)
 @Controller('notifications')
@@ -19,7 +28,7 @@ export class NotificationController {
   /** Kullanicinin bildirimlerini listele */
   @Get()
   findAll(
-    @Request() req: any,
+    @Request() req: AuthenticatedRequest,
     @Query('page') page?: string,
     @Query('limit') limit?: string,
     @Query('type') type?: string,
@@ -35,33 +44,33 @@ export class NotificationController {
 
   /** Okunmamis bildirim sayisi (badge icin) */
   @Get('unread-count')
-  async getUnreadCount(@Request() req: any) {
+  async getUnreadCount(@Request() req: AuthenticatedRequest) {
     const count = await this.service.getUnreadCount(req.user.id);
     return { count };
   }
 
   /** Tek bildirimi okundu isaretle */
   @Patch(':id/read')
-  markAsRead(@Param('id') id: string, @Request() req: any) {
+  markAsRead(@Param('id') id: string, @Request() req: AuthenticatedRequest) {
     return this.service.markAsRead(id, req.user.id);
   }
 
   /** Tum bildirimleri okundu isaretle */
   @Patch('read-all')
-  async markAllAsRead(@Request() req: any) {
+  async markAllAsRead(@Request() req: AuthenticatedRequest) {
     const count = await this.service.markAllAsRead(req.user.id);
     return { markedCount: count };
   }
 
   /** Tek bildirimi sil */
   @Delete(':id')
-  delete(@Param('id') id: string, @Request() req: any) {
+  delete(@Param('id') id: string, @Request() req: AuthenticatedRequest) {
     return this.service.delete(id, req.user.id);
   }
 
   /** Tum okunan bildirimleri temizle */
   @Delete('clear-read')
-  async clearRead(@Request() req: any) {
+  async clearRead(@Request() req: AuthenticatedRequest) {
     const count = await this.service.clearRead(req.user.id);
     return { clearedCount: count };
   }

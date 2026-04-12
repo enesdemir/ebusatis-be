@@ -32,9 +32,14 @@ import {
 } from '../../definitions/entities/delivery-method.entity';
 
 /**
- * Yeni tenant oluşturulduğunda varsayılan verileri seed eden servis.
- * Tüm seed veriler scope: SYSTEM_SEED olarak işaretlenir.
+ * Seeds default data when a new tenant is created.
+ * All seed data is marked scope: SYSTEM_SEED.
+ *
+ * Note: Seed data names are intentionally in Turkish as they represent
+ * default business data for Turkish textile companies (units, categories,
+ * payment methods, etc.). These are database records, not UI strings.
  */
+/* eslint-disable no-restricted-syntax */
 @Injectable()
 export class TenantOnboardingService {
   private readonly logger = new Logger(TenantOnboardingService.name);
@@ -42,9 +47,7 @@ export class TenantOnboardingService {
   constructor(private readonly em: EntityManager) {}
 
   async onboardTenant(tenant: Tenant): Promise<void> {
-    this.logger.log(
-      `Tenant onboarding başlatıldı: ${tenant.name} (${tenant.id})`,
-    );
+    this.logger.log(`Tenant onboarding started: ${tenant.name} (${tenant.id})`);
 
     try {
       await this.seedUnits(tenant);
@@ -57,14 +60,14 @@ export class TenantOnboardingService {
       await this.seedDeliveryMethods(tenant);
 
       await this.em.flush();
-      this.logger.log(`Tenant onboarding tamamlandı: ${tenant.name}`);
+      this.logger.log(`Tenant onboarding completed: ${tenant.name}`);
     } catch (error) {
-      this.logger.error(`Tenant onboarding hatası: ${tenant.name}`, error);
+      this.logger.error(`Tenant onboarding failed: ${tenant.name}`, error);
       throw error;
     }
   }
 
-  // ─── 1.1 Birimler ────────────────────────────────────────
+  // ─── 1.1 Units ────────────────────────────────────────
 
   private async seedUnits(tenant: Tenant): Promise<void> {
     const units = [
@@ -151,7 +154,7 @@ export class TenantOnboardingService {
     }
   }
 
-  // ─── 1.2 Para Birimleri ──────────────────────────────────
+  // ─── 1.2 Currencies ──────────────────────────────────
 
   private async seedCurrencies(tenant: Tenant): Promise<void> {
     const currencies = [
@@ -196,7 +199,7 @@ export class TenantOnboardingService {
     }
   }
 
-  // ─── 1.3 Kategoriler ─────────────────────────────────────
+  // ─── 1.3 Categories ─────────────────────────────────────
 
   private async seedCategories(tenant: Tenant): Promise<void> {
     const base = { tenant, scope: DefinitionScope.SYSTEM_SEED };
@@ -262,7 +265,7 @@ export class TenantOnboardingService {
     this.em.persist(aksesuar);
   }
 
-  // ─── 1.4 Depolar ─────────────────────────────────────────
+  // ─── 1.4 Warehouses ─────────────────────────────────────────
 
   private async seedWarehouses(tenant: Tenant): Promise<void> {
     const warehouse = this.em.create(Warehouse, {
@@ -277,7 +280,7 @@ export class TenantOnboardingService {
     this.em.persist(warehouse);
   }
 
-  // ─── 1.5 Vergi Oranları ──────────────────────────────────
+  // ─── 1.5 Tax Rates ──────────────────────────────────
 
   private async seedTaxRates(tenant: Tenant): Promise<void> {
     const rates = [
@@ -322,7 +325,7 @@ export class TenantOnboardingService {
     }
   }
 
-  // ─── 1.6 Sipariş Durumları ───────────────────────────────
+  // ─── 1.6 Order Statuses ───────────────────────────────
 
   private async seedOrderStatuses(tenant: Tenant): Promise<void> {
     const statuses = [
@@ -392,7 +395,7 @@ export class TenantOnboardingService {
     }
   }
 
-  // ─── 1.7 Ödeme Yöntemleri ────────────────────────────────
+  // ─── 1.7 Payment Methods ────────────────────────────────
 
   private async seedPaymentMethods(tenant: Tenant): Promise<void> {
     const methods = [
@@ -454,7 +457,7 @@ export class TenantOnboardingService {
     }
   }
 
-  // ─── 1.7 Teslimat Yöntemleri ─────────────────────────────
+  // ─── 1.8 Delivery Methods ─────────────────────────────
 
   private async seedDeliveryMethods(tenant: Tenant): Promise<void> {
     const methods = [

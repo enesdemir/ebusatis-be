@@ -15,7 +15,7 @@ export class InventoryReportService {
   /**
    * Stok Durum Raporu: Varyant bazlı toplam metraj, top sayısı, rezerve
    */
-  async stockStatus(warehouseId?: string): Promise<any[]> {
+  async stockStatus(warehouseId?: string): Promise<Record<string, unknown>[]> {
     const knex = this.em.getKnex();
     let qb = knex('inventory_items as i')
       .join('product_variants as v', 'v.id', 'i.variant_id')
@@ -55,7 +55,7 @@ export class InventoryReportService {
     from?: string,
     to?: string,
     variantId?: string,
-  ): Promise<any[]> {
+  ): Promise<Record<string, unknown>[]> {
     const knex = this.em.getKnex();
     let qb = knex('inventory_transactions as t')
       .join('inventory_items as i', 'i.id', 't.item_id')
@@ -81,7 +81,7 @@ export class InventoryReportService {
   /**
    * Yaşlandırma Raporu: Depoda belirli günden fazla kalan toplar
    */
-  async agingReport(days: number = 90): Promise<any[]> {
+  async agingReport(days: number = 90): Promise<Record<string, unknown>[]> {
     const knex = this.em.getKnex();
     const cutoffDate = new Date();
     cutoffDate.setDate(cutoffDate.getDate() - days);

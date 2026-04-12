@@ -46,7 +46,7 @@ export class ProductService {
       searchFields: ['name', 'code', 'collectionName'],
       defaultSortBy: 'name',
       where,
-      populate: ['category', 'unit', 'tags'] as any,
+      populate: ['category', 'unit', 'tags'] as never[],
     });
   }
 
@@ -64,7 +64,7 @@ export class ProductService {
           'variants.currency',
           'attributeValues',
           'attributeValues.attribute',
-        ] as any,
+        ] as never[],
       },
     );
     if (!product) throw new EntityNotFoundException('Product', id);
@@ -144,7 +144,7 @@ export class ProductService {
     return this.em.find(
       ProductVariant,
       { product: productId, deletedAt: null } as FilterQuery<ProductVariant>,
-      { orderBy: { name: 'ASC' }, populate: ['currency'] as any },
+      { orderBy: { name: 'ASC' }, populate: ['currency'] as never[] },
     );
   }
 

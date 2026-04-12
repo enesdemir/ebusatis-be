@@ -83,7 +83,7 @@ export class LogisticsService {
       carrierId,
     } = query;
 
-    const where: Record<string, any> = {};
+    const where: Record<string, unknown> = {};
     if (direction) where.direction = direction;
     if (status) where.status = status;
     if (purchaseOrderId) where.purchaseOrder = purchaseOrderId;
@@ -166,14 +166,14 @@ export class LogisticsService {
       shipmentNumber: dto.shipmentNumber,
       direction: dto.direction,
       status: dto.status ?? ShipmentStatus.DRAFT,
-      purchaseOrder: dto.purchaseOrderId as any,
-      salesOrder: dto.salesOrderId as any,
-      originWarehouse: dto.originWarehouseId as any,
-      destinationWarehouse: dto.destinationWarehouseId as any,
+      purchaseOrder: dto.purchaseOrderId as unknown,
+      salesOrder: dto.salesOrderId as unknown,
+      originWarehouse: dto.originWarehouseId as unknown,
+      destinationWarehouse: dto.destinationWarehouseId as unknown,
       originAddress: dto.originAddress,
       destinationAddress: dto.destinationAddress,
-      carrier: dto.carrierId as any,
-      deliveryMethod: dto.deliveryMethodId as any,
+      carrier: dto.carrierId as unknown,
+      deliveryMethod: dto.deliveryMethodId as unknown,
       carrierTrackingNumber: dto.carrierTrackingNumber,
       carrierTrackingUrl: dto.carrierTrackingUrl,
       containerNumber: dto.containerNumber,
@@ -193,7 +193,7 @@ export class LogisticsService {
       estimatedArrival: dto.estimatedArrival
         ? new Date(dto.estimatedArrival)
         : undefined,
-      costCurrency: dto.costCurrencyId as any,
+      costCurrency: dto.costCurrencyId as unknown,
       notes: dto.notes,
     });
 
@@ -203,7 +203,7 @@ export class LogisticsService {
 
   async updateShipment(id: string, dto: UpdateShipmentDto): Promise<Shipment> {
     const shipment = await this.findShipmentById(id);
-    this.em.assign(shipment, dto as any);
+    this.em.assign(shipment, dto as unknown as Shipment);
     await this.em.flush();
     return shipment;
   }
@@ -269,7 +269,7 @@ export class LogisticsService {
 
   async findAllCustoms(query: CustomsDeclarationQueryDto) {
     const { page = 1, limit = 20, status, shipmentId } = query;
-    const where: Record<string, any> = {};
+    const where: Record<string, unknown> = {};
     if (status) where.status = status;
     if (shipmentId) where.shipment = shipmentId;
 
@@ -304,7 +304,7 @@ export class LogisticsService {
     const decl = this.customsRepo.create({
       tenant,
       declarationNumber: dto.declarationNumber,
-      shipment: dto.shipmentId as any,
+      shipment: dto.shipmentId as unknown,
       status: dto.status,
       declarationType: dto.declarationType,
       customsDuty: dto.customsDuty ?? 0,
@@ -312,7 +312,7 @@ export class LogisticsService {
       brokerFee: dto.brokerFee ?? 0,
       insuranceCost: dto.insuranceCost ?? 0,
       totalCost: dto.totalCost ?? 0,
-      currency: dto.currencyId as any,
+      currency: dto.currencyId as unknown,
       submittedAt: dto.submittedAt ? new Date(dto.submittedAt) : undefined,
       approvedAt: dto.approvedAt ? new Date(dto.approvedAt) : undefined,
       note: dto.note,
@@ -325,7 +325,7 @@ export class LogisticsService {
   // ── Freight quotes ──
 
   async findQuotes(query: FreightQuoteQueryDto): Promise<FreightQuote[]> {
-    const where: Record<string, any> = {};
+    const where: Record<string, unknown> = {};
     if (query.shipmentId) where.shipment = query.shipmentId;
     return this.quoteRepo.find(where, {
       populate: ['carrier', 'currency'],
@@ -340,11 +340,11 @@ export class LogisticsService {
 
     const quote = this.quoteRepo.create({
       tenant,
-      shipment: dto.shipmentId as any,
-      carrier: dto.carrierId as any,
+      shipment: dto.shipmentId as unknown,
+      carrier: dto.carrierId as unknown,
       route: dto.route,
       price: dto.price,
-      currency: dto.currencyId as any,
+      currency: dto.currencyId as unknown,
       transitDays: dto.transitDays,
       validUntil: dto.validUntil ? new Date(dto.validUntil) : undefined,
       note: dto.note,
@@ -429,7 +429,7 @@ export class LogisticsService {
       legType: dto.legType,
       originLocation: dto.originLocation,
       destinationLocation: dto.destinationLocation,
-      intermediateWarehouse: dto.intermediateWarehouseId as any,
+      intermediateWarehouse: dto.intermediateWarehouseId as unknown,
       estimatedDeparture: dto.estimatedDeparture
         ? new Date(dto.estimatedDeparture)
         : undefined,
@@ -442,11 +442,11 @@ export class LogisticsService {
       actualArrival: dto.actualArrival
         ? new Date(dto.actualArrival)
         : undefined,
-      carrier: dto.carrierId as any,
+      carrier: dto.carrierId as unknown,
       freightCost: dto.freightCost ?? 0,
       storageCost: dto.storageCost ?? 0,
       otherCosts: dto.otherCosts ?? 0,
-      currency: dto.currencyId as any,
+      currency: dto.currencyId as unknown,
       notes: dto.notes,
     });
     await this.em.persistAndFlush(leg);
@@ -472,13 +472,16 @@ export class LogisticsService {
     if (dto.destinationLocation !== undefined)
       leg.destinationLocation = dto.destinationLocation;
     if (dto.intermediateWarehouseId !== undefined) {
-      leg.intermediateWarehouse = dto.intermediateWarehouseId as any;
+      leg.intermediateWarehouse =
+        dto.intermediateWarehouseId as unknown as typeof leg.intermediateWarehouse;
     }
-    if (dto.carrierId !== undefined) leg.carrier = dto.carrierId as any;
+    if (dto.carrierId !== undefined)
+      leg.carrier = dto.carrierId as unknown as typeof leg.carrier;
     if (dto.freightCost !== undefined) leg.freightCost = dto.freightCost;
     if (dto.storageCost !== undefined) leg.storageCost = dto.storageCost;
     if (dto.otherCosts !== undefined) leg.otherCosts = dto.otherCosts;
-    if (dto.currencyId !== undefined) leg.currency = dto.currencyId as any;
+    if (dto.currencyId !== undefined)
+      leg.currency = dto.currencyId as unknown as typeof leg.currency;
     if (dto.notes !== undefined) leg.notes = dto.notes;
     await this.em.flush();
     return leg;
@@ -534,7 +537,7 @@ export class LogisticsService {
       percentage: dto.percentage,
       dueDate: dto.dueDate ? new Date(dto.dueDate) : undefined,
       status: dto.status,
-      payment: dto.paymentId as any,
+      payment: dto.paymentId as unknown,
       notes: dto.notes,
     });
     await this.em.persistAndFlush(installment);
@@ -551,7 +554,9 @@ export class LogisticsService {
     if (dto.percentage !== undefined) installment.percentage = dto.percentage;
     if (dto.dueDate !== undefined) installment.dueDate = new Date(dto.dueDate);
     if (dto.status !== undefined) installment.status = dto.status;
-    if (dto.paymentId !== undefined) installment.payment = dto.paymentId as any;
+    if (dto.paymentId !== undefined)
+      installment.payment =
+        dto.paymentId as unknown as typeof installment.payment;
     if (dto.notes !== undefined) installment.notes = dto.notes;
     if (dto.installmentNumber !== undefined) {
       installment.installmentNumber = dto.installmentNumber;

@@ -47,5 +47,5 @@ export class DigitalCatalog extends BaseTenantEntity {
   partnerId?: string;
 
   @OneToMany('DigitalCatalogItem', 'catalog')
-  items = new Collection<any>(this);
+  items = new Collection<object>(this);
 }

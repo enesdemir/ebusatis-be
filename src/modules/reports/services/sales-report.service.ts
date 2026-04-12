@@ -14,7 +14,13 @@ export class SalesReportService {
   /**
    * Satış Performansı: Dönem bazlı sipariş özeti
    */
-  async salesPerformance(from?: string, to?: string): Promise<any> {
+  async salesPerformance(
+    from?: string,
+    to?: string,
+  ): Promise<{
+    summary: Record<string, unknown>;
+    topCustomers: Record<string, unknown>[];
+  }> {
     const knex = this.em.getKnex();
     let qb = knex('sales_orders as o')
       .whereNull('o.deleted_at')
@@ -59,7 +65,7 @@ export class SalesReportService {
     from?: string,
     to?: string,
     limit: number = 10,
-  ): Promise<any[]> {
+  ): Promise<Record<string, unknown>[]> {
     const knex = this.em.getKnex();
     let qb = knex('sales_order_lines as l')
       .join('sales_orders as o', 'o.id', 'l.order_id')
@@ -89,7 +95,10 @@ export class SalesReportService {
   /**
    * Kârlılık Raporu: Satış - Maliyet = Kâr (varyant bazlı)
    */
-  async profitability(from?: string, to?: string): Promise<any[]> {
+  async profitability(
+    from?: string,
+    to?: string,
+  ): Promise<Record<string, unknown>[]> {
     const knex = this.em.getKnex();
     let qb = knex('sales_order_lines as l')
       .join('sales_orders as o', 'o.id', 'l.order_id')

@@ -60,7 +60,7 @@ export class AdminReportsService {
       );
       const count = await this.tenantRepository.count({
         createdAt: { $gte: startOfMonth, $lte: endOfMonth },
-      } as any);
+      } as never);
       monthlyGrowth.push({
         month: `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`,
         count,
@@ -104,7 +104,7 @@ export class AdminReportsService {
     const recentLoginsCount = await this.auditLogRepository.count({
       action: AuditAction.LOGIN,
       createdAt: { $gte: oneDayAgo },
-    } as any);
+    } as never);
     return {
       server: {
         uptimeSeconds: Math.floor(uptimeSeconds),
@@ -160,7 +160,7 @@ export class AdminReportsService {
       const count = await this.auditLogRepository.count({
         action: AuditAction.LOGIN,
         createdAt: { $gte: dayStart, $lte: dayEnd },
-      } as any);
+      } as never);
       dailyLogins.push({
         date: dayStart.toISOString().split('T')[0],
         count,
@@ -168,7 +168,7 @@ export class AdminReportsService {
     }
     // Action breakdown for the period
     const allLogs = await this.auditLogRepository.find(
-      { createdAt: { $gte: startDate } } as any,
+      { createdAt: { $gte: startDate } } as never,
       { fields: ['action', 'actorId'] },
     );
     const actionBreakdown: Record<string, number> = {};

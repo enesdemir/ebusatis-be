@@ -38,7 +38,7 @@ export class QueryBuilderHelper {
    */
   static async paginate<T extends object>(
     em: EntityManager,
-    entityClass: new (...args: any[]) => T,
+    entityClass: new (...args: unknown[]) => T,
     query: PaginatedQueryDto,
     options?: {
       /** Arama yapılacak alanlar (search parametresi ile) */
@@ -50,7 +50,7 @@ export class QueryBuilderHelper {
       /** Ek where koşulları */
       where?: FilterQuery<T>;
       /** MikroORM filter override (ör: SuperAdmin için tenant: false) */
-      filters?: Record<string, boolean | Record<string, any>>;
+      filters?: Record<string, boolean | Record<string, unknown>>;
     },
   ): Promise<PaginatedResponse<T>> {
     const page = query.page ?? 1;
@@ -58,17 +58,21 @@ export class QueryBuilderHelper {
     const offset = (page - 1) * limit;
 
     // Where koşullarını oluştur
-    const where: FilterQuery<any> = { ...(options?.where || {}) };
+    const where: FilterQuery<T> = {
+      ...(options?.where || {}),
+    } as FilterQuery<T>;
 
     // Search filtresi: birden fazla alanda OR ile arama
     if (query.search && options?.searchFields?.length) {
-      where.$or = options.searchFields.map((field) => ({
-        [field]: { $ilike: `%${query.search}%` },
-      }));
+      (where as Record<string, unknown>).$or = options.searchFields.map(
+        (field) => ({
+          [field]: { $ilike: `%${query.search}%` },
+        }),
+      );
     }
 
     // Soft delete filtresi
-    where.deletedAt = null;
+    (where as Record<string, unknown>).deletedAt = null;
 
     // Sıralama
     const sortBy = query.sortBy || options?.defaultSortBy || 'createdAt';
@@ -77,13 +81,13 @@ export class QueryBuilderHelper {
 
     // FindOptions
     const findOptions: FindOptions<T> = {
-      orderBy: { [sortBy]: sortOrder } as any,
+      orderBy: { [sortBy]: sortOrder } as never,
       limit,
       offset,
     };
 
     if (options?.populate?.length) {
-      findOptions.populate = options.populate as any;
+      findOptions.populate = options.populate as never;
     }
 
     if (options?.filters) {

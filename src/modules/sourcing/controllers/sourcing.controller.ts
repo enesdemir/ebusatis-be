@@ -9,6 +9,15 @@ import {
   UseGuards,
   Request,
 } from '@nestjs/common';
+import { Request as ExpressRequest } from 'express';
+
+interface AuthenticatedRequest extends ExpressRequest {
+  user?: {
+    sub?: string;
+    id?: string;
+    [key: string]: unknown;
+  };
+}
 import { SourcingService } from '../services/sourcing.service';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { CreateRfqDto, CreateRfqResponseDto, UpdateRfqStatusDto } from '../dto';
@@ -30,7 +39,7 @@ export class SourcingController {
   }
 
   @Post('rfqs')
-  create(@Body() data: CreateRfqDto, @Request() req: any) {
+  create(@Body() data: CreateRfqDto, @Request() req: AuthenticatedRequest) {
     return this.service.createRFQ({ ...data, createdBy: req.user?.id });
   }
 

@@ -9,6 +9,15 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
+import { Request as ExpressRequest } from 'express';
+
+interface AuthenticatedRequest extends ExpressRequest {
+  user?: {
+    sub?: string;
+    id?: string;
+    [key: string]: unknown;
+  };
+}
 import { SupplierClaimService } from '../services/supplier-claim.service';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { TenantGuard } from '../../../common/guards/tenant.guard';
@@ -43,7 +52,7 @@ export class SupplierClaimController {
   }
 
   @Post()
-  open(@Body() dto: OpenSupplierClaimDto, @Req() req: any) {
+  open(@Body() dto: OpenSupplierClaimDto, @Req() req: AuthenticatedRequest) {
     return this.service.open(dto, req.user?.sub);
   }
 

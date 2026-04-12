@@ -45,5 +45,5 @@ export class SalesOrderLine extends BaseTenantEntity {
   note?: string;
 
   @OneToMany('OrderRollAllocation', 'orderLine')
-  allocations = new Collection<any>(this);
+  allocations = new Collection<object>(this);
 }

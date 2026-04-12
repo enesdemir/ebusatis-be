@@ -2,6 +2,8 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { EntityManager } from '@mikro-orm/postgresql';
 import { getRepositoryToken } from '@mikro-orm/nestjs';
 import { LandedCostService } from '../services/landed-cost.service';
+import { CalculateLandedCostDto } from '../dto/calculate-landed-cost.dto';
+import { LandedCostQueryDto } from '../dto/landed-cost-query.dto';
 import { LandedCostCalculation } from '../entities/landed-cost-calculation.entity';
 import { PurchaseOrder } from '../../orders/entities/purchase-order.entity';
 import { PurchaseOrderLine } from '../../orders/entities/purchase-order-line.entity';
@@ -36,7 +38,7 @@ const buildRepoMock = () => ({
   find: jest.fn(),
   findAndCount: jest.fn(),
   count: jest.fn(),
-  create: jest.fn((data: any) => ({ ...data })),
+  create: jest.fn((data: object) => ({ ...data })),
 });
 
 describe('LandedCostService', () => {
@@ -106,7 +108,7 @@ describe('LandedCostService', () => {
         limit: 20,
         purchaseOrderId: 'po-1',
         shipmentId: 'sh-1',
-      } as any);
+      } as unknown as LandedCostQueryDto);
 
       expect(result.data).toHaveLength(1);
       expect(result.meta.total).toBe(1);
@@ -136,7 +138,9 @@ describe('LandedCostService', () => {
 
   // ── calculate ──
   describe('calculate', () => {
-    const dto = { purchaseOrderId: 'po-1' } as any;
+    const dto = {
+      purchaseOrderId: 'po-1',
+    } as unknown as CalculateLandedCostDto;
 
     it('should throw TenantContextMissingException without tenant context', async () => {
       (TenantContext.getTenantId as jest.Mock).mockReturnValue(undefined);
@@ -172,7 +176,7 @@ describe('LandedCostService', () => {
         service.calculate({
           purchaseOrderId: 'po-1',
           shipmentId: 'missing',
-        } as any),
+        } as unknown as CalculateLandedCostDto),
       ).rejects.toThrow(ShipmentNotFoundException);
     });
 
@@ -189,7 +193,7 @@ describe('LandedCostService', () => {
     });
 
     it('should compute product cost only when no shipment provided', async () => {
-      const po: any = {
+      const po = {
         id: 'po-1',
         grandTotal: 50000,
         currency: usdCurrency,
@@ -210,7 +214,7 @@ describe('LandedCostService', () => {
       const result = await service.calculate(dto);
 
       expect(result).toBe(created);
-      const call = calcRepo.create.mock.calls[0][0] as any;
+      const call = calcRepo.create.mock.calls[0][0] as Record<string, unknown>;
       expect(call.productCost).toBe(50000);
       expect(call.freightCost).toBe(0);
       expect(call.customsDuty).toBe(0);
@@ -220,12 +224,12 @@ describe('LandedCostService', () => {
     });
 
     it('should aggregate freight, customs and storage from shipment legs and declarations', async () => {
-      const po: any = {
+      const po = {
         id: 'po-1',
         grandTotal: 50000,
         currency: usdCurrency,
       };
-      const shipment: any = { id: 'sh-1' };
+      const shipment = { id: 'sh-1' };
       poRepo.findOne.mockResolvedValue(po);
       shipmentRepo.findOne.mockResolvedValue(shipment);
       poLineRepo.find.mockResolvedValue([
@@ -274,9 +278,9 @@ describe('LandedCostService', () => {
       await service.calculate({
         purchaseOrderId: 'po-1',
         shipmentId: 'sh-1',
-      } as any);
+      } as unknown as CalculateLandedCostDto);
 
-      const call = calcRepo.create.mock.calls[0][0] as any;
+      const call = calcRepo.create.mock.calls[0][0] as Record<string, unknown>;
       expect(call.productCost).toBe(50000);
       expect(call.freightCost).toBe(8000); // sea only
       expect(call.inlandTransportCost).toBe(1500); // port→warehouse
@@ -293,12 +297,12 @@ describe('LandedCostService', () => {
     });
 
     it('should distribute costs proportionally to line value', async () => {
-      const po: any = {
+      const po = {
         id: 'po-1',
         grandTotal: 10000,
         currency: usdCurrency,
       };
-      const shipment: any = { id: 'sh-1' };
+      const shipment = { id: 'sh-1' };
       poRepo.findOne.mockResolvedValue(po);
       shipmentRepo.findOne.mockResolvedValue(shipment);
       // Two lines: line A 80 units * 100 = 8000 (80% share), line B 20 units * 100 = 2000 (20% share)
@@ -333,9 +337,9 @@ describe('LandedCostService', () => {
       await service.calculate({
         purchaseOrderId: 'po-1',
         shipmentId: 'sh-1',
-      } as any);
+      } as unknown as CalculateLandedCostDto);
 
-      const call = calcRepo.create.mock.calls[0][0] as any;
+      const call = calcRepo.create.mock.calls[0][0] as Record<string, unknown>;
       // Total landed = 10000 + 1000 = 11000
       // Line A share = 80% → 8000 product + 800 freight = 8800 → /80 = 110 unit cost
       // Line B share = 20% → 2000 product + 200 freight = 2200 → /20 = 110 unit cost
@@ -345,12 +349,19 @@ describe('LandedCostService', () => {
     });
 
     it('should apply landed unit cost back to PO lines when applyToLines is true', async () => {
-      const po: any = {
+      const po = {
         id: 'po-1',
         grandTotal: 1000,
         currency: usdCurrency,
       };
-      const line: any = {
+      const line: {
+        id: string;
+        quantity: number;
+        unitPrice: number;
+        variant: { id: string };
+        order: typeof po;
+        landedUnitCost: number | undefined;
+      } = {
         id: 'pol-1',
         quantity: 10,
         unitPrice: 100,
@@ -365,7 +376,7 @@ describe('LandedCostService', () => {
       await service.calculate({
         purchaseOrderId: 'po-1',
         applyToLines: true,
-      } as any);
+      } as unknown as CalculateLandedCostDto);
 
       expect(line.landedUnitCost).toBe(100);
       // Two flushes expected: persistAndFlush(calc) + flush() inside applyToLines.
@@ -374,12 +385,19 @@ describe('LandedCostService', () => {
     });
 
     it('should NOT apply landed unit cost when applyToLines is false', async () => {
-      const po: any = {
+      const po = {
         id: 'po-1',
         grandTotal: 1000,
         currency: usdCurrency,
       };
-      const line: any = {
+      const line: {
+        id: string;
+        quantity: number;
+        unitPrice: number;
+        variant: { id: string };
+        order: typeof po;
+        landedUnitCost: number | undefined;
+      } = {
         id: 'pol-1',
         quantity: 10,
         unitPrice: 100,
@@ -394,16 +412,16 @@ describe('LandedCostService', () => {
       await service.calculate({
         purchaseOrderId: 'po-1',
         applyToLines: false,
-      } as any);
+      } as unknown as CalculateLandedCostDto);
 
       expect(line.landedUnitCost).toBeUndefined();
     });
 
     it('should fall back to default currency when PO has none', async () => {
-      const po: any = {
+      const po = {
         id: 'po-1',
         grandTotal: 100,
-        currency: null,
+        currency: null as typeof usdCurrency | null,
       };
       poRepo.findOne.mockResolvedValue(po);
       poLineRepo.find.mockResolvedValue([
@@ -418,7 +436,9 @@ describe('LandedCostService', () => {
       currencyRepo.findOneOrFail.mockResolvedValue(usdCurrency);
       calcRepo.create.mockReturnValue({ id: 'lc-1' });
 
-      await service.calculate({ purchaseOrderId: 'po-1' } as any);
+      await service.calculate({
+        purchaseOrderId: 'po-1',
+      } as unknown as CalculateLandedCostDto);
 
       expect(currencyRepo.findOneOrFail).toHaveBeenCalledWith({
         isDefault: true,

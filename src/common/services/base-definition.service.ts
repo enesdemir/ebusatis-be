@@ -31,7 +31,7 @@ import {
 export abstract class BaseDefinitionService<T extends BaseDefinitionEntity> {
   constructor(
     protected readonly em: EntityManager,
-    protected readonly entityClass: new (...args: any[]) => T,
+    protected readonly entityClass: new (...args: unknown[]) => T,
     /** Fields searched when the `search` query parameter is provided. */
     protected readonly searchFields: string[] = ['name', 'code'],
   ) {}
@@ -87,7 +87,7 @@ export abstract class BaseDefinitionService<T extends BaseDefinitionEntity> {
     const entity = this.em.create(this.entityClass, {
       ...data,
       tenant,
-    } as any);
+    } as unknown as T);
 
     await this.em.persistAndFlush(entity);
     return entity;
@@ -110,7 +110,7 @@ export abstract class BaseDefinitionService<T extends BaseDefinitionEntity> {
       }
     }
 
-    this.em.assign(entity, data as any);
+    this.em.assign(entity, data as never);
     await this.em.flush();
     return entity;
   }

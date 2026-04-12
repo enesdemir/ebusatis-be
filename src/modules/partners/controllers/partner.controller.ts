@@ -12,6 +12,15 @@ import {
   HttpStatus,
   Req,
 } from '@nestjs/common';
+import { Request as ExpressRequest } from 'express';
+
+interface AuthenticatedRequest extends ExpressRequest {
+  user?: {
+    sub?: string;
+    id?: string;
+    [key: string]: unknown;
+  };
+}
 import { PartnerService } from '../services/partner.service';
 import {
   CreatePartnerDto,
@@ -156,7 +165,7 @@ export class PartnerController {
   async createInteraction(
     @Param('id') partnerId: string,
     @Body() dto: Omit<CreateInteractionDto, 'partnerId'>,
-    @Req() req: any,
+    @Req() req: AuthenticatedRequest,
   ) {
     const userId = req.user?.sub || req.user?.id;
     return this.partnerService.createInteraction({ ...dto, partnerId }, userId);

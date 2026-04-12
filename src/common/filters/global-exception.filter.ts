@@ -90,7 +90,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     let metadata: Record<string, unknown> | undefined;
 
     if (typeof exceptionResponse === 'object' && exceptionResponse !== null) {
-      const resp = exceptionResponse as Record<string, any>;
+      const resp = exceptionResponse as Record<string, unknown>;
       // AppException contract:
       //   resp.error   — UPPERCASE_SNAKE_CASE error code (e.g. 'TENANT_FORBIDDEN')
       //   resp.message — i18n key (e.g. 'errors.tenant.forbidden')
@@ -112,7 +112,8 @@ export class GlobalExceptionFilter implements ExceptionFilter {
           message = raw;
         }
       }
-      if (resp.metadata) metadata = resp.metadata;
+      if (resp.metadata && typeof resp.metadata === 'object')
+        metadata = resp.metadata as Record<string, unknown>;
     }
 
     // Always log 5xx errors for production observability.

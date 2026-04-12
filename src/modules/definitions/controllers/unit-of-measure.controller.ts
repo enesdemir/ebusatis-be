@@ -22,11 +22,14 @@ export class UnitOfMeasureController extends BaseDefinitionController<UnitOfMeas
 
   @Post()
   async create(@Body() dto: CreateUnitDto) {
-    return this.unitService.create(dto as any);
+    return this.unitService.create(dto as unknown as Partial<UnitOfMeasure>);
   }
 
   @Patch(':id')
   async update(@Param('id') id: string, @Body() dto: UpdateUnitDto) {
-    return this.unitService.update(id, dto as any);
+    return this.unitService.update(
+      id,
+      dto as unknown as Partial<UnitOfMeasure>,
+    );
   }
 }

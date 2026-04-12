@@ -63,5 +63,5 @@ export class Warehouse extends BaseDefinitionEntity {
   parent?: Warehouse;
 
   @OneToMany('WarehouseLocation', 'warehouse')
-  locations = new Collection<any>(this);
+  locations = new Collection<object>(this);
 }

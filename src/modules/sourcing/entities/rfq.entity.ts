@@ -33,5 +33,5 @@ export class RFQ extends BaseTenantEntity {
     note?: string;
   }>;
   @ManyToOne(() => User) createdBy!: User;
-  @OneToMany('RFQResponse', 'rfq') responses = new Collection<any>(this);
+  @OneToMany('RFQResponse', 'rfq') responses = new Collection<object>(this);
 }

@@ -113,5 +113,5 @@ export class SupplierClaim extends BaseTenantEntity {
   // ── Children ──
 
   @OneToMany('SupplierClaimLine', 'claim')
-  lines = new Collection<any>(this);
+  lines = new Collection<object>(this);
 }

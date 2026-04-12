@@ -2,7 +2,7 @@
  * Standardized API response envelope.
  * All endpoints return this shape automatically via the TransformInterceptor.
  */
-export interface ApiResponse<T = any> {
+export interface ApiResponse<T = unknown> {
   success: boolean;
   data: T;
   message?: string;
@@ -13,7 +13,7 @@ export interface ApiResponse<T = any> {
  * Paginated API response envelope.
  * Used when the controller returns an object with a `meta` property.
  */
-export interface PaginatedApiResponse<T = any> {
+export interface PaginatedApiResponse<T = unknown> {
   success: boolean;
   data: T[];
   meta: {

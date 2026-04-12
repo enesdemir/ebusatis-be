@@ -12,6 +12,15 @@ import {
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
+import { Request as ExpressRequest } from 'express';
+
+interface AuthenticatedRequest extends ExpressRequest {
+  user?: {
+    sub?: string;
+    id?: string;
+    [key: string]: unknown;
+  };
+}
 import { SalesOrderService } from '../services/sales-order.service';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { TenantGuard } from '../../../common/guards/tenant.guard';
@@ -38,7 +47,10 @@ export class SalesOrderController {
   }
 
   @Post()
-  async create(@Body() data: CreateSalesOrderDto, @Req() req: any) {
+  async create(
+    @Body() data: CreateSalesOrderDto,
+    @Req() req: AuthenticatedRequest,
+  ) {
     return this.service.create(data, req.user?.sub);
   }
 

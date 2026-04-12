@@ -22,7 +22,10 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     });
   }
 
-  async validate(req: Request, payload: any) {
+  async validate(
+    req: Request,
+    payload: { sub: string; [key: string]: unknown },
+  ) {
     const user = await this.userRepository.findOne(
       { id: payload.sub },
       { populate: ['roles', 'roles.permissions', 'tenant'] },
@@ -36,7 +39,8 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     // 1. User'ın kendi tenant'ı (normal kullanıcı)
     // 2. x-tenant-id header'ı (SuperAdmin tenant seçtiğinde)
     const headerTenantId = req.headers['x-tenant-id'] as string;
-    (user as any).tenantId = user.tenant?.id ?? headerTenantId ?? null;
+    (user as unknown as Record<string, unknown>).tenantId =
+      user.tenant?.id ?? headerTenantId ?? null;
 
     return user;
   }

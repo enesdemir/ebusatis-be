@@ -62,13 +62,13 @@ export class AdminDashboardService {
     const activeUsersLast7Days = await this.userRepository.count({
       lastLoginAt: { $gte: sevenDaysAgo },
       isSuperAdmin: false,
-    } as any);
+    } as never);
     // New tenants in last 30 days
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
     const newTenantsLast30Days = await this.tenantRepository.count({
       createdAt: { $gte: thirtyDaysAgo },
-    } as any);
+    } as never);
     return {
       totalTenants: allTenants.length,
       activeTenants: activeTenants.length,

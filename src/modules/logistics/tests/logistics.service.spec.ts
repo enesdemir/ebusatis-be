@@ -18,6 +18,14 @@ import {
 } from '../entities/container-event.entity';
 import { CustomsDeclaration } from '../entities/customs-declaration.entity';
 import { FreightQuote } from '../entities/freight-quote.entity';
+import { CreateShipmentDto } from '../dto/create-shipment.dto';
+import { AddContainerEventDto } from '../dto/add-container-event.dto';
+import { CreateCustomsDeclarationDto } from '../dto/create-customs-declaration.dto';
+import { CreateFreightQuoteDto } from '../dto/create-freight-quote.dto';
+import { CreateShipmentLegDto } from '../dto/create-shipment-leg.dto';
+import { UpdateShipmentLegDto } from '../dto/update-shipment-leg.dto';
+import { CreateCarrierPaymentDto } from '../dto/create-carrier-payment.dto';
+import { UpdateCarrierPaymentDto } from '../dto/update-carrier-payment.dto';
 import {
   TenantContextMissingException,
   ShipmentNotFoundException,
@@ -42,7 +50,7 @@ const buildRepoMock = () => ({
   find: jest.fn(),
   findAndCount: jest.fn(),
   count: jest.fn(),
-  create: jest.fn((data: any) => ({ ...data })),
+  create: jest.fn((data: object) => ({ ...data })),
 });
 
 describe('LogisticsService', () => {
@@ -77,7 +85,7 @@ describe('LogisticsService', () => {
       persist: jest.fn(),
       persistAndFlush: jest.fn().mockResolvedValue(undefined),
       flush: jest.fn().mockResolvedValue(undefined),
-      assign: jest.fn((target: any, source: any) =>
+      assign: jest.fn((target: object, source: object) =>
         Object.assign(target, source),
       ),
       removeAndFlush: jest.fn().mockResolvedValue(undefined),
@@ -121,7 +129,7 @@ describe('LogisticsService', () => {
         purchaseOrderId: 'po-1',
         carrierId: 'car-1',
         search: 'SH',
-      } as any);
+      });
 
       expect(result.data).toHaveLength(1);
       expect(result.meta.total).toBe(1);
@@ -139,8 +147,11 @@ describe('LogisticsService', () => {
 
     it('should not include $or when search is empty', async () => {
       shipmentRepo.findAndCount.mockResolvedValue([[], 0]);
-      await service.findAllShipments({ page: 1, limit: 20 } as any);
-      const where = shipmentRepo.findAndCount.mock.calls[0][0] as any;
+      await service.findAllShipments({ page: 1, limit: 20 });
+      const where = shipmentRepo.findAndCount.mock.calls[0][0] as Record<
+        string,
+        unknown
+      >;
       expect(where.$or).toBeUndefined();
     });
   });
@@ -168,13 +179,13 @@ describe('LogisticsService', () => {
       shipmentNumber: 'SH-2026-0001',
       direction: ShipmentDirection.INBOUND,
       purchaseOrderId: 'po-1',
-    } as any;
+    } as unknown as CreateShipmentDto;
 
     const outboundDto = {
       shipmentNumber: 'SH-2026-0002',
       direction: ShipmentDirection.OUTBOUND,
       salesOrderId: 'so-1',
-    } as any;
+    } as unknown as CreateShipmentDto;
 
     it('should throw TenantContextMissingException without tenant context', async () => {
       (TenantContext.getTenantId as jest.Mock).mockReturnValue(undefined);
@@ -202,7 +213,10 @@ describe('LogisticsService', () => {
       shipmentRepo.create.mockReturnValue(created);
       const result = await service.createShipment(inboundDto);
       expect(result).toBe(created);
-      const call = shipmentRepo.create.mock.calls[0][0] as any;
+      const call = shipmentRepo.create.mock.calls[0][0] as Record<
+        string,
+        unknown
+      >;
       expect(call.direction).toBe(ShipmentDirection.INBOUND);
       expect(call.status).toBe(ShipmentStatus.DRAFT);
       expect(em.persistAndFlush).toHaveBeenCalledWith(created);
@@ -213,7 +227,10 @@ describe('LogisticsService', () => {
       shipmentRepo.create.mockReturnValue(created);
       const result = await service.createShipment(outboundDto);
       expect(result).toBe(created);
-      const call = shipmentRepo.create.mock.calls[0][0] as any;
+      const call = shipmentRepo.create.mock.calls[0][0] as Record<
+        string,
+        unknown
+      >;
       expect(call.direction).toBe(ShipmentDirection.OUTBOUND);
     });
   });
@@ -221,7 +238,11 @@ describe('LogisticsService', () => {
   // ── updateShipmentStatus ──
   describe('updateShipmentStatus', () => {
     it('should set actualDeparture when transitioning to IN_TRANSIT', async () => {
-      const shipment: any = {
+      const shipment: {
+        id: string;
+        status: ShipmentStatus;
+        actualDeparture: Date | undefined;
+      } = {
         id: 'sh-1',
         status: ShipmentStatus.CONFIRMED,
         actualDeparture: undefined,
@@ -235,7 +256,11 @@ describe('LogisticsService', () => {
     });
 
     it('should set actualArrival when transitioning to DELIVERED', async () => {
-      const shipment: any = {
+      const shipment: {
+        id: string;
+        status: ShipmentStatus;
+        actualArrival: Date | undefined;
+      } = {
         id: 'sh-1',
         status: ShipmentStatus.IN_TRANSIT,
         actualArrival: undefined,
@@ -249,7 +274,11 @@ describe('LogisticsService', () => {
 
     it('should not overwrite actualDeparture if already set', async () => {
       const existing = new Date('2026-01-01');
-      const shipment: any = {
+      const shipment: {
+        id: string;
+        status: ShipmentStatus;
+        actualDeparture: Date;
+      } = {
         id: 'sh-1',
         status: ShipmentStatus.CONFIRMED,
         actualDeparture: existing,
@@ -264,7 +293,7 @@ describe('LogisticsService', () => {
   // ── addContainerEvent ──
   describe('addContainerEvent', () => {
     it('should attach event to existing shipment', async () => {
-      const shipment: any = { id: 'sh-1', tenant: tenantStub };
+      const shipment = { id: 'sh-1', tenant: tenantStub };
       shipmentRepo.findOne.mockResolvedValue(shipment);
       const created = { id: 'evt-1' };
       eventRepo.create.mockReturnValue(created);
@@ -272,10 +301,10 @@ describe('LogisticsService', () => {
       const result = await service.addContainerEvent('sh-1', {
         eventType: ContainerEventType.LOADED_AT_FACTORY,
         eventDate: '2026-04-12T00:00:00Z',
-      } as any);
+      } as unknown as AddContainerEventDto);
 
       expect(result).toBe(created);
-      const call = eventRepo.create.mock.calls[0][0] as any;
+      const call = eventRepo.create.mock.calls[0][0] as Record<string, unknown>;
       expect(call.shipment).toBe(shipment);
       expect(call.eventType).toBe(ContainerEventType.LOADED_AT_FACTORY);
       expect(call.eventDate).toBeInstanceOf(Date);
@@ -292,7 +321,7 @@ describe('LogisticsService', () => {
     });
 
     it('should remove existing event', async () => {
-      const event: any = { id: 'evt-1' };
+      const event = { id: 'evt-1' };
       eventRepo.findOne.mockResolvedValue(event);
       await service.removeContainerEvent('evt-1');
       expect(em.removeAndFlush).toHaveBeenCalledWith(event);
@@ -304,7 +333,7 @@ describe('LogisticsService', () => {
     const dto = {
       declarationNumber: 'GTD-2026-0001',
       shipmentId: 'sh-1',
-    } as any;
+    } as unknown as CreateCustomsDeclarationDto;
 
     it('should throw without tenant context', async () => {
       (TenantContext.getTenantId as jest.Mock).mockReturnValue(undefined);
@@ -317,7 +346,10 @@ describe('LogisticsService', () => {
       const created = { id: 'cd-1' };
       customsRepo.create.mockReturnValue(created);
       await service.createCustoms(dto);
-      const call = customsRepo.create.mock.calls[0][0] as any;
+      const call = customsRepo.create.mock.calls[0][0] as Record<
+        string,
+        unknown
+      >;
       expect(call.customsDuty).toBe(0);
       expect(call.customsVat).toBe(0);
       expect(call.brokerFee).toBe(0);
@@ -337,12 +369,12 @@ describe('LogisticsService', () => {
 
     it('should mark quote selected and unmark siblings', async () => {
       const shipmentRef = { id: 'sh-1' };
-      const quote: any = {
+      const quote: { id: string; shipment: object; isSelected: boolean } = {
         id: 'q-1',
         shipment: shipmentRef,
         isSelected: false,
       };
-      const sibling: any = {
+      const sibling: { id: string; shipment: object; isSelected: boolean } = {
         id: 'q-2',
         shipment: shipmentRef,
         isSelected: true,
@@ -363,9 +395,9 @@ describe('LogisticsService', () => {
   describe('createQuote', () => {
     it('should throw without tenant context', async () => {
       (TenantContext.getTenantId as jest.Mock).mockReturnValue(undefined);
-      await expect(service.createQuote({ price: 100 } as any)).rejects.toThrow(
-        TenantContextMissingException,
-      );
+      await expect(
+        service.createQuote({ price: 100 } as unknown as CreateFreightQuoteDto),
+      ).rejects.toThrow(TenantContextMissingException);
     });
 
     it('should persist quote with provided fields', async () => {
@@ -377,7 +409,7 @@ describe('LogisticsService', () => {
         price: 1500,
         currencyId: 'cur-usd',
         transitDays: 30,
-      } as any);
+      } as unknown as CreateFreightQuoteDto);
       expect(result).toBe(created);
       expect(em.persistAndFlush).toHaveBeenCalledWith(created);
     });
@@ -411,7 +443,7 @@ describe('LogisticsService', () => {
     });
 
     it('addLeg auto-assigns legNumber when not provided', async () => {
-      const shipment: any = { id: 'sh-1', tenant: tenantStub };
+      const shipment = { id: 'sh-1', tenant: tenantStub };
       shipmentRepo.findOne.mockResolvedValue(shipment);
       legRepo.count.mockResolvedValue(2); // two existing legs → next is 3
       const created = { id: 'leg-3' };
@@ -419,10 +451,10 @@ describe('LogisticsService', () => {
 
       const result = await service.addLeg('sh-1', {
         legType: ShipmentLegType.SEA,
-      } as any);
+      } as unknown as CreateShipmentLegDto);
 
       expect(result).toBe(created);
-      const call = legRepo.create.mock.calls[0][0] as any;
+      const call = legRepo.create.mock.calls[0][0] as Record<string, unknown>;
       expect(call.legNumber).toBe(3);
       expect(call.legType).toBe(ShipmentLegType.SEA);
       expect(call.freightCost).toBe(0);
@@ -431,7 +463,7 @@ describe('LogisticsService', () => {
     });
 
     it('addLeg respects an explicit legNumber', async () => {
-      const shipment: any = { id: 'sh-1', tenant: tenantStub };
+      const shipment = { id: 'sh-1', tenant: tenantStub };
       shipmentRepo.findOne.mockResolvedValue(shipment);
       const created = { id: 'leg-1' };
       legRepo.create.mockReturnValue(created);
@@ -440,16 +472,21 @@ describe('LogisticsService', () => {
         legNumber: 5,
         legType: ShipmentLegType.AIR,
         freightCost: 1000,
-      } as any);
+      } as unknown as CreateShipmentLegDto);
 
-      const call = legRepo.create.mock.calls[0][0] as any;
+      const call = legRepo.create.mock.calls[0][0] as Record<string, unknown>;
       expect(call.legNumber).toBe(5);
       expect(call.freightCost).toBe(1000);
       expect(legRepo.count).not.toHaveBeenCalled();
     });
 
     it('updateLeg patches only provided fields', async () => {
-      const leg: any = {
+      const leg: {
+        id: string;
+        freightCost: number;
+        storageCost: number;
+        notes: string;
+      } = {
         id: 'leg-1',
         freightCost: 100,
         storageCost: 50,
@@ -460,7 +497,7 @@ describe('LogisticsService', () => {
       await service.updateLeg('leg-1', {
         freightCost: 200,
         notes: 'new',
-      } as any);
+      } as unknown as UpdateShipmentLegDto);
 
       expect(leg.freightCost).toBe(200);
       expect(leg.storageCost).toBe(50);
@@ -468,7 +505,7 @@ describe('LogisticsService', () => {
     });
 
     it('removeLeg removes existing leg', async () => {
-      const leg: any = { id: 'leg-1' };
+      const leg = { id: 'leg-1' };
       legRepo.findOne.mockResolvedValue(leg);
       await service.removeLeg('leg-1');
       expect(em.removeAndFlush).toHaveBeenCalledWith(leg);
@@ -478,7 +515,7 @@ describe('LogisticsService', () => {
   // ── Carrier payment schedule ──
   describe('carrier payment schedule', () => {
     it('addCarrierPayment auto-assigns installment number', async () => {
-      const leg: any = { id: 'leg-1', tenant: tenantStub };
+      const leg = { id: 'leg-1', tenant: tenantStub };
       legRepo.findOne.mockResolvedValue(leg);
       carrierPaymentRepo.count.mockResolvedValue(1); // existing → next is 2
       const created = { id: 'cp-1' };
@@ -487,9 +524,12 @@ describe('LogisticsService', () => {
       await service.addCarrierPayment('leg-1', {
         trigger: CarrierPaymentTrigger.ON_BOOKING,
         amount: 500,
-      } as any);
+      } as unknown as CreateCarrierPaymentDto);
 
-      const call = carrierPaymentRepo.create.mock.calls[0][0] as any;
+      const call = carrierPaymentRepo.create.mock.calls[0][0] as Record<
+        string,
+        unknown
+      >;
       expect(call.installmentNumber).toBe(2);
       expect(call.trigger).toBe(CarrierPaymentTrigger.ON_BOOKING);
       expect(call.amount).toBe(500);
@@ -516,7 +556,12 @@ describe('LogisticsService', () => {
     });
 
     it('updateCarrierPayment patches provided fields only', async () => {
-      const installment: any = {
+      const installment: {
+        id: string;
+        amount: number;
+        percentage: number;
+        notes: string;
+      } = {
         id: 'cp-1',
         amount: 100,
         percentage: 25,
@@ -524,7 +569,9 @@ describe('LogisticsService', () => {
       };
       carrierPaymentRepo.findOne.mockResolvedValue(installment);
 
-      await service.updateCarrierPayment('cp-1', { amount: 200 } as any);
+      await service.updateCarrierPayment('cp-1', {
+        amount: 200,
+      } as unknown as UpdateCarrierPaymentDto);
 
       expect(installment.amount).toBe(200);
       expect(installment.percentage).toBe(25);
@@ -532,7 +579,7 @@ describe('LogisticsService', () => {
     });
 
     it('removeCarrierPayment removes existing installment', async () => {
-      const installment: any = { id: 'cp-1' };
+      const installment = { id: 'cp-1' };
       carrierPaymentRepo.findOne.mockResolvedValue(installment);
       await service.removeCarrierPayment('cp-1');
       expect(em.removeAndFlush).toHaveBeenCalledWith(installment);

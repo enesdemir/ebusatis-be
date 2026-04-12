@@ -11,6 +11,15 @@ import {
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
+import { Request as ExpressRequest } from 'express';
+
+interface AuthenticatedRequest extends ExpressRequest {
+  user?: {
+    sub?: string;
+    id?: string;
+    [key: string]: unknown;
+  };
+}
 import { PurchaseOrderService } from '../services/purchase-order.service';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { TenantGuard } from '../../../common/guards/tenant.guard';
@@ -33,7 +42,10 @@ export class PurchaseOrderController {
   }
 
   @Post()
-  async create(@Body() data: CreatePurchaseOrderDto, @Req() req: any) {
+  async create(
+    @Body() data: CreatePurchaseOrderDto,
+    @Req() req: AuthenticatedRequest,
+  ) {
     return this.service.create(data, req.user?.sub);
   }
 

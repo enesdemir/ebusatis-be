@@ -35,7 +35,7 @@ export class CreateClassificationNodeDto {
 
   @IsOptional()
   @IsObject()
-  properties?: Record<string, any>;
+  properties?: Record<string, unknown>;
 
   @IsOptional()
   @IsArray()

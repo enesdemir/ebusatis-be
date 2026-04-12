@@ -102,5 +102,5 @@ export class SalesOrder extends BaseTenantEntity {
   tags = new Collection<Tag>(this);
 
   @OneToMany('SalesOrderLine', 'order')
-  lines = new Collection<any>(this);
+  lines = new Collection<object>(this);
 }

@@ -1,6 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { EntityManager } from '@mikro-orm/postgresql';
 import { PartnerService } from '../services/partner.service';
+import { CreatePartnerDto } from '../dto/create-partner.dto';
+import { UpdatePartnerDto } from '../dto/update-partner.dto';
 
 // EntityManager mock — tum metotlar
 const mockEm = {
@@ -13,7 +15,9 @@ const mockEm = {
   persistAndFlush: jest.fn(),
   flush: jest.fn(),
   findOneOrFail: jest.fn().mockResolvedValue({ id: 'test-tenant-id' }),
-  assign: jest.fn((target: any, source: any) => Object.assign(target, source)),
+  assign: jest.fn((target: object, source: object) =>
+    Object.assign(target, source),
+  ),
   getReference: jest.fn(),
   fork: jest.fn().mockReturnThis(),
   createQueryBuilder: jest.fn().mockReturnValue({
@@ -83,7 +87,7 @@ describe('PartnerService', () => {
       const result = await service.create({
         name: 'New Partner',
         types: ['CUSTOMER'],
-      } as any);
+      } as unknown as CreatePartnerDto);
       expect(result.name).toBe('New Partner');
       expect(mockEm.persistAndFlush).toHaveBeenCalled();
     });
@@ -94,7 +98,9 @@ describe('PartnerService', () => {
       const existing = { id: '1', name: 'Old Name', phone: null };
       mockEm.findOne.mockResolvedValue(existing);
       mockEm.flush.mockResolvedValue(undefined);
-      const result = await service.update('1', { name: 'Updated Name' } as any);
+      const result = await service.update('1', {
+        name: 'Updated Name',
+      } as unknown as UpdatePartnerDto);
       expect(result.name).toBe('Updated Name');
     });
   });

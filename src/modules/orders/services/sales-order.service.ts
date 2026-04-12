@@ -18,6 +18,8 @@ import {
 } from '../../../common/helpers/query-builder.helper';
 import { PaginatedQueryDto } from '../../../common/dto/paginated-query.dto';
 import { Tenant } from '../../tenants/entities/tenant.entity';
+import { CreateSalesOrderDto } from '../dto/create-sales-order.dto';
+import { UpdateSalesOrderDto } from '../dto/update-sales-order.dto';
 
 @Injectable()
 export class SalesOrderService {
@@ -32,7 +34,7 @@ export class SalesOrderService {
       searchFields: ['orderNumber'],
       defaultSortBy: 'orderDate',
       where,
-      populate: ['partner', 'status', 'currency', 'assignedTo'] as any,
+      populate: ['partner', 'status', 'currency', 'assignedTo'] as never[],
     });
   }
 
@@ -57,20 +59,22 @@ export class SalesOrderService {
           'lines.taxRate',
           'lines.allocations',
           'lines.allocations.roll',
-        ] as any,
+        ] as never[],
       },
     );
     if (!order) throw new EntityNotFoundException('SalesOrder', id);
     return order;
   }
 
-  async create(data: any, userId: string): Promise<SalesOrder> {
+  async create(data: CreateSalesOrderDto, userId: string): Promise<SalesOrder> {
     const tenantId = TenantContext.getTenantId();
     if (!tenantId) throw new TenantContextMissingException();
     const tenant = await this.em.findOneOrFail(Tenant, { id: tenantId });
 
     // Sipariş numarası üret (tenant-scoped)
-    const count = await this.em.count(SalesOrder, { tenant: tenantId } as any);
+    const count = await this.em.count(SalesOrder, {
+      tenant: tenantId,
+    } as FilterQuery<SalesOrder>);
     const orderNumber = `SO-${new Date().getFullYear()}-${String(count + 1).padStart(4, '0')}`;
 
     const order = this.em.create(SalesOrder, {
@@ -106,7 +110,7 @@ export class SalesOrderService {
         ? this.em.getReference('User', data.assignedToId)
         : undefined,
       createdBy: this.em.getReference('User', userId),
-    } as any);
+    } as unknown as SalesOrder);
     this.em.persist(order);
 
     // Satırları oluştur
@@ -134,7 +138,7 @@ export class SalesOrderService {
             : undefined,
           lineTotal,
           note: lineData.note,
-        } as any);
+        } as unknown as SalesOrderLine);
         this.em.persist(line);
       }
     }
@@ -147,7 +151,7 @@ export class SalesOrderService {
     return order;
   }
 
-  async update(id: string, data: any): Promise<SalesOrder> {
+  async update(id: string, data: UpdateSalesOrderDto): Promise<SalesOrder> {
     const order = await this.findOne(id);
     this.em.assign(order, {
       ...data,
@@ -157,7 +161,7 @@ export class SalesOrderService {
       status: data.statusId
         ? this.em.getReference('StatusDefinition', data.statusId)
         : order.status,
-    } as any);
+    } as unknown as SalesOrder);
     await this.em.flush();
     return order;
   }
@@ -205,7 +209,7 @@ export class SalesOrderService {
       roll,
       allocatedQuantity: quantity,
       status: AllocationStatus.RESERVED,
-    } as any);
+    } as unknown as OrderRollAllocation);
     this.em.persist(allocation);
 
     await this.em.flush();

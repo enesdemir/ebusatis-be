@@ -11,6 +11,14 @@ import {
   UseGuards,
   Request,
 } from '@nestjs/common';
+import { Request as ExpressRequest } from 'express';
+
+interface AuthenticatedRequest extends ExpressRequest {
+  user?: {
+    tenantId?: string;
+    [key: string]: unknown;
+  };
+}
 import { ClassificationService } from '../services/classification.service';
 import {
   CreateClassificationNodeDto,
@@ -51,7 +59,10 @@ export class ClassificationController {
 
   /** Yeni dugum olustur */
   @Post()
-  create(@Body() dto: CreateClassificationNodeDto, @Request() req: any) {
+  create(
+    @Body() dto: CreateClassificationNodeDto,
+    @Request() req: AuthenticatedRequest,
+  ) {
     const tenantId = req.user?.tenantId;
     return this.service.create(dto, tenantId);
   }

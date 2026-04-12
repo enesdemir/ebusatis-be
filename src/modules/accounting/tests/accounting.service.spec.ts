@@ -10,12 +10,9 @@ const mockTaxRepo = {
 const mockEm = { persistAndFlush: jest.fn(), flush: jest.fn() };
 
 function createService() {
-  return new (AccountingService as any)(
-    mockValRepo,
-    mockFxRepo,
-    mockTaxRepo,
-    mockEm,
-  );
+  return new (AccountingService as unknown as new (
+    ...args: unknown[]
+  ) => AccountingService)(mockValRepo, mockFxRepo, mockTaxRepo, mockEm);
 }
 
 describe('AccountingService', () => {
@@ -34,7 +31,7 @@ describe('AccountingService', () => {
 
   it('createExchangeGainLoss auto-calculates gainLoss', async () => {
     const data = { originalRate: 30, settlementRate: 32, amount: 1000 };
-    mockFxRepo.create.mockImplementation((d: any) => ({ id: '1', ...d }));
+    mockFxRepo.create.mockImplementation((d: object) => ({ id: '1', ...d }));
     mockEm.persistAndFlush.mockResolvedValue(undefined);
     const result = await service.createExchangeGainLoss(data);
     expect(result.gainLoss).toBe(2000);

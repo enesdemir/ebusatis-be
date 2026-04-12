@@ -79,5 +79,5 @@ export class PhysicalSample extends BaseTenantEntity {
   // ── Loan history ──
 
   @OneToMany('SampleLoanHistory', 'sample')
-  loanHistory = new Collection<any>(this);
+  loanHistory = new Collection<object>(this);
 }

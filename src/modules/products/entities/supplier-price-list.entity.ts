@@ -36,5 +36,5 @@ export class SupplierPriceList extends BaseTenantEntity {
   isActive: boolean = true;
 
   @OneToMany('SupplierPriceListItem', 'priceList')
-  items = new Collection<any>(this);
+  items = new Collection<object>(this);
 }

@@ -25,11 +25,11 @@ export class CurrencyController extends BaseDefinitionController<Currency> {
 
   @Post()
   async create(@Body() dto: CreateCurrencyDto) {
-    return this.currencyService.create(dto as any);
+    return this.currencyService.create(dto as unknown as Partial<Currency>);
   }
 
   @Patch(':id')
   async update(@Param('id') id: string, @Body() dto: UpdateCurrencyDto) {
-    return this.currencyService.update(id, dto as any);
+    return this.currencyService.update(id, dto as unknown as Partial<Currency>);
   }
 }

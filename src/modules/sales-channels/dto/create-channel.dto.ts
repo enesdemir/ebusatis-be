@@ -33,11 +33,11 @@ export class CreateChannelDto {
 
   @IsOptional()
   @IsObject()
-  credentials?: Record<string, any>;
+  credentials?: Record<string, unknown>;
 
   @IsOptional()
   @IsObject()
-  syncSettings?: Record<string, any>;
+  syncSettings?: Record<string, unknown>;
 
   @IsOptional()
   @IsBoolean()

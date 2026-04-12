@@ -40,7 +40,7 @@ export class TenantsController {
         'No users found in this tenant to impersonate.',
       );
     }
-    const targetUser = tenant.users[0];
+    const targetUser = tenant.users[0] as { id: string };
     return this.authService.impersonate(targetUser.id);
   }
 

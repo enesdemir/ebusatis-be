@@ -1,6 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@mikro-orm/nestjs';
-import { EntityRepository, EntityManager } from '@mikro-orm/postgresql';
+import {
+  EntityRepository,
+  EntityManager,
+  FilterQuery,
+} from '@mikro-orm/postgresql';
 import {
   Notification,
   NotificationType,
@@ -35,8 +39,14 @@ export class NotificationService {
     dto: CreateNotificationDto,
   ): Promise<Notification> {
     const notif = this.repo.create({
-      tenant: this.em.getReference('Tenant', tenantId) as any,
-      recipient: this.em.getReference('User', recipientId) as any,
+      tenant: this.em.getReference(
+        'Tenant',
+        tenantId,
+      ) as unknown as Notification['tenant'],
+      recipient: this.em.getReference(
+        'User',
+        recipientId,
+      ) as unknown as Notification['recipient'],
       type: dto.type,
       severity: dto.severity || NotificationSeverity.INFO,
       title: dto.title,
@@ -60,8 +70,14 @@ export class NotificationService {
   ): Promise<void> {
     for (const recipientId of recipientIds) {
       const notif = this.repo.create({
-        tenant: this.em.getReference('Tenant', tenantId) as any,
-        recipient: this.em.getReference('User', recipientId) as any,
+        tenant: this.em.getReference(
+          'Tenant',
+          tenantId,
+        ) as unknown as Notification['tenant'],
+        recipient: this.em.getReference(
+          'User',
+          recipientId,
+        ) as unknown as Notification['recipient'],
         type: dto.type,
         severity: dto.severity || NotificationSeverity.INFO,
         title: dto.title,
@@ -86,8 +102,8 @@ export class NotificationService {
     const users = await this.em.find('User', {
       tenant: tenantId,
       isActive: true,
-    } as any);
-    const userIds = users.map((u: any) => u.id);
+    } as Parameters<typeof this.em.find>[1]);
+    const userIds = (users as Array<{ id: string }>).map((u) => u.id);
     if (userIds.length > 0) {
       await this.createForMultiple(tenantId, userIds, dto);
     }
@@ -101,9 +117,12 @@ export class NotificationService {
     params?: { page?: number; limit?: number; type?: string; isRead?: boolean },
   ) {
     const { page = 1, limit = 20, type, isRead } = params || {};
-    const where: any = { recipient: recipientId };
-    if (type) where.type = type;
-    if (isRead !== undefined) where.isRead = isRead;
+    const where: FilterQuery<Notification> = {
+      recipient: recipientId,
+    } as FilterQuery<Notification>;
+    if (type) (where as Record<string, unknown>).type = type;
+    if (isRead !== undefined)
+      (where as Record<string, unknown>).isRead = isRead;
 
     const [items, total] = await this.repo.findAndCount(where, {
       orderBy: { createdAt: 'DESC' },
@@ -142,7 +161,7 @@ export class NotificationService {
     const notif = await this.repo.findOne({
       id: notificationId,
       recipient: recipientId,
-    } as any);
+    } as FilterQuery<Notification>);
     if (notif && !notif.isRead) {
       notif.isRead = true;
       notif.readAt = new Date();
@@ -157,7 +176,7 @@ export class NotificationService {
     const unread = await this.repo.find({
       recipient: recipientId,
       isRead: false,
-    } as any);
+    } as FilterQuery<Notification>);
     const now = new Date();
     for (const n of unread) {
       n.isRead = true;
@@ -174,7 +193,7 @@ export class NotificationService {
     const notif = await this.repo.findOne({
       id: notificationId,
       recipient: recipientId,
-    } as any);
+    } as FilterQuery<Notification>);
     if (notif) {
       notif.deletedAt = new Date();
       await this.em.flush();
@@ -188,7 +207,7 @@ export class NotificationService {
     const read = await this.repo.find({
       recipient: recipientId,
       isRead: true,
-    } as any);
+    } as FilterQuery<Notification>);
     const now = new Date();
     for (const n of read) {
       n.deletedAt = now;

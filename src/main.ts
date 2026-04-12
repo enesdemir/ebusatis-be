@@ -2,6 +2,7 @@ import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { MikroORM, RequestContext } from '@mikro-orm/core';
 import helmet from 'helmet';
+import { Request, Response, NextFunction } from 'express';
 import { AppModule } from './app.module';
 import { TransformInterceptor } from './common/interceptors/transform.interceptor';
 import { GlobalExceptionFilter } from './common/filters/global-exception.filter';
@@ -16,7 +17,7 @@ async function bootstrap() {
   // Express seviyesinde kayıt → Guards, Interceptors, Controllers hepsinden ÖNCE çalışır.
   // forMiddleware() yerine manuel kayıt, çünkü forMiddleware() sıralama garantisi vermiyor.
   const orm = app.get(MikroORM);
-  app.use((req: any, _res: any, next: any) => {
+  app.use((req: Request, _res: Response, next: NextFunction) => {
     RequestContext.create(orm.em, () => {
       // Tenant filter: fork'lanmış EM'ye set et
       const tenantId = req.headers['x-tenant-id'] as string;

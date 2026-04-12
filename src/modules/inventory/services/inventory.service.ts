@@ -46,12 +46,12 @@ export class InventoryService {
     if (query.batchCode) where.batchCode = { $ilike: `%${query.batchCode}%` };
     if (query.minQuantity)
       where.currentQuantity = {
-        ...((where.currentQuantity as any) || {}),
+        ...((where.currentQuantity as Record<string, unknown>) || {}),
         $gte: query.minQuantity,
       };
     if (query.maxQuantity)
       where.currentQuantity = {
-        ...((where.currentQuantity as any) || {}),
+        ...((where.currentQuantity as Record<string, unknown>) || {}),
         $lte: query.maxQuantity,
       };
 
@@ -59,7 +59,12 @@ export class InventoryService {
       searchFields: ['barcode', 'batchCode'],
       defaultSortBy: 'receivedAt',
       where,
-      populate: ['variant', 'variant.product', 'warehouse', 'location'] as any,
+      populate: [
+        'variant',
+        'variant.product',
+        'warehouse',
+        'location',
+      ] as never[],
     });
   }
 
@@ -78,7 +83,7 @@ export class InventoryService {
           'receivedFrom',
           'transactions',
           'transactions.createdBy',
-        ] as any,
+        ] as never[],
       },
     );
     if (!item) throw new EntityNotFoundException('InventoryItem', id);
@@ -129,7 +134,7 @@ export class InventoryService {
       goodsReceiveId: data.goodsReceiveId,
       receivedAt: new Date(),
       status: InventoryItemStatus.IN_STOCK,
-    } as any);
+    } as unknown as InventoryItem);
 
     this.em.persist(item);
 
@@ -142,7 +147,7 @@ export class InventoryService {
       newQuantity: data.quantity,
       note: data.goodsReceiveId ? `GR:${data.goodsReceiveId}` : 'DIRECT_ENTRY',
       createdBy: userId ? this.em.getReference('User', userId) : undefined,
-    } as any);
+    } as unknown as InventoryTransaction);
     this.em.persist(tx);
 
     await this.em.flush();
@@ -189,7 +194,7 @@ export class InventoryService {
       referenceId,
       note: note || `Kesim: ${amount}`,
       createdBy: userId ? this.em.getReference('User', userId) : undefined,
-    } as any);
+    } as unknown as InventoryTransaction);
     this.em.persist(tx);
 
     await this.em.flush();
@@ -230,7 +235,7 @@ export class InventoryService {
       newQuantity: item.currentQuantity,
       note: note || `Fire: ${amount}`,
       createdBy: userId ? this.em.getReference('User', userId) : undefined,
-    } as any);
+    } as unknown as InventoryTransaction);
     this.em.persist(tx);
 
     await this.em.flush();
@@ -271,7 +276,7 @@ export class InventoryService {
       newQuantity,
       note: note || `ADJUSTMENT:${prevQty}->${newQuantity}`,
       createdBy: userId ? this.em.getReference('User', userId) : undefined,
-    } as any);
+    } as unknown as InventoryTransaction);
     this.em.persist(tx);
 
     await this.em.flush();
@@ -281,15 +286,32 @@ export class InventoryService {
   // ── Movement history ──
 
   async getMovements(rollId: string): Promise<InventoryTransaction[]> {
-    return this.em.find(InventoryTransaction, { item: rollId } as any, {
-      orderBy: { createdAt: 'DESC' },
-      populate: ['createdBy'] as any,
-    });
+    return this.em.find(
+      InventoryTransaction,
+      { item: rollId } as FilterQuery<InventoryTransaction>,
+      {
+        orderBy: { createdAt: 'DESC' },
+        populate: ['createdBy'] as never[],
+      },
+    );
   }
 
   // ── Stock summary (by variant) ──
 
-  async getSummary(): Promise<any[]> {
+  async getSummary(): Promise<
+    {
+      variantId: string;
+      rollCount: string;
+      totalQuantity: string;
+      totalReserved: string;
+    }[]
+  > {
+    type SummaryRow = {
+      variantId: string;
+      rollCount: string;
+      totalQuantity: string;
+      totalReserved: string;
+    };
     const qb = this.em.createQueryBuilder(InventoryItem, 'i');
     const result = await qb
       .select([
@@ -305,7 +327,7 @@ export class InventoryService {
         },
       })
       .groupBy('i.variant_id')
-      .execute();
+      .execute<SummaryRow[]>();
     return result;
   }
 }

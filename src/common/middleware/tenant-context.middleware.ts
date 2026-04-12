@@ -21,7 +21,7 @@ export class TenantContextInterceptor implements NestInterceptor {
 
   constructor(private readonly orm: MikroORM) {}
 
-  intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
+  intercept(context: ExecutionContext, next: CallHandler): Observable<unknown> {
     const req = context.switchToHttp().getRequest();
     const tenantId = req.headers['x-tenant-id'] as string;
     const resolvedTenantId = tenantId || TenantContextInterceptor.EMPTY_TENANT;

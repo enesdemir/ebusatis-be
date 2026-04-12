@@ -119,5 +119,5 @@ export class PurchaseOrder extends BaseTenantEntity {
   createdBy!: User;
 
   @OneToMany('PurchaseOrderLine', 'order')
-  lines = new Collection<any>(this);
+  lines = new Collection<object>(this);
 }

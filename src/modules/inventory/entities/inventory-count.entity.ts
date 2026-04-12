@@ -64,5 +64,5 @@ export class InventoryCount extends BaseTenantEntity {
   notes?: string;
 
   @OneToMany('InventoryCountLine', 'count')
-  lines = new Collection<any>(this);
+  lines = new Collection<object>(this);
 }

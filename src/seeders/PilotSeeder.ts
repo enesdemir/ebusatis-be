@@ -128,7 +128,7 @@ export class PilotSeeder extends Seeder {
         isActive: true,
         sortOrder: 0,
         scope: 'SYSTEM_SEED',
-      } as any);
+      } as never);
       em.persist(usdCurrency);
     }
 
@@ -146,14 +146,14 @@ export class PilotSeeder extends Seeder {
         isActive: true,
         sortOrder: 0,
         scope: 'SYSTEM_SEED',
-      } as any);
+      } as never);
       em.persist(metreUnit);
     }
 
     let mainWarehouse = await em.findOne(Warehouse, {
       code: 'MAIN',
       tenant,
-    } as any);
+    } as never);
     if (!mainWarehouse) {
       mainWarehouse = em.create(Warehouse, {
         tenant,
@@ -166,7 +166,7 @@ export class PilotSeeder extends Seeder {
         country: 'Turkey',
         sortOrder: 0,
         scope: 'SYSTEM_SEED',
-      } as any);
+      } as never);
       em.persist(mainWarehouse);
     }
 
@@ -182,7 +182,7 @@ export class PilotSeeder extends Seeder {
       email: 'orders@shanghaisilk.cn',
       phone: '+86-21-5555-0001',
       isActive: true,
-    } as any);
+    } as never);
     em.persist(supplier);
 
     // ── 2. Customer (for later outbound scenario) ──
@@ -194,7 +194,7 @@ export class PilotSeeder extends Seeder {
       customerSubtype: CustomerSubtype.WHOLESALE,
       email: 'purchase@moscowtextiles.ru',
       isActive: true,
-    } as any);
+    } as never);
     em.persist(customer);
 
     // ── 3. Product + Variant ──
@@ -240,7 +240,7 @@ export class PilotSeeder extends Seeder {
       ],
       note: 'Pilot PO for end-to-end import scenario verification.',
       createdBy: adminUser,
-    } as any);
+    } as never);
     em.persist(po);
 
     const poLine = em.create(PurchaseOrderLine, {
@@ -251,7 +251,7 @@ export class PilotSeeder extends Seeder {
       unitPrice: 500,
       lineTotal: 50000,
       receivedQuantity: 0,
-    } as any);
+    } as never);
     em.persist(poLine);
 
     await em.flush();
@@ -273,7 +273,7 @@ export class PilotSeeder extends Seeder {
       actualStartDate: new Date('2026-03-05'),
       actualCompletionDate: new Date('2026-04-12'),
       lastSupplierUpdateAt: new Date('2026-04-12'),
-    } as any);
+    } as never);
     em.persist(spo);
 
     const milestoneData = [
@@ -335,7 +335,7 @@ export class PilotSeeder extends Seeder {
             ms.status === MilestoneStatus.COMPLETED
               ? new Date('2026-04-10')
               : undefined,
-        } as any),
+        } as never),
       );
     }
 
@@ -369,7 +369,7 @@ export class PilotSeeder extends Seeder {
       costCurrency: usdCurrency,
       createdBy: adminUser,
       notes: 'Pilot shipment for end-to-end scenario.',
-    } as any);
+    } as never);
     em.persist(shipment);
 
     await em.flush();
@@ -390,7 +390,7 @@ export class PilotSeeder extends Seeder {
       storageCost: 0,
       otherCosts: 0,
       currency: usdCurrency,
-    } as any);
+    } as never);
     em.persist(leg1);
 
     // Leg 2: Sea (Shanghai → Istanbul, 8,000 USD, 30 days)
@@ -409,7 +409,7 @@ export class PilotSeeder extends Seeder {
       storageCost: 200,
       otherCosts: 0,
       currency: usdCurrency,
-    } as any);
+    } as never);
     em.persist(leg2);
 
     // Leg 3: Port → Main warehouse (inland, 1,500 USD)
@@ -429,7 +429,7 @@ export class PilotSeeder extends Seeder {
       storageCost: 0,
       otherCosts: 0,
       currency: usdCurrency,
-    } as any);
+    } as never);
     em.persist(leg3);
 
     // Carrier payment schedule (leg 2 — main sea leg)
@@ -443,7 +443,7 @@ export class PilotSeeder extends Seeder {
         percentage: 50,
         status: CarrierPaymentStatus.PAID,
         paidAt: new Date('2026-04-10'),
-      } as any),
+      } as never),
     );
     em.persist(
       em.create(CarrierPaymentSchedule, {
@@ -455,7 +455,7 @@ export class PilotSeeder extends Seeder {
         percentage: 50,
         status: CarrierPaymentStatus.PENDING,
         dueDate: new Date('2026-05-20'),
-      } as any),
+      } as never),
     );
 
     // ── 7. Container events (timeline) ──
@@ -494,7 +494,7 @@ export class PilotSeeder extends Seeder {
           eventType: e.type,
           eventDate: new Date(e.date),
           location: e.location,
-        } as any),
+        } as never),
       );
     }
 
@@ -514,7 +514,7 @@ export class PilotSeeder extends Seeder {
         currency: usdCurrency,
         submittedAt: new Date('2026-05-12'),
         approvedAt: new Date('2026-05-13'),
-      } as any),
+      } as never),
     );
 
     await em.flush();
@@ -539,7 +539,7 @@ export class PilotSeeder extends Seeder {
       status: GoodsReceiveStatus.COMPLETED,
       createdBy: adminUser,
       note: 'Pilot goods receive — 95 rolls OK, 5 rolls damaged.',
-    } as any);
+    } as never);
     em.persist(gr);
 
     // Line 1: 95 rolls received OK
@@ -551,7 +551,7 @@ export class PilotSeeder extends Seeder {
       receivedRollCount: 95,
       totalReceivedQuantity: 95,
       discrepancyType: DiscrepancyType.NONE,
-    } as any);
+    } as never);
     em.persist(grLine1);
 
     // Line 2: 5 rolls damaged during transit
@@ -568,7 +568,7 @@ export class PilotSeeder extends Seeder {
       conditionNotes:
         'Outer packaging wet, fabric shows watermarks on 5 rolls.',
       photoEvidenceUrls: ['https://cdn.example.com/evidence/pilot-dmg-01.jpg'],
-    } as any);
+    } as never);
     em.persist(grLine2);
 
     // Update PO line received quantity
@@ -592,7 +592,7 @@ export class PilotSeeder extends Seeder {
       photoUrls: ['https://cdn.example.com/evidence/pilot-dmg-01.jpg'],
       openedAt: new Date('2026-05-14T14:00:00Z'),
       openedBy: adminUser,
-    } as any);
+    } as never);
     em.persist(claim);
 
     em.persist(
@@ -605,7 +605,7 @@ export class PilotSeeder extends Seeder {
         unitPrice: 500,
         lineTotal: 2500,
         note: 'Water-damaged rolls — not sellable as first quality.',
-      } as any),
+      } as never),
     );
 
     // Back-link the claim on the GR line.
@@ -662,7 +662,7 @@ export class PilotSeeder extends Seeder {
         calculatedBy: adminUser,
         notes: 'Pilot scenario — full end-to-end landed cost.',
         lineAllocations: [lineAllocation],
-      } as any),
+      } as never),
     );
 
     // Write the per-unit landed cost back to the PO line.

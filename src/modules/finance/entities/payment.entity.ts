@@ -77,5 +77,5 @@ export class Payment extends BaseTenantEntity {
   createdBy!: User;
 
   @OneToMany('PaymentInvoiceMatch', 'payment')
-  matchedInvoices = new Collection<any>(this);
+  matchedInvoices = new Collection<object>(this);
 }

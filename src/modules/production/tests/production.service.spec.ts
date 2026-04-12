@@ -12,6 +12,13 @@ import {
 } from '../entities/production-milestone.entity';
 import { QualityCheck, QCType } from '../entities/quality-check.entity';
 import { ProductionMedia } from '../entities/production-media.entity';
+import { CreateSupplierProductionOrderDto } from '../dto/create-supplier-production-order.dto';
+import { SupplierProductionOrderQueryDto } from '../dto/supplier-production-order-query.dto';
+import { UpdateMilestoneDto } from '../dto/update-milestone.dto';
+import { SupplierMilestoneReportDto } from '../dto/supplier-milestone-report.dto';
+import { CreateQualityCheckDto } from '../dto/create-quality-check.dto';
+import { UpdateQualityCheckDto } from '../dto/update-quality-check.dto';
+import { AddProductionMediaDto } from '../dto/add-production-media.dto';
 import {
   TenantContextMissingException,
   SupplierProductionOrderNotFoundException,
@@ -31,7 +38,7 @@ const tenantStub = { id: 'test-tenant-id' };
 const buildRepoMock = () => ({
   findOne: jest.fn(),
   findAndCount: jest.fn(),
-  create: jest.fn((data: any) => ({ ...data })),
+  create: jest.fn((data: object) => ({ ...data })),
 });
 
 describe('ProductionService', () => {
@@ -61,7 +68,7 @@ describe('ProductionService', () => {
       persist: jest.fn(),
       persistAndFlush: jest.fn().mockResolvedValue(undefined),
       flush: jest.fn().mockResolvedValue(undefined),
-      assign: jest.fn((target: any, source: any) =>
+      assign: jest.fn((target: object, source: object) =>
         Object.assign(target, source),
       ),
     };
@@ -101,7 +108,7 @@ describe('ProductionService', () => {
         supplierId: 'sup-1',
         purchaseOrderId: 'po-1',
         search: 'SPO',
-      } as any);
+      } as unknown as SupplierProductionOrderQueryDto);
 
       expect(result.data).toHaveLength(1);
       expect(result.meta.total).toBe(1);
@@ -141,7 +148,7 @@ describe('ProductionService', () => {
       purchaseOrderId: 'po-1',
       supplierId: 'sup-1',
       plannedQuantity: 100,
-    } as any;
+    } as unknown as CreateSupplierProductionOrderDto;
 
     it('should throw TenantContextMissingException without tenant context', async () => {
       (TenantContext.getTenantId as jest.Mock).mockReturnValue(undefined);
@@ -172,7 +179,10 @@ describe('ProductionService', () => {
       const createdOrder = { id: 'spo-1' };
       orderRepo.create.mockReturnValue(createdOrder);
       await service.createOrder(dto);
-      const createCall = orderRepo.create.mock.calls[0][0] as any;
+      const createCall = orderRepo.create.mock.calls[0][0] as Record<
+        string,
+        unknown
+      >;
       expect(createCall.status).toBe(SupplierProductionStatus.AWAITING_START);
     });
   });
@@ -180,7 +190,11 @@ describe('ProductionService', () => {
   // ── updateOrderStatus ──
   describe('updateOrderStatus', () => {
     it('should set actualStartDate when transitioning to IN_DYEHOUSE', async () => {
-      const order: any = {
+      const order: {
+        id: string;
+        status: SupplierProductionStatus;
+        actualStartDate: Date | undefined;
+      } = {
         id: 'spo-1',
         status: SupplierProductionStatus.AWAITING_START,
         actualStartDate: undefined,
@@ -197,7 +211,11 @@ describe('ProductionService', () => {
     });
 
     it('should set actualCompletionDate when transitioning to READY_TO_SHIP', async () => {
-      const order: any = {
+      const order: {
+        id: string;
+        status: SupplierProductionStatus;
+        actualCompletionDate: Date | undefined;
+      } = {
         id: 'spo-1',
         status: SupplierProductionStatus.IN_QC,
         actualCompletionDate: undefined,
@@ -214,7 +232,11 @@ describe('ProductionService', () => {
 
     it('should not overwrite actualStartDate if already set', async () => {
       const existing = new Date('2026-01-01');
-      const order: any = {
+      const order: {
+        id: string;
+        status: SupplierProductionStatus;
+        actualStartDate: Date;
+      } = {
         id: 'spo-1',
         status: SupplierProductionStatus.IN_DYEHOUSE,
         actualStartDate: existing,
@@ -234,29 +256,37 @@ describe('ProductionService', () => {
     it('should throw ProductionMilestoneNotFoundException when missing', async () => {
       milestoneRepo.findOne.mockResolvedValue(null);
       await expect(
-        service.updateMilestone('missing', {} as any),
+        service.updateMilestone('missing', {} as unknown as UpdateMilestoneDto),
       ).rejects.toThrow(ProductionMilestoneNotFoundException);
     });
 
     it('should set startedAt when transitioning to IN_PROGRESS', async () => {
-      const ms: any = { id: 'ms-1', startedAt: undefined };
+      const ms: {
+        id: string;
+        startedAt: Date | undefined;
+        status?: MilestoneStatus;
+      } = { id: 'ms-1', startedAt: undefined };
       milestoneRepo.findOne.mockResolvedValue(ms);
 
       await service.updateMilestone('ms-1', {
         status: MilestoneStatus.IN_PROGRESS,
-      } as any);
+      } as unknown as UpdateMilestoneDto);
 
       expect(ms.startedAt).toBeInstanceOf(Date);
       expect(ms.status).toBe(MilestoneStatus.IN_PROGRESS);
     });
 
     it('should set completedAt when transitioning to COMPLETED', async () => {
-      const ms: any = { id: 'ms-1', completedAt: undefined };
+      const ms: {
+        id: string;
+        completedAt: Date | undefined;
+        status?: MilestoneStatus;
+      } = { id: 'ms-1', completedAt: undefined };
       milestoneRepo.findOne.mockResolvedValue(ms);
 
       await service.updateMilestone('ms-1', {
         status: MilestoneStatus.COMPLETED,
-      } as any);
+      } as unknown as UpdateMilestoneDto);
 
       expect(ms.completedAt).toBeInstanceOf(Date);
     });
@@ -265,8 +295,18 @@ describe('ProductionService', () => {
   // ── reportMilestoneFromSupplier ──
   describe('reportMilestoneFromSupplier', () => {
     it('should update milestone and bump parent order lastSupplierUpdateAt', async () => {
-      const parentOrder: any = { id: 'spo-1', lastSupplierUpdateAt: undefined };
-      const ms: any = {
+      const parentOrder: {
+        id: string;
+        lastSupplierUpdateAt: Date | undefined;
+      } = { id: 'spo-1', lastSupplierUpdateAt: undefined };
+      const ms: {
+        id: string;
+        productionOrder: typeof parentOrder;
+        reportedBySupplierAt: Date | undefined;
+        status?: MilestoneStatus;
+        supplierMediaUrls?: string[];
+        note?: string;
+      } = {
         id: 'ms-1',
         productionOrder: parentOrder,
         reportedBySupplierAt: undefined,
@@ -289,7 +329,10 @@ describe('ProductionService', () => {
     it('should throw when milestone missing', async () => {
       milestoneRepo.findOne.mockResolvedValue(null);
       await expect(
-        service.reportMilestoneFromSupplier('missing', {} as any),
+        service.reportMilestoneFromSupplier(
+          'missing',
+          {} as unknown as SupplierMilestoneReportDto,
+        ),
       ).rejects.toThrow(ProductionMilestoneNotFoundException);
     });
   });
@@ -299,7 +342,7 @@ describe('ProductionService', () => {
     const dto = {
       productionOrderId: 'spo-1',
       testType: 'Martindale',
-    } as any;
+    } as unknown as CreateQualityCheckDto;
 
     it('should throw without tenant context', async () => {
       (TenantContext.getTenantId as jest.Mock).mockReturnValue(undefined);
@@ -312,7 +355,7 @@ describe('ProductionService', () => {
       const created = { id: 'qc-1' };
       qcRepo.create.mockReturnValue(created);
       await service.createQC(dto);
-      const call = qcRepo.create.mock.calls[0][0] as any;
+      const call = qcRepo.create.mock.calls[0][0] as Record<string, unknown>;
       expect(call.qcType).toBe(QCType.SUPPLIER_PRE_SHIPMENT);
     });
   });
@@ -321,15 +364,20 @@ describe('ProductionService', () => {
   describe('updateQC', () => {
     it('should throw QualityCheckNotFoundException when missing', async () => {
       qcRepo.findOne.mockResolvedValue(null);
-      await expect(service.updateQC('missing', {} as any)).rejects.toThrow(
-        QualityCheckNotFoundException,
-      );
+      await expect(
+        service.updateQC('missing', {} as unknown as UpdateQualityCheckDto),
+      ).rejects.toThrow(QualityCheckNotFoundException);
     });
 
     it('should assign provided fields', async () => {
-      const qc: any = { id: 'qc-1', result: 'PENDING' };
+      const qc: { id: string; result: string } = {
+        id: 'qc-1',
+        result: 'PENDING',
+      };
       qcRepo.findOne.mockResolvedValue(qc);
-      await service.updateQC('qc-1', { result: 'PASSED' } as any);
+      await service.updateQC('qc-1', {
+        result: 'PASSED',
+      } as unknown as UpdateQualityCheckDto);
       expect(qc.result).toBe('PASSED');
     });
   });
@@ -343,7 +391,7 @@ describe('ProductionService', () => {
           productionOrderId: 'spo-1',
           fileName: 'a.jpg',
           fileUrl: 'https://cdn/a.jpg',
-        } as any),
+        } as unknown as AddProductionMediaDto),
       ).rejects.toThrow(TenantContextMissingException);
     });
 
@@ -354,8 +402,8 @@ describe('ProductionService', () => {
         productionOrderId: 'spo-1',
         fileName: 'a.jpg',
         fileUrl: 'https://cdn/a.jpg',
-      } as any);
-      const call = mediaRepo.create.mock.calls[0][0] as any;
+      } as unknown as AddProductionMediaDto);
+      const call = mediaRepo.create.mock.calls[0][0] as Record<string, unknown>;
       expect(call.uploadedBySupplier).toBe(false);
     });
   });

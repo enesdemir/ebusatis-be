@@ -45,7 +45,7 @@ export class PartnerService {
       searchFields: ['name', 'code', 'email', 'phone'],
       defaultSortBy: 'name',
       where,
-      populate: ['defaultCurrency'] as any,
+      populate: ['defaultCurrency'] as never[],
     });
   }
 
@@ -64,12 +64,12 @@ export class PartnerService {
           'assignedReps',
           'defaultCurrency',
           'tags',
-        ] as any,
+        ] as never[],
         populateWhere: {
           addresses: { deletedAt: null },
           contacts: { deletedAt: null },
           counterparties: { deletedAt: null },
-        } as any,
+        } as never,
       },
     );
     if (!partner) throw new EntityNotFoundException('Partner', id);
@@ -87,7 +87,7 @@ export class PartnerService {
       defaultCurrency: dto.defaultCurrencyId
         ? this.em.getReference('Currency', dto.defaultCurrencyId)
         : undefined,
-    } as any);
+    } as unknown as Partner);
 
     await this.em.persistAndFlush(partner);
     return partner;
@@ -100,7 +100,7 @@ export class PartnerService {
       defaultCurrency: dto.defaultCurrencyId
         ? this.em.getReference('Currency', dto.defaultCurrencyId)
         : partner.defaultCurrency,
-    } as any);
+    } as unknown as Partner);
     await this.em.flush();
     return partner;
   }
@@ -117,12 +117,12 @@ export class PartnerService {
     return this.em.find(PartnerAddress, {
       partner: partnerId,
       deletedAt: null,
-    } as any);
+    } as FilterQuery<PartnerAddress>);
   }
 
   private resolveAddressRefs(dto: Partial<CreateAddressDto>) {
     const { partnerId: _partnerId, countryId, stateId, cityId, ...rest } = dto;
-    const refs: any = { ...rest };
+    const refs: Record<string, unknown> = { ...rest };
     if (countryId)
       refs.country = this.em.getReference(ClassificationNode, countryId);
     if (stateId) refs.state = this.em.getReference(ClassificationNode, stateId);
@@ -144,7 +144,7 @@ export class PartnerService {
       ...refs,
       tenant,
       partner,
-    } as any);
+    } as unknown as PartnerAddress);
 
     await this.em.persistAndFlush(address);
     return address;
@@ -157,9 +157,9 @@ export class PartnerService {
     const address = await this.em.findOneOrFail(PartnerAddress, {
       id: addressId,
       deletedAt: null,
-    } as any);
+    } as FilterQuery<PartnerAddress>);
     const refs = this.resolveAddressRefs(dto);
-    this.em.assign(address, refs as any);
+    this.em.assign(address, refs as unknown as PartnerAddress);
     await this.em.flush();
     return address;
   }
@@ -168,7 +168,7 @@ export class PartnerService {
     const address = await this.em.findOneOrFail(PartnerAddress, {
       id: addressId,
       deletedAt: null,
-    } as any);
+    } as FilterQuery<PartnerAddress>);
     address.deletedAt = new Date();
     await this.em.flush();
   }
@@ -179,7 +179,7 @@ export class PartnerService {
     return this.em.find(PartnerContact, {
       partner: partnerId,
       deletedAt: null,
-    } as any);
+    } as FilterQuery<PartnerContact>);
   }
 
   async createContact(dto: CreateContactDto): Promise<PartnerContact> {
@@ -191,7 +191,7 @@ export class PartnerService {
       ...dto,
       tenant,
       partner,
-    } as any);
+    } as unknown as PartnerContact);
 
     await this.em.persistAndFlush(contact);
     return contact;
@@ -204,9 +204,9 @@ export class PartnerService {
     const contact = await this.em.findOneOrFail(PartnerContact, {
       id: contactId,
       deletedAt: null,
-    } as any);
+    } as FilterQuery<PartnerContact>);
     const { partnerId: _pid, ...updateData } = dto;
-    this.em.assign(contact, updateData as any);
+    this.em.assign(contact, updateData as unknown as PartnerContact);
     await this.em.flush();
     return contact;
   }
@@ -215,7 +215,7 @@ export class PartnerService {
     const contact = await this.em.findOneOrFail(PartnerContact, {
       id: contactId,
       deletedAt: null,
-    } as any);
+    } as FilterQuery<PartnerContact>);
     contact.deletedAt = new Date();
     await this.em.flush();
   }
@@ -226,7 +226,7 @@ export class PartnerService {
     return this.em.find(Counterparty, {
       partner: partnerId,
       deletedAt: null,
-    } as any);
+    } as FilterQuery<Counterparty>);
   }
 
   async createCounterparty(dto: CreateCounterpartyDto): Promise<Counterparty> {
@@ -238,7 +238,7 @@ export class PartnerService {
       ...dto,
       tenant,
       partner,
-    } as any);
+    } as unknown as Counterparty);
 
     await this.em.persistAndFlush(counterparty);
     return counterparty;
@@ -251,9 +251,9 @@ export class PartnerService {
     const cp = await this.em.findOneOrFail(Counterparty, {
       id: counterpartyId,
       deletedAt: null,
-    } as any);
+    } as FilterQuery<Counterparty>);
     const { partnerId: _pid, ...updateData } = dto;
-    this.em.assign(cp, updateData as any);
+    this.em.assign(cp, updateData as unknown as Counterparty);
     await this.em.flush();
     return cp;
   }
@@ -262,7 +262,7 @@ export class PartnerService {
     const cp = await this.em.findOneOrFail(Counterparty, {
       id: counterpartyId,
       deletedAt: null,
-    } as any);
+    } as FilterQuery<Counterparty>);
     cp.deletedAt = new Date();
     await this.em.flush();
   }
@@ -272,8 +272,8 @@ export class PartnerService {
   async getInteractions(partnerId: string): Promise<Interaction[]> {
     return this.em.find(
       Interaction,
-      { partner: partnerId, deletedAt: null } as any,
-      { orderBy: { createdAt: 'DESC' }, populate: ['createdBy'] as any },
+      { partner: partnerId, deletedAt: null } as FilterQuery<Interaction>,
+      { orderBy: { createdAt: 'DESC' }, populate: ['createdBy'] as never[] },
     );
   }
 
@@ -294,7 +294,7 @@ export class PartnerService {
       nextActionDate: dto.nextActionDate
         ? new Date(dto.nextActionDate)
         : undefined,
-    } as any);
+    } as unknown as Interaction);
 
     await this.em.persistAndFlush(interaction);
     return interaction;

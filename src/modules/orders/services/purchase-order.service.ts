@@ -13,6 +13,7 @@ import {
 } from '../../../common/helpers/query-builder.helper';
 import { PaginatedQueryDto } from '../../../common/dto/paginated-query.dto';
 import { Tenant } from '../../tenants/entities/tenant.entity';
+import { CreatePurchaseOrderDto } from '../dto/create-purchase-order.dto';
 
 @Injectable()
 export class PurchaseOrderService {
@@ -27,7 +28,7 @@ export class PurchaseOrderService {
       searchFields: ['orderNumber'],
       defaultSortBy: 'createdAt',
       where,
-      populate: ['supplier', 'status', 'currency'] as any,
+      populate: ['supplier', 'status', 'currency'] as never[],
     });
   }
 
@@ -46,21 +47,24 @@ export class PurchaseOrderService {
           'lines.variant',
           'lines.variant.product',
           'lines.taxRate',
-        ] as any,
+        ] as never[],
       },
     );
     if (!order) throw new EntityNotFoundException('PurchaseOrder', id);
     return order;
   }
 
-  async create(data: any, userId: string): Promise<PurchaseOrder> {
+  async create(
+    data: CreatePurchaseOrderDto,
+    userId: string,
+  ): Promise<PurchaseOrder> {
     const tenantId = TenantContext.getTenantId();
     if (!tenantId) throw new TenantContextMissingException();
     const tenant = await this.em.findOneOrFail(Tenant, { id: tenantId });
 
     const count = await this.em.count(PurchaseOrder, {
       tenant: tenantId,
-    } as any);
+    } as FilterQuery<PurchaseOrder>);
     const orderNumber = `PO-${new Date().getFullYear()}-${String(count + 1).padStart(4, '0')}`;
 
     const order = this.em.create(PurchaseOrder, {
@@ -83,7 +87,7 @@ export class PurchaseOrderService {
       containerInfo: data.containerInfo,
       note: data.note,
       createdBy: this.em.getReference('User', userId),
-    } as any);
+    } as unknown as PurchaseOrder);
     this.em.persist(order);
 
     let totalAmount = 0;
@@ -103,7 +107,7 @@ export class PurchaseOrderService {
             : undefined,
           lineTotal,
           note: lineData.note,
-        } as any);
+        } as unknown as PurchaseOrderLine);
         this.em.persist(line);
       }
     }

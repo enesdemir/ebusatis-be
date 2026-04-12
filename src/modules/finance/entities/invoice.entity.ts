@@ -100,5 +100,5 @@ export class Invoice extends BaseTenantEntity {
   createdBy!: User;
 
   @OneToMany('InvoiceLine', 'invoice')
-  lines = new Collection<any>(this);
+  lines = new Collection<object>(this);
 }

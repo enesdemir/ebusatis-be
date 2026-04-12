@@ -9,6 +9,15 @@ import {
   Query,
   Req,
 } from '@nestjs/common';
+import { Request as ExpressRequest } from 'express';
+
+interface AuthenticatedRequest extends ExpressRequest {
+  user?: {
+    sub?: string;
+    id?: string;
+    [key: string]: unknown;
+  };
+}
 import { GoodsReceiveService } from '../services/goods-receive.service';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { TenantGuard } from '../../../common/guards/tenant.guard';
@@ -40,7 +49,7 @@ export class GoodsReceiveController {
   }
 
   @Post()
-  create(@Body() dto: CreateGoodsReceiveDto, @Req() req: any) {
+  create(@Body() dto: CreateGoodsReceiveDto, @Req() req: AuthenticatedRequest) {
     return this.grService.create(dto, req.user?.sub);
   }
 

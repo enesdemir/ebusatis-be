@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { EntityManager } from '@mikro-orm/postgresql';
+import { EntityManager, FilterQuery } from '@mikro-orm/postgresql';
 import {
   GoodsReceive,
   GoodsReceiveStatus,
@@ -64,7 +64,7 @@ export class GoodsReceiveService {
         'createdBy',
         'purchaseOrder',
         'shipment',
-      ] as any,
+      ] as never[],
     });
   }
 
@@ -84,7 +84,7 @@ export class GoodsReceiveService {
           'lines',
           'lines.variant',
           'lines.claim',
-        ] as any,
+        ] as never[],
       },
     );
     if (!gr) throw new GoodsReceiveNotFoundException(id);
@@ -113,7 +113,7 @@ export class GoodsReceiveService {
     // Tenant-scoped sequence number.
     const count = await this.em.count(GoodsReceive, {
       tenant: tenantId,
-    } as any);
+    } as FilterQuery<GoodsReceive>);
     const receiveNumber = `GR-${new Date().getFullYear()}-${String(count + 1).padStart(4, '0')}`;
 
     const gr = this.em.create(GoodsReceive, {
@@ -143,7 +143,7 @@ export class GoodsReceiveService {
       createdBy: this.em.getReference(User, userId),
       status: GoodsReceiveStatus.COMPLETED,
       receivedAt: new Date(),
-    } as any);
+    } as unknown as GoodsReceive);
     this.em.persist(gr);
 
     // Create one line per variant and N inventory rolls per line.
@@ -174,7 +174,7 @@ export class GoodsReceiveService {
         receivedRollCount: lineData.rolls.length,
         totalReceivedQuantity: totalQty,
         note: lineData.note,
-      } as any);
+      } as unknown as GoodsReceiveLine);
       this.em.persist(line);
     }
 
@@ -188,7 +188,7 @@ export class GoodsReceiveService {
     const line = await this.em.findOne(
       GoodsReceiveLine,
       { id },
-      { populate: ['variant', 'claim', 'goodsReceive'] as any },
+      { populate: ['variant', 'claim', 'goodsReceive'] as never[] },
     );
     if (!line) throw new GoodsReceiveLineNotFoundException(id);
     return line;

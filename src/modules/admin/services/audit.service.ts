@@ -12,7 +12,7 @@ interface CreateAuditLogInput {
   tenantName?: string;
   ipAddress?: string;
   userAgent?: string;
-  details?: Record<string, any>;
+  details?: Record<string, unknown>;
   entityType?: string;
   entityId?: string;
 }
@@ -72,10 +72,14 @@ export class AuditService {
     if (query.dateFrom || query.dateTo) {
       where.createdAt = {};
       if (query.dateFrom) {
-        (where.createdAt as any).$gte = new Date(query.dateFrom);
+        (where.createdAt as Record<string, unknown>).$gte = new Date(
+          query.dateFrom,
+        );
       }
       if (query.dateTo) {
-        (where.createdAt as any).$lte = new Date(query.dateTo);
+        (where.createdAt as Record<string, unknown>).$lte = new Date(
+          query.dateTo,
+        );
       }
     }
     const [data, total] = await this.auditLogRepository.findAndCount(where, {

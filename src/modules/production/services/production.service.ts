@@ -102,7 +102,7 @@ export class ProductionService {
       supplierId,
       purchaseOrderId,
     } = query;
-    const where: Record<string, any> = {};
+    const where: Record<string, unknown> = {};
     if (search) where.productionNumber = { $like: `%${search}%` };
     if (status) where.status = status;
     if (supplierId) where.supplier = supplierId;
@@ -156,11 +156,11 @@ export class ProductionService {
     const order = this.orderRepo.create({
       tenant,
       productionNumber: dto.productionNumber,
-      purchaseOrder: dto.purchaseOrderId as any,
-      supplier: dto.supplierId as any,
-      supplierContact: dto.supplierContactId as any,
-      product: dto.productId as any,
-      variant: dto.variantId as any,
+      purchaseOrder: dto.purchaseOrderId as unknown,
+      supplier: dto.supplierId as unknown,
+      supplierContact: dto.supplierContactId as unknown,
+      product: dto.productId as unknown,
+      variant: dto.variantId as unknown,
       plannedQuantity: dto.plannedQuantity,
       status: dto.status ?? SupplierProductionStatus.AWAITING_START,
       factoryLocation: dto.factoryLocation,
@@ -236,7 +236,7 @@ export class ProductionService {
       ms.completedAt = new Date(dto.completedAt);
     if (dto.note !== undefined) ms.note = dto.note;
     if (dto.assignedToId !== undefined)
-      (ms as any).assignedTo = dto.assignedToId;
+      (ms as unknown as Record<string, unknown>).assignedTo = dto.assignedToId;
     await this.em.flush();
     return ms;
   }
@@ -277,7 +277,7 @@ export class ProductionService {
 
     const qc = this.qcRepo.create({
       tenant,
-      productionOrder: dto.productionOrderId as any,
+      productionOrder: dto.productionOrderId as unknown,
       qcType: dto.qcType ?? QCType.SUPPLIER_PRE_SHIPMENT,
       testType: dto.testType,
       testStandard: dto.testStandard,
@@ -285,7 +285,7 @@ export class ProductionService {
       measuredValue: dto.measuredValue,
       expectedValue: dto.expectedValue,
       testedAt: dto.testedAt ? new Date(dto.testedAt) : undefined,
-      inspector: dto.inspectorId as any,
+      inspector: dto.inspectorId as unknown,
       note: dto.note,
       attachments: dto.attachments,
     });
@@ -299,7 +299,7 @@ export class ProductionService {
   ): Promise<QualityCheck> {
     const qc = await this.qcRepo.findOne({ id });
     if (!qc) throw new QualityCheckNotFoundException(id);
-    this.em.assign(qc, dto as any);
+    this.em.assign(qc, dto as unknown as QualityCheck);
     await this.em.flush();
     return qc;
   }
@@ -313,7 +313,7 @@ export class ProductionService {
 
     const media = this.mediaRepo.create({
       tenant,
-      productionOrder: dto.productionOrderId as any,
+      productionOrder: dto.productionOrderId as unknown,
       type: dto.type,
       fileName: dto.fileName,
       fileUrl: dto.fileUrl,

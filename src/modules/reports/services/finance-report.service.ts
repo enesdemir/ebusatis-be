@@ -14,7 +14,7 @@ export class FinanceReportService {
   /**
    * Cari Bakiye Raporu: T��m müşteri/tedarikçilerin güncel bakiyeleri
    */
-  async balanceReport(): Promise<any[]> {
+  async balanceReport(): Promise<Record<string, unknown>[]> {
     const knex = this.em.getKnex();
 
     // Fatura toplamları (borç)
@@ -41,7 +41,7 @@ export class FinanceReportService {
   /**
    * Vade Analizi: Vadesi geçmiş faturalar
    */
-  async agingAnalysis(): Promise<any> {
+  async agingAnalysis(): Promise<Record<string, unknown>[]> {
     const knex = this.em.getKnex();
     const today = new Date().toISOString().split('T')[0];
 
@@ -82,7 +82,10 @@ export class FinanceReportService {
   /**
    * Nakit Akış Raporu: Dönem bazlı tahsilat ve ödeme
    */
-  async cashFlow(from?: string, to?: string): Promise<any> {
+  async cashFlow(
+    from?: string,
+    to?: string,
+  ): Promise<{ incoming: number; outgoing: number; netCashFlow: number }> {
     const knex = this.em.getKnex();
 
     let incomingQb = knex('payments')
@@ -104,10 +107,8 @@ export class FinanceReportService {
       outgoingQb = outgoingQb.where('payment_date', '<=', new Date(to));
     }
 
-    const [incoming, outgoing]: any[] = await Promise.all([
-      incomingQb.first(),
-      outgoingQb.first(),
-    ]);
+    const [incoming, outgoing]: Array<{ total?: string } | undefined> =
+      await Promise.all([incomingQb.first(), outgoingQb.first()]);
 
     return {
       incoming: Number(incoming?.total || 0),

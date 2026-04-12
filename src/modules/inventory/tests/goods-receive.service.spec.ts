@@ -4,6 +4,8 @@ import { GoodsReceiveService } from '../services/goods-receive.service';
 import { InventoryService } from '../services/inventory.service';
 import { GoodsReceiveStatus } from '../entities/goods-receive.entity';
 import { DiscrepancyType } from '../entities/goods-receive-line.entity';
+import { CreateGoodsReceiveDto } from '../dto/create-goods-receive.dto';
+import { ReportDiscrepancyDto } from '../dto/report-discrepancy.dto';
 import {
   TenantContextMissingException,
   GoodsReceiveNotFoundException,
@@ -41,12 +43,12 @@ describe('GoodsReceiveService', () => {
     em = {
       findOne: jest.fn(),
       findOneOrFail: jest.fn().mockResolvedValue(tenantStub),
-      create: jest.fn((_entity: any, data: any) => ({ ...data })),
+      create: jest.fn((_entity: unknown, data: object) => ({ ...data })),
       persist: jest.fn(),
       persistAndFlush: jest.fn().mockResolvedValue(undefined),
       flush: jest.fn().mockResolvedValue(undefined),
       count: jest.fn().mockResolvedValue(0),
-      getReference: jest.fn((_entity: any, id: string) => ({ id })),
+      getReference: jest.fn((_entity: unknown, id: string) => ({ id })),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -70,7 +72,7 @@ describe('GoodsReceiveService', () => {
     });
 
     it('should return when found', async () => {
-      const gr: any = { id: 'gr-1' };
+      const gr = { id: 'gr-1' };
       em.findOne.mockResolvedValue(gr);
       const result = await service.findOne('gr-1');
       expect(result).toBe(gr);
@@ -91,7 +93,7 @@ describe('GoodsReceiveService', () => {
           ],
         },
       ],
-    } as any;
+    } as unknown as CreateGoodsReceiveDto;
 
     it('should throw without tenant context', async () => {
       (TenantContext.getTenantId as jest.Mock).mockReturnValue(undefined);
@@ -108,7 +110,7 @@ describe('GoodsReceiveService', () => {
 
       await service.create(baseDto, 'user-1');
 
-      const grPayload = em.create.mock.calls[0][1] as any;
+      const grPayload = em.create.mock.calls[0][1] as Record<string, unknown>;
       expect(grPayload.receiveNumber).toMatch(/^GR-\d{4}-0003$/);
       expect(grPayload.status).toBe(GoodsReceiveStatus.COMPLETED);
     });
@@ -130,11 +132,13 @@ describe('GoodsReceiveService', () => {
     it('should sum line totals from rolls', async () => {
       const created = { id: 'gr-1' };
       em.create.mockReturnValueOnce(created);
-      em.create.mockImplementationOnce((_entity: any, data: any) => data);
+      em.create.mockImplementationOnce(
+        (_entity: unknown, data: object) => data,
+      );
 
       await service.create(baseDto, 'user-1');
 
-      const linePayload = em.create.mock.calls[1][1] as any;
+      const linePayload = em.create.mock.calls[1][1] as Record<string, unknown>;
       expect(linePayload.receivedRollCount).toBe(2);
       expect(linePayload.totalReceivedQuantity).toBe(80);
     });
@@ -153,7 +157,7 @@ describe('GoodsReceiveService', () => {
 
       await service.create(dto, 'user-1');
 
-      const grPayload = em.create.mock.calls[0][1] as any;
+      const grPayload = em.create.mock.calls[0][1] as Record<string, unknown>;
       expect(grPayload.vehiclePlate).toBe('34 ABC 123');
       expect(grPayload.driverName).toBe('John');
       expect(grPayload.driverPhone).toBe('+90...');
@@ -166,12 +170,21 @@ describe('GoodsReceiveService', () => {
     it('should throw when goods receive line is missing', async () => {
       em.findOne.mockResolvedValue(null);
       await expect(
-        service.reportDiscrepancy('missing', {} as any),
+        service.reportDiscrepancy(
+          'missing',
+          {} as unknown as ReportDiscrepancyDto,
+        ),
       ).rejects.toThrow(GoodsReceiveLineNotFoundException);
     });
 
     it('should set discrepancy fields', async () => {
-      const line: any = { id: 'grl-1', discrepancyType: DiscrepancyType.NONE };
+      const line: {
+        id: string;
+        discrepancyType: DiscrepancyType;
+        discrepancyQuantity?: number;
+        discrepancyReason?: string;
+        photoEvidenceUrls?: string[];
+      } = { id: 'grl-1', discrepancyType: DiscrepancyType.NONE };
       em.findOne.mockResolvedValue(line);
 
       await service.reportDiscrepancy('grl-1', {
@@ -179,7 +192,7 @@ describe('GoodsReceiveService', () => {
         discrepancyQuantity: 5,
         discrepancyReason: 'Wet packaging',
         photoEvidenceUrls: ['https://cdn/p1.jpg'],
-      } as any);
+      } as unknown as ReportDiscrepancyDto);
 
       expect(line.discrepancyType).toBe(DiscrepancyType.DAMAGED);
       expect(line.discrepancyQuantity).toBe(5);
@@ -188,7 +201,14 @@ describe('GoodsReceiveService', () => {
     });
 
     it('should clear discrepancy when type is NONE', async () => {
-      const line: any = {
+      const line: {
+        id: string;
+        discrepancyType: DiscrepancyType;
+        discrepancyQuantity?: number;
+        discrepancyReason?: string;
+        conditionNotes?: string;
+        photoEvidenceUrls?: string[];
+      } = {
         id: 'grl-1',
         discrepancyType: DiscrepancyType.DAMAGED,
         discrepancyQuantity: 5,
@@ -200,7 +220,7 @@ describe('GoodsReceiveService', () => {
 
       await service.reportDiscrepancy('grl-1', {
         discrepancyType: DiscrepancyType.NONE,
-      } as any);
+      } as unknown as ReportDiscrepancyDto);
 
       expect(line.discrepancyType).toBe(DiscrepancyType.NONE);
       expect(line.discrepancyQuantity).toBeUndefined();
@@ -210,7 +230,11 @@ describe('GoodsReceiveService', () => {
     });
 
     it('should leave existing type untouched when type is omitted', async () => {
-      const line: any = {
+      const line: {
+        id: string;
+        discrepancyType: DiscrepancyType;
+        discrepancyReason: string;
+      } = {
         id: 'grl-1',
         discrepancyType: DiscrepancyType.DAMAGED,
         discrepancyReason: 'old reason',
@@ -219,7 +243,7 @@ describe('GoodsReceiveService', () => {
 
       await service.reportDiscrepancy('grl-1', {
         discrepancyReason: 'new reason',
-      } as any);
+      } as unknown as ReportDiscrepancyDto);
 
       expect(line.discrepancyType).toBe(DiscrepancyType.DAMAGED);
       expect(line.discrepancyReason).toBe('new reason');

@@ -121,11 +121,11 @@ export class SupplierProductionOrder extends BaseTenantEntity {
   // ── Children ──
 
   @OneToMany('ProductionMilestone', 'productionOrder')
-  milestones = new Collection<any>(this);
+  milestones = new Collection<object>(this);
 
   @OneToMany('QualityCheck', 'productionOrder')
-  qualityChecks = new Collection<any>(this);
+  qualityChecks = new Collection<object>(this);
 
   @OneToMany('ProductionMedia', 'productionOrder')
-  media = new Collection<any>(this);
+  media = new Collection<object>(this);
 }

@@ -10,12 +10,9 @@ const mockOrdRepo = { find: jest.fn() };
 const mockEm = { persistAndFlush: jest.fn(), flush: jest.fn() };
 
 function createService() {
-  return new (SalesChannelsService as any)(
-    mockChRepo,
-    mockMapRepo,
-    mockOrdRepo,
-    mockEm,
-  );
+  return new (SalesChannelsService as unknown as new (
+    ...args: unknown[]
+  ) => SalesChannelsService)(mockChRepo, mockMapRepo, mockOrdRepo, mockEm);
 }
 
 describe('SalesChannelsService', () => {

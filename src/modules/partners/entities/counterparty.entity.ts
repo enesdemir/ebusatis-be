@@ -46,5 +46,5 @@ export class Counterparty extends BaseTenantEntity {
   isActive: boolean = true;
 
   @OneToMany('BankAccount', 'counterparty')
-  bankAccounts = new Collection<any>(this);
+  bankAccounts = new Collection<object>(this);
 }

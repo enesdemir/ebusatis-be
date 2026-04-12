@@ -34,13 +34,13 @@ export class CreateUnitDto {
 
   @ApiPropertyOptional({
     example: 1,
-    description: 'Temel birime dönüşüm katsayısı',
+    description: 'Conversion factor to base unit',
   })
   @IsOptional()
   @IsNumber()
   baseConversionFactor?: number;
 
-  @ApiPropertyOptional({ example: 2, description: 'Ondalık basamak sayısı' })
+  @ApiPropertyOptional({ example: 2, description: 'Number of decimal places' })
   @IsOptional()
   @IsNumber()
   @Min(0)

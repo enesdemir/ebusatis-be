@@ -14,6 +14,7 @@ import {
 } from '../../../common/helpers/query-builder.helper';
 import { PaginatedQueryDto } from '../../../common/dto/paginated-query.dto';
 import { Tenant } from '../../tenants/entities/tenant.entity';
+import { CreatePaymentDto } from '../dto/create-payment.dto';
 
 @Injectable()
 export class PaymentService {
@@ -28,7 +29,7 @@ export class PaymentService {
       searchFields: ['paymentNumber', 'reference'],
       defaultSortBy: 'paymentDate',
       where,
-      populate: ['partner', 'currency', 'method'] as any,
+      populate: ['partner', 'currency', 'method'] as never[],
     });
   }
 
@@ -45,19 +46,21 @@ export class PaymentService {
           'createdBy',
           'matchedInvoices',
           'matchedInvoices.invoice',
-        ] as any,
+        ] as never[],
       },
     );
     if (!p) throw new EntityNotFoundException('Payment', id);
     return p;
   }
 
-  async create(data: any, userId: string): Promise<Payment> {
+  async create(data: CreatePaymentDto, userId: string): Promise<Payment> {
     const tenantId = TenantContext.getTenantId();
     if (!tenantId) throw new TenantContextMissingException();
     const tenant = await this.em.findOneOrFail(Tenant, { id: tenantId });
 
-    const count = await this.em.count(Payment, { tenant: tenantId } as any);
+    const count = await this.em.count(Payment, {
+      tenant: tenantId,
+    } as FilterQuery<Payment>);
     const paymentNumber = `PAY-${new Date().getFullYear()}-${String(count + 1).padStart(4, '0')}`;
 
     const payment = this.em.create(Payment, {
@@ -81,7 +84,7 @@ export class PaymentService {
       bankAccount: data.bankAccount,
       note: data.note,
       createdBy: this.em.getReference('User', userId),
-    } as any);
+    } as unknown as Payment);
     this.em.persist(payment);
 
     // Fatura eşleştirme
@@ -95,7 +98,7 @@ export class PaymentService {
           payment,
           invoice,
           matchedAmount: mi.amount,
-        } as any);
+        } as unknown as PaymentInvoiceMatch);
         this.em.persist(match);
 
         // Fatura ödenen tutarı güncelle
@@ -119,20 +122,30 @@ export class PaymentService {
     counterpartyId: string,
     from?: string,
     to?: string,
-  ): Promise<any> {
+  ): Promise<{
+    counterpartyId: string;
+    movements: Record<string, unknown>[];
+    closingBalance: number;
+  }> {
     // Faturalar (borç)
     const invoiceWhere: FilterQuery<Invoice> = {
       counterparty: counterpartyId,
       deletedAt: null,
     };
     if (from)
-      invoiceWhere.issueDate = {
-        ...((invoiceWhere.issueDate as any) || {}),
+      (invoiceWhere as Record<string, unknown>).issueDate = {
+        ...(((invoiceWhere as Record<string, unknown>).issueDate as Record<
+          string,
+          unknown
+        >) || {}),
         $gte: new Date(from),
       };
     if (to)
-      invoiceWhere.issueDate = {
-        ...((invoiceWhere.issueDate as any) || {}),
+      (invoiceWhere as Record<string, unknown>).issueDate = {
+        ...(((invoiceWhere as Record<string, unknown>).issueDate as Record<
+          string,
+          unknown
+        >) || {}),
         $lte: new Date(to),
       };
     const invoices = await this.em.find(Invoice, invoiceWhere, {
@@ -149,7 +162,7 @@ export class PaymentService {
     });
 
     // Hareketleri birleştir
-    const movements: any[] = [];
+    const movements: Record<string, unknown>[] = [];
     let balance = 0;
 
     for (const inv of invoices) {
@@ -178,7 +191,9 @@ export class PaymentService {
     }
 
     movements.sort(
-      (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
+      (a, b) =>
+        new Date(a.date as string | Date).getTime() -
+        new Date(b.date as string | Date).getTime(),
     );
 
     return { counterpartyId, movements, closingBalance: balance };

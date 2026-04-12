@@ -228,14 +228,14 @@ export class Shipment extends BaseTenantEntity {
   // ── Relationships ──
 
   @OneToMany('ShipmentLine', 'shipment')
-  lines = new Collection<any>(this);
+  lines = new Collection<object>(this);
 
   @OneToMany('ContainerEvent', 'shipment')
-  events = new Collection<any>(this);
+  events = new Collection<object>(this);
 
   @OneToMany('FreightQuote', 'shipment')
-  freightQuotes = new Collection<any>(this);
+  freightQuotes = new Collection<object>(this);
 
   @OneToMany('CustomsDeclaration', 'shipment')
-  customsDeclarations = new Collection<any>(this);
+  customsDeclarations = new Collection<object>(this);
 }

@@ -5,7 +5,11 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { EntityRepository, FilterQuery, wrap } from '@mikro-orm/postgresql';
-import { Tenant, SubscriptionStatus } from './entities/tenant.entity';
+import {
+  Tenant,
+  TenantType,
+  SubscriptionStatus,
+} from './entities/tenant.entity';
 import { CreateTenantDto } from './dto/create-tenant.dto';
 import { UpdateTenantDto } from './dto/update-tenant.dto';
 import { TenantOnboardingService } from './services/tenant-onboarding.service';
@@ -83,7 +87,7 @@ export class TenantsService {
       where.subscriptionStatus = query.status;
     }
     if (query?.type) {
-      where.type = query.type as any;
+      where.type = query.type as TenantType;
     }
     const sortBy = query?.sortBy || 'createdAt';
     const sortOrder = query?.sortOrder || 'DESC';
@@ -133,24 +137,25 @@ export class TenantsService {
    */
   async getStatistics(id: string) {
     const tenant = await this.findOne(id);
-    const users = tenant.users.getItems();
+    const users = tenant.users.getItems() as Array<{
+      lastLoginAt?: Date;
+    }>;
     const sevenDaysAgo = new Date();
     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 30);
     const activeUserCount = users.filter(
-      (u: any) => u.lastLoginAt && u.lastLoginAt >= sevenDaysAgo,
+      (u) => u.lastLoginAt && u.lastLoginAt >= sevenDaysAgo,
     ).length;
     const lastLogin = users
-      .filter((u: any) => u.lastLoginAt)
+      .filter((u) => u.lastLoginAt)
       .sort(
-        (a: any, b: any) =>
+        (a, b) =>
           (b.lastLoginAt?.getTime() ?? 0) - (a.lastLoginAt?.getTime() ?? 0),
       );
     return {
       tenantId: tenant.id,
       userCount: users.length,
       activeUserCountLast30Days: activeUserCount,
-      lastLoginAt:
-        lastLogin.length > 0 ? (lastLogin[0] as any).lastLoginAt : null,
+      lastLoginAt: lastLogin.length > 0 ? lastLogin[0].lastLoginAt : null,
       createdAt: tenant.createdAt,
     };
   }

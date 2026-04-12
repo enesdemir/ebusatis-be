@@ -140,7 +140,7 @@ export class AdminUsersService {
     if (existing) {
       throw new UserEmailDuplicateException(email);
     }
-    const admin = new User(email, null as any); // Tenant is intentionally null
+    const admin = new User(email, undefined); // Tenant is intentionally null
     admin.isSuperAdmin = true;
     admin.isActive = true;
     admin.passwordHash = '$2b$10$EpIxNt.irO7y7P/s3f.uUO.6X.L/8.q.Z.g.w/0.1.2.3'; // TODO: Send setup email

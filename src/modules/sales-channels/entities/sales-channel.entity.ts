@@ -26,10 +26,10 @@ export class SalesChannel extends BaseTenantEntity {
   apiUrl?: string;
 
   @Property({ type: 'json', nullable: true })
-  credentials?: Record<string, any>; // Sifrelenmis API anahtarlari
+  credentials?: Record<string, unknown>; // Sifrelenmis API anahtarlari
 
   @Property({ type: 'json', nullable: true })
-  syncSettings?: Record<string, any>; // { autoSync, syncInterval, stockBuffer }
+  syncSettings?: Record<string, unknown>; // { autoSync, syncInterval, stockBuffer }
 
   @Property({ default: true })
   isActive: boolean = true;
@@ -41,5 +41,5 @@ export class SalesChannel extends BaseTenantEntity {
   note?: string;
 
   @OneToMany('ChannelProductMapping', 'channel')
-  productMappings = new Collection<any>(this);
+  productMappings = new Collection<object>(this);
 }

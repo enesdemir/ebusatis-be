@@ -1,3 +1,4 @@
+/* eslint-disable no-restricted-syntax -- Seed data contains Turkish geographic names (cities, districts) */
 import { EntityManager } from '@mikro-orm/core';
 import { Seeder } from '@mikro-orm/seeder';
 import { ClassificationNode } from '../entities/classification-node.entity';
@@ -6,10 +7,60 @@ import * as countriesData from './data/countries.json';
 import * as statesData from './data/states.json';
 import * as turkeyData from './data/turkey.json';
 
+interface CountryData {
+  iso2: string;
+  iso3?: string;
+  name: string;
+  native?: string;
+  numeric_code?: string;
+  phonecode?: string;
+  currency?: string;
+  currency_name?: string;
+  currency_symbol?: string;
+  region?: string;
+  subregion?: string;
+  latitude?: string;
+  longitude?: string;
+  emoji?: string;
+  postal_code_format?: string;
+  translations?: Record<string, string>;
+}
+
+interface StateData {
+  id?: string | number;
+  iso2?: string;
+  name: string;
+  native?: string;
+  country_code: string;
+  iso3166_2?: string;
+  type?: string;
+  latitude?: string;
+  longitude?: string;
+  timezone?: string;
+  translations?: Record<string, string>;
+}
+
+interface TurkeyData {
+  states?: Array<{
+    id?: string | number;
+    iso2?: string;
+    name: string;
+    cities?: Array<{
+      id?: string | number;
+      name: string;
+      native?: string;
+      latitude?: string;
+      longitude?: string;
+      timezone?: string;
+      translations?: Record<string, string>;
+    }>;
+  }>;
+}
+
 interface NodeSeed {
   code: string;
   names: Record<string, string>;
-  properties?: Record<string, any>;
+  properties?: Record<string, unknown>;
   icon?: string;
   color?: string;
   selectable?: boolean;
@@ -440,7 +491,7 @@ export class ClassificationSeeder extends Seeder {
   // ════════════════════════════════════════════════════════
 
   private async seedCountries(em: EntityManager): Promise<void> {
-    const countries = countriesData as any[];
+    const countries = countriesData as unknown as CountryData[];
     for (const c of countries) {
       const node = new ClassificationNode(
         ClassificationTypes.COUNTRY,
@@ -478,7 +529,7 @@ export class ClassificationSeeder extends Seeder {
   }
 
   private async seedStates(em: EntityManager): Promise<void> {
-    const states = statesData as any[];
+    const states = statesData as unknown as StateData[];
     // Once ulke node'larini bul
     const countryNodes = await em.find(ClassificationNode, {
       classificationType: ClassificationTypes.COUNTRY,
@@ -522,7 +573,7 @@ export class ClassificationSeeder extends Seeder {
   }
 
   private async seedTurkeyCities(em: EntityManager): Promise<void> {
-    const turkey = turkeyData as any;
+    const turkey = turkeyData as unknown as TurkeyData;
     const trStates = turkey.states || [];
 
     // Turkiye state node'larini bul

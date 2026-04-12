@@ -97,7 +97,9 @@ export class Product extends BaseTenantEntity {
   // Geriye uyumluluk: eski baseUnit alanını unit relation üzerinden çöz
   @Property({ default: 'Meter', persist: false })
   get baseUnit(): string {
-    return (this.unit as any)?.code || 'Meter';
+    return (
+      (this.unit as unknown as { code?: string } | undefined)?.code || 'Meter'
+    );
   }
 
   constructor(name: string, tenant: Tenant) {

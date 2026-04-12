@@ -4,6 +4,12 @@ import { getRepositoryToken } from '@mikro-orm/nestjs';
 import { EntityManager } from '@mikro-orm/postgresql';
 import { ClassificationService } from '../services/classification.service';
 import { ClassificationNode } from '../entities/classification-node.entity';
+import {
+  CreateClassificationNodeDto,
+  UpdateClassificationNodeDto,
+  MoveNodeDto,
+  ReorderDto,
+} from '../dto';
 
 describe('ClassificationService', () => {
   let service: ClassificationService;
@@ -81,7 +87,7 @@ describe('ClassificationService', () => {
         names: { tr: 'Alt 1' },
         path: 'product_category.root.child1',
         depth: 1,
-        parent: { id: 'root-1' } as any,
+        parent: { id: 'root-1' } as unknown as ClassificationNode,
       });
       const child2 = createMockNode({
         id: 'child-2',
@@ -89,7 +95,7 @@ describe('ClassificationService', () => {
         names: { tr: 'Alt 2' },
         path: 'product_category.root.child2',
         depth: 1,
-        parent: { id: 'root-1' } as any,
+        parent: { id: 'root-1' } as unknown as ClassificationNode,
       });
 
       mockRepo.find.mockResolvedValue([root, child1, child2]);
@@ -116,12 +122,12 @@ describe('ClassificationService', () => {
       const l1 = createMockNode({
         id: 'l1',
         depth: 1,
-        parent: { id: 'r' } as any,
+        parent: { id: 'r' } as unknown as ClassificationNode,
       });
       const l2 = createMockNode({
         id: 'l2',
         depth: 2,
-        parent: { id: 'l1' } as any,
+        parent: { id: 'l1' } as unknown as ClassificationNode,
       });
 
       mockRepo.find.mockResolvedValue([root, l1, l2]);
@@ -170,7 +176,7 @@ describe('ClassificationService', () => {
         classificationType: 'PRODUCT_CATEGORY',
         code: 'TOPS',
         names: { tr: 'Ust Giyim', en: 'Tops' },
-      } as any;
+      } as unknown as CreateClassificationNodeDto;
 
       mockEm.persist.mockImplementation(() => {});
       mockEm.flush.mockResolvedValue(undefined);
@@ -197,7 +203,7 @@ describe('ClassificationService', () => {
         code: 'CHILD_CODE',
         names: { tr: 'Alt Kategori' },
         parentId: 'parent-1',
-      } as any;
+      } as unknown as CreateClassificationNodeDto;
 
       mockEm.persist.mockImplementation(() => {});
       mockEm.flush.mockResolvedValue(undefined);
@@ -217,7 +223,7 @@ describe('ClassificationService', () => {
         code: 'X',
         names: { tr: 'X' },
         parentId: 'nonexistent',
-      } as any;
+      } as unknown as CreateClassificationNodeDto;
 
       await expect(service.create(dto)).rejects.toThrow(NotFoundException);
     });
@@ -230,7 +236,7 @@ describe('ClassificationService', () => {
         classificationType: 'TAG',
         code: 'URGENT',
         names: { tr: 'Acil' },
-      } as any;
+      } as unknown as CreateClassificationNodeDto;
 
       mockEm.persist.mockImplementation(() => {});
       mockEm.flush.mockResolvedValue(undefined);
@@ -276,7 +282,7 @@ describe('ClassificationService', () => {
 
       const result = await service.move('moving-node', {
         newParentId: 'new-parent',
-      } as any);
+      } as unknown as MoveNodeDto);
 
       expect(result.parent).toBe(newParent);
       expect(result.depth).toBe(1);
@@ -293,7 +299,7 @@ describe('ClassificationService', () => {
         id: 'desc-node',
         classificationType: 'PRODUCT_CATEGORY',
         path: 'product_category.parent_node.desc_node',
-        parent: { id: 'parent-node' } as any,
+        parent: { id: 'parent-node' } as unknown as ClassificationNode,
       });
 
       mockRepo.findOne
@@ -303,7 +309,9 @@ describe('ClassificationService', () => {
         .mockResolvedValueOnce(descendant);
 
       await expect(
-        service.move('parent-node', { newParentId: 'desc-node' } as any),
+        service.move('parent-node', {
+          newParentId: 'desc-node',
+        } as unknown as MoveNodeDto),
       ).rejects.toThrow(BadRequestException);
     });
 
@@ -324,7 +332,9 @@ describe('ClassificationService', () => {
         .mockResolvedValueOnce(null);
 
       await expect(
-        service.move('node-a', { newParentId: 'node-b' } as any),
+        service.move('node-a', {
+          newParentId: 'node-b',
+        } as unknown as MoveNodeDto),
       ).rejects.toThrow('Cannot move between different classification types');
     });
   });
@@ -393,7 +403,7 @@ describe('ClassificationService', () => {
     it('should return direct children when recursive=false', async () => {
       const child = createMockNode({
         id: 'ch-1',
-        parent: { id: 'p-1' } as any,
+        parent: { id: 'p-1' } as unknown as ClassificationNode,
       });
       mockRepo.find.mockResolvedValue([child]);
 
@@ -498,7 +508,7 @@ describe('ClassificationService', () => {
           { id: 'r-1', sortOrder: 2 },
           { id: 'r-2', sortOrder: 0 },
         ],
-      } as any);
+      } as unknown as ReorderDto);
 
       expect(node1.sortOrder).toBe(2);
       expect(node2.sortOrder).toBe(0);
@@ -510,7 +520,9 @@ describe('ClassificationService', () => {
       mockEm.flush.mockResolvedValue(undefined);
 
       await expect(
-        service.reorder({ items: [{ id: 'ghost', sortOrder: 5 }] } as any),
+        service.reorder({
+          items: [{ id: 'ghost', sortOrder: 5 }],
+        } as unknown as ReorderDto),
       ).resolves.toBeUndefined();
 
       expect(mockEm.flush).toHaveBeenCalled();
@@ -532,7 +544,7 @@ describe('ClassificationService', () => {
 
       const result = await service.update('upd-1', {
         properties: { newKey: 'newValue' },
-      } as any);
+      } as unknown as UpdateClassificationNodeDto);
 
       expect(result.properties).toEqual({
         existingKey: 'value',
@@ -545,7 +557,9 @@ describe('ClassificationService', () => {
       mockRepo.findOne.mockResolvedValue(sysNode);
 
       await expect(
-        service.update('sys-upd', { isActive: false } as any),
+        service.update('sys-upd', {
+          isActive: false,
+        } as unknown as UpdateClassificationNodeDto),
       ).rejects.toThrow(BadRequestException);
     });
   });

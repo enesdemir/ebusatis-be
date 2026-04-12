@@ -17,6 +17,7 @@ import {
 } from '../../../common/helpers/query-builder.helper';
 import { PaginatedQueryDto } from '../../../common/dto/paginated-query.dto';
 import { Tenant } from '../../tenants/entities/tenant.entity';
+import { CreateInvoiceDto } from '../dto/create-invoice.dto';
 
 @Injectable()
 export class InvoiceService {
@@ -32,7 +33,7 @@ export class InvoiceService {
       searchFields: ['invoiceNumber'],
       defaultSortBy: 'issueDate',
       where,
-      populate: ['partner', 'counterparty', 'currency'] as any,
+      populate: ['partner', 'counterparty', 'currency'] as never[],
     });
   }
 
@@ -50,14 +51,14 @@ export class InvoiceService {
           'lines',
           'lines.variant',
           'lines.taxRate',
-        ] as any,
+        ] as never[],
       },
     );
     if (!inv) throw new EntityNotFoundException('Invoice', id);
     return inv;
   }
 
-  async create(data: any, userId: string): Promise<Invoice> {
+  async create(data: CreateInvoiceDto, userId: string): Promise<Invoice> {
     const tenantId = TenantContext.getTenantId();
     if (!tenantId) throw new TenantContextMissingException();
     const tenant = await this.em.findOneOrFail(Tenant, { id: tenantId });
@@ -66,7 +67,7 @@ export class InvoiceService {
     const count = await this.em.count(Invoice, {
       tenant: tenantId,
       type: data.type,
-    } as any);
+    } as FilterQuery<Invoice>);
     const invoiceNumber = `${prefix}-${new Date().getFullYear()}-${String(count + 1).padStart(4, '0')}`;
 
     const invoice = this.em.create(Invoice, {
@@ -89,7 +90,7 @@ export class InvoiceService {
       note: data.note,
       sourceOrderId: data.sourceOrderId,
       createdBy: this.em.getReference('User', userId),
-    } as any);
+    } as unknown as Invoice);
     this.em.persist(invoice);
 
     let subtotal = 0;
@@ -114,7 +115,7 @@ export class InvoiceService {
             : undefined,
           lineTotal,
           sourceOrderLineId: ld.sourceOrderLineId,
-        } as any);
+        } as unknown as InvoiceLine);
         this.em.persist(line);
       }
     }

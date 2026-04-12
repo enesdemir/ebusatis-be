@@ -5,6 +5,11 @@ import { EntityRepository, EntityManager } from '@mikro-orm/postgresql';
 import { StockValuation } from '../entities/stock-valuation.entity';
 import { ExchangeGainLoss } from '../entities/exchange-gain-loss.entity';
 import { TaxReport } from '../entities/tax-report.entity';
+import { PaginatedQueryDto } from '../../../common/dto/paginated-query.dto';
+import { CreateStockValuationDto } from '../dto/create-stock-valuation.dto';
+import { CreateExchangeGainLossDto } from '../dto/create-exchange-gain-loss.dto';
+import { CreateTaxReportDto } from '../dto/create-tax-report.dto';
+import { UpdateTaxReportDto } from '../dto/update-tax-report.dto';
 
 @Injectable()
 export class AccountingService {
@@ -19,8 +24,9 @@ export class AccountingService {
   ) {}
 
   // Stok Degerleme
-  async findValuations(params?: Record<string, any>) {
-    const { page = 1, limit = 20 } = params || {};
+  async findValuations(params?: PaginatedQueryDto) {
+    const page = params?.page ?? 1;
+    const limit = params?.limit ?? 20;
     const [items, total] = await this.valuationRepo.findAndCount(
       {},
       {
@@ -36,15 +42,16 @@ export class AccountingService {
     };
   }
 
-  async createValuation(data: any) {
-    const v = this.valuationRepo.create(data);
+  async createValuation(data: CreateStockValuationDto) {
+    const v = this.valuationRepo.create(data as unknown as StockValuation);
     await this.em.persistAndFlush(v);
     return v;
   }
 
   // Kur Farki
-  async findExchangeGainLosses(params?: Record<string, any>) {
-    const { page = 1, limit = 20 } = params || {};
+  async findExchangeGainLosses(params?: PaginatedQueryDto) {
+    const page = params?.page ?? 1;
+    const limit = params?.limit ?? 20;
     const [items, total] = await this.fxRepo.findAndCount(
       {},
       {
@@ -59,22 +66,30 @@ export class AccountingService {
     };
   }
 
-  async createExchangeGainLoss(data: any) {
+  async createExchangeGainLoss(data: CreateExchangeGainLossDto) {
     // Kur farki hesapla
-    if (data.originalRate && data.settlementRate && data.amount) {
-      data.gainLoss = (data.settlementRate - data.originalRate) * data.amount;
+    const mutableData: CreateExchangeGainLossDto & { gainLoss?: number } = data;
+    if (
+      mutableData.originalRate &&
+      mutableData.settlementRate &&
+      mutableData.amount
+    ) {
+      mutableData.gainLoss =
+        (mutableData.settlementRate - mutableData.originalRate) *
+        mutableData.amount;
     }
-    const fx = this.fxRepo.create(data);
+    const fx = this.fxRepo.create(mutableData as unknown as ExchangeGainLoss);
     await this.em.persistAndFlush(fx);
     return fx;
   }
 
   // Vergi Raporlari
-  async findTaxReports(params?: Record<string, any>) {
-    const { page = 1, limit = 20, type } = params || {};
-    const where: any = {};
-    if (type) where.type = type;
-    const [items, total] = await this.taxRepo.findAndCount(where, {
+  async findTaxReports(params?: PaginatedQueryDto & { type?: string }) {
+    const page = params?.page ?? 1;
+    const limit = params?.limit ?? 20;
+    const where: Record<string, unknown> = {};
+    if (params?.type) where.type = params.type;
+    const [items, total] = await this.taxRepo.findAndCount(where as never, {
       orderBy: { period: 'DESC' },
       limit,
       offset: (page - 1) * limit,
@@ -85,13 +100,13 @@ export class AccountingService {
     };
   }
 
-  async createTaxReport(data: any) {
-    const r = this.taxRepo.create(data);
+  async createTaxReport(data: CreateTaxReportDto) {
+    const r = this.taxRepo.create(data as unknown as TaxReport);
     await this.em.persistAndFlush(r);
     return r;
   }
 
-  async updateTaxReport(id: string, data: any) {
+  async updateTaxReport(id: string, data: UpdateTaxReportDto) {
     const r = await this.taxRepo.findOne({ id });
     if (!r) throw new EntityNotFoundException('TaxReport', id);
     Object.assign(r, data);

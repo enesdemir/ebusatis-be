@@ -93,7 +93,7 @@ export class ClassificationNode extends BaseEntity {
 
   // ── Metadata ──
   @Property({ type: 'json', nullable: true })
-  properties?: Record<string, any>;
+  properties?: Record<string, unknown>;
 
   @Property({ type: 'array', nullable: true })
   tags?: string[];

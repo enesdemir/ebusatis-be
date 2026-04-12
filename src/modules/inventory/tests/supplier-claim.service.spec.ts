@@ -3,6 +3,8 @@ import { EntityManager } from '@mikro-orm/postgresql';
 import { SupplierClaimService } from '../services/supplier-claim.service';
 import { ClaimStatus, ClaimType } from '../entities/supplier-claim.entity';
 import { DiscrepancyType } from '../entities/goods-receive-line.entity';
+import { OpenSupplierClaimDto } from '../dto/open-supplier-claim.dto';
+import { UpdateSupplierClaimDto } from '../dto/update-supplier-claim.dto';
 import {
   TenantContextMissingException,
   SupplierClaimNotFoundException,
@@ -40,12 +42,12 @@ describe('SupplierClaimService', () => {
     em = {
       findOne: jest.fn(),
       findOneOrFail: jest.fn().mockResolvedValue(tenantStub),
-      create: jest.fn((_entity: any, data: any) => ({ ...data })),
+      create: jest.fn((_entity: unknown, data: object) => ({ ...data })),
       persist: jest.fn(),
       persistAndFlush: jest.fn().mockResolvedValue(undefined),
       flush: jest.fn().mockResolvedValue(undefined),
       count: jest.fn().mockResolvedValue(0),
-      getReference: jest.fn((_entity: any, id: string) => ({ id })),
+      getReference: jest.fn((_entity: unknown, id: string) => ({ id })),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -81,7 +83,7 @@ describe('SupplierClaimService', () => {
           unitPrice: 100,
         },
       ],
-    } as any;
+    } as unknown as OpenSupplierClaimDto;
 
     it('should throw without tenant context', async () => {
       (TenantContext.getTenantId as jest.Mock).mockReturnValue(undefined);
@@ -162,26 +164,34 @@ describe('SupplierClaimService', () => {
         .mockResolvedValueOnce(grLine);
       em.count.mockResolvedValue(0);
 
-      const claimResult: any = { id: 'claim-1' };
+      const claimResult = { id: 'claim-1' };
       em.create
         .mockReturnValueOnce(claimResult) // claim
         .mockReturnValueOnce({ id: 'cl-1' }); // claim line
 
       await service.open(baseDto, 'user-1');
 
-      const claimPayload = em.create.mock.calls[0][1] as any;
+      const claimPayload = em.create.mock.calls[0][1] as Record<
+        string,
+        unknown
+      >;
       expect(claimPayload.claimNumber).toMatch(/^CLM-\d{4}-0001$/);
       expect(claimPayload.claimedAmount).toBe(300); // 3 * 100
       expect(claimPayload.status).toBe(ClaimStatus.OPEN);
       // Goods receive line claim pointer should be set so the round-trip lookup works.
-      expect((grLine as any).claim).toBe(claimResult);
+      expect((grLine as Record<string, unknown>).claim).toBe(claimResult);
     });
   });
 
   // ── update ──
   describe('update', () => {
     it('should stamp resolvedAt when transitioning to RESOLVED_CREDIT', async () => {
-      const claim: any = {
+      const claim: {
+        id: string;
+        status: ClaimStatus;
+        settledAmount?: number;
+        resolvedAt?: Date;
+      } = {
         id: 'claim-1',
         status: ClaimStatus.OPEN,
         resolvedAt: undefined,
@@ -191,7 +201,7 @@ describe('SupplierClaimService', () => {
       await service.update('claim-1', {
         status: ClaimStatus.RESOLVED_CREDIT,
         settledAmount: 300,
-      } as any);
+      } as unknown as UpdateSupplierClaimDto);
 
       expect(claim.status).toBe(ClaimStatus.RESOLVED_CREDIT);
       expect(claim.settledAmount).toBe(300);
@@ -200,7 +210,11 @@ describe('SupplierClaimService', () => {
 
     it('should not overwrite resolvedAt if already set', async () => {
       const existing = new Date('2026-01-01');
-      const claim: any = {
+      const claim: {
+        id: string;
+        status: ClaimStatus;
+        resolvedAt: Date;
+      } = {
         id: 'claim-1',
         status: ClaimStatus.NEGOTIATING,
         resolvedAt: existing,
@@ -209,13 +223,17 @@ describe('SupplierClaimService', () => {
 
       await service.update('claim-1', {
         status: ClaimStatus.RESOLVED_REPLACEMENT,
-      } as any);
+      } as unknown as UpdateSupplierClaimDto);
 
       expect(claim.resolvedAt).toBe(existing);
     });
 
     it('should NOT stamp resolvedAt for non-resolving transitions', async () => {
-      const claim: any = {
+      const claim: {
+        id: string;
+        status: ClaimStatus;
+        resolvedAt?: Date;
+      } = {
         id: 'claim-1',
         status: ClaimStatus.OPEN,
         resolvedAt: undefined,
@@ -224,7 +242,7 @@ describe('SupplierClaimService', () => {
 
       await service.update('claim-1', {
         status: ClaimStatus.NEGOTIATING,
-      } as any);
+      } as unknown as UpdateSupplierClaimDto);
 
       expect(claim.status).toBe(ClaimStatus.NEGOTIATING);
       expect(claim.resolvedAt).toBeUndefined();

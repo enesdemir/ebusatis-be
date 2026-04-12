@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { NotFoundException, BadRequestException } from '@nestjs/common';
 import { EntityManager } from '@mikro-orm/postgresql';
 import { InventoryService } from '../services/inventory.service';
+import { InventoryItemStatus } from '../entities/inventory-item.entity';
 import { TenantContext } from '../../../common/context/tenant.context';
 import { QueryBuilderHelper } from '../../../common/helpers/query-builder.helper';
 
@@ -21,7 +22,7 @@ describe('InventoryService', () => {
 
   const mockTenant = { id: 'tenant-1', name: 'Test Tekstil' };
 
-  const createMockRoll = (overrides: any = {}) => ({
+  const createMockRoll = (overrides: Record<string, unknown> = {}) => ({
     id: 'roll-1',
     barcode: 'R-0001',
     batchCode: 'BATCH-001',
@@ -105,7 +106,7 @@ describe('InventoryService', () => {
         limit: 20,
         variantId: 'v1',
         warehouseId: 'wh-1',
-        status: 'IN_STOCK' as any,
+        status: InventoryItemStatus.IN_STOCK,
       });
 
       expect(QueryBuilderHelper.paginate).toHaveBeenCalledWith(

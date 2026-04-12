@@ -84,7 +84,7 @@ export class LandedCostService {
 
   async findAll(query: LandedCostQueryDto) {
     const { page = 1, limit = 20, purchaseOrderId, shipmentId } = query;
-    const where: Record<string, any> = {};
+    const where: Record<string, unknown> = {};
     if (purchaseOrderId) where.purchaseOrder = purchaseOrderId;
     if (shipmentId) where.shipment = shipmentId;
 
@@ -314,7 +314,8 @@ export class LandedCostService {
 
       return {
         lineId: line.id,
-        variantId: (line.variant as any)?.id ?? '',
+        variantId:
+          (line.variant as unknown as { id?: string } | undefined)?.id ?? '',
         quantity: qty,
         productCost,
         allocatedFreight,
