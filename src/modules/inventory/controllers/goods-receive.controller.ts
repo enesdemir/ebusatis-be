@@ -1,26 +1,58 @@
-import { Controller, UseGuards, Get, Post, Body, Param, Query, Req } from '@nestjs/common';
+import {
+  Controller,
+  UseGuards,
+  Get,
+  Post,
+  Patch,
+  Body,
+  Param,
+  Query,
+  Req,
+} from '@nestjs/common';
 import { GoodsReceiveService } from '../services/goods-receive.service';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { TenantGuard } from '../../../common/guards/tenant.guard';
-import { PaginatedQueryDto } from '../../../common/dto/paginated-query.dto';
+import { CreateGoodsReceiveDto } from '../dto/create-goods-receive.dto';
+import { GoodsReceiveQueryDto } from '../dto/goods-receive-query.dto';
+import { ReportDiscrepancyDto } from '../dto/report-discrepancy.dto';
 
+/**
+ * Goods Receive controller.
+ *
+ * CLAUDE.md compliance:
+ *   - Protected by JwtAuthGuard + TenantGuard.
+ *   - Every @Body / @Query parameter is a class-validator DTO (no `any`).
+ *   - Errors are returned by the service as error code + i18n key.
+ */
 @Controller('inventory/receiving')
 @UseGuards(JwtAuthGuard, TenantGuard)
 export class GoodsReceiveController {
   constructor(private readonly grService: GoodsReceiveService) {}
 
   @Get()
-  async findAll(@Query() query: PaginatedQueryDto) {
+  findAll(@Query() query: GoodsReceiveQueryDto) {
     return this.grService.findAll(query);
   }
 
   @Get(':id')
-  async findOne(@Param('id') id: string) {
+  findOne(@Param('id') id: string) {
     return this.grService.findOne(id);
   }
 
   @Post()
-  async create(@Body() data: any, @Req() req: any) {
-    return this.grService.create(data, req.user?.sub);
+  create(@Body() dto: CreateGoodsReceiveDto, @Req() req: any) {
+    return this.grService.create(dto, req.user?.sub);
+  }
+
+  // ── Discrepancy reporting ──
+
+  @Get('lines/:id')
+  findLine(@Param('id') id: string) {
+    return this.grService.findLineById(id);
+  }
+
+  @Patch('lines/:id/discrepancy')
+  reportDiscrepancy(@Param('id') id: string, @Body() dto: ReportDiscrepancyDto) {
+    return this.grService.reportDiscrepancy(id, dto);
   }
 }
