@@ -2,8 +2,6 @@ import { Module } from '@nestjs/common';
 import { MikroOrmModule } from '@mikro-orm/nestjs';
 
 import { DocumentLink } from './entities/document-link.entity';
-import { Shipment } from './entities/shipment.entity';
-import { ShipmentLine } from './entities/shipment-line.entity';
 import { Invoice } from './entities/invoice.entity';
 import { InvoiceLine } from './entities/invoice-line.entity';
 import { Payment } from './entities/payment.entity';
@@ -16,12 +14,18 @@ import { PaymentController } from './controllers/payment.controller';
 
 import { AuthModule } from '../auth/auth.module';
 
+/**
+ * Finance module.
+ *
+ * Stage 0.B note: shipment ownership moved out of this module — the
+ * unified `Shipment` and `ShipmentLine` entities now live in the
+ * logistics module, regardless of direction. This module is now
+ * focused on invoices, payments and reconciliation only.
+ */
 @Module({
   imports: [
     MikroOrmModule.forFeature([
       DocumentLink,
-      Shipment,
-      ShipmentLine,
       Invoice,
       InvoiceLine,
       Payment,

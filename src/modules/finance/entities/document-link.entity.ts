@@ -9,12 +9,14 @@ export enum DocumentLinkType {
 }
 
 /**
- * Belge Bağlantı Grafiği (Document Link)
+ * Document Link
  *
- * Ne işe yarar: Belgelerin ata-soy ilişkisi. Bir siparişten türeyen irsaliye, fatura, ödeme zinciri.
- * Nerede kullanılır: Herhangi bir belgenin detayında "Bağlı Belgeler" ağacı
+ * Captures the parent/child relationship between business documents:
+ * an order spawns a shipment, the shipment becomes an invoice, the
+ * invoice gets paid, etc. Used by the "linked documents" tree shown on
+ * any document detail screen.
  *
- * Örnek: SalesOrder → Shipment → Invoice → Payment
+ * Example chain: SalesOrder → Shipment → Invoice → Payment
  */
 @Entity({ tableName: 'document_links' })
 export class DocumentLink extends BaseTenantEntity {

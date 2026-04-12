@@ -1,26 +1,36 @@
-import { Entity, Property, ManyToOne } from '@mikro-orm/core';
+import { Entity, Property, ManyToOne, Index } from '@mikro-orm/core';
 import { BaseTenantEntity } from '../../../common/entities/base-tenant.entity';
-import { ShipmentPlan } from './shipment-plan.entity';
+import { Shipment } from './shipment.entity';
+import { Currency } from '../../definitions/entities/currency.entity';
+import { Partner } from '../../partners/entities/partner.entity';
 
 /**
- * Nakliye Teklifi — Farkli nakliyecilerden fiyat teklifi.
+ * Freight Quote
+ *
+ * A price quote received from a carrier for a planned (or in-progress)
+ * shipment. Multiple quotes can be attached to a single shipment so
+ * the team can compare options; setting `isSelected = true` marks the
+ * quote that has been accepted (only one can be selected at a time
+ * per shipment).
  */
 @Entity({ tableName: 'freight_quotes' })
 export class FreightQuote extends BaseTenantEntity {
-  @ManyToOne(() => ShipmentPlan, { nullable: true })
-  shipmentPlan?: ShipmentPlan;
+  @ManyToOne(() => Shipment, { nullable: true })
+  @Index()
+  shipment?: Shipment;
 
-  @Property()
-  carrier!: string;
+  @ManyToOne(() => Partner, { nullable: true })
+  carrier?: Partner;
 
+  /** Free-text route, e.g. "Shanghai → Istanbul (via Suez)". */
   @Property({ nullable: true })
   route?: string;
 
-  @Property({ type: 'decimal', precision: 10, scale: 2 })
+  @Property({ type: 'decimal', precision: 14, scale: 2 })
   price!: number;
 
-  @Property({ nullable: true })
-  currency?: string;
+  @ManyToOne(() => Currency, { nullable: true })
+  currency?: Currency;
 
   @Property({ nullable: true })
   transitDays?: number;
@@ -31,6 +41,6 @@ export class FreightQuote extends BaseTenantEntity {
   @Property({ default: false })
   isSelected: boolean = false;
 
-  @Property({ nullable: true })
+  @Property({ nullable: true, type: 'text' })
   note?: string;
 }
