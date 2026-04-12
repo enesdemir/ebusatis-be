@@ -5,11 +5,17 @@ import {
   IsNumber,
   IsString,
   IsArray,
+  IsEnum,
+  Max,
   ValidateNested,
   Min,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { CreateSalesOrderLineDto } from './create-sales-order-line.dto';
+import {
+  SalesOrderType,
+  SalesOrderPaymentType,
+} from '../entities/sales-order.entity';
 
 /**
  * Payload for creating a sales order.
@@ -18,6 +24,24 @@ export class CreateSalesOrderDto {
   @IsUUID()
   @IsNotEmpty()
   partnerId!: string;
+
+  /** Order type — FABRIC (metre) or PRODUCT (unit). Defaults to FABRIC. */
+  @IsOptional()
+  @IsEnum(SalesOrderType)
+  orderType?: SalesOrderType;
+
+  /** Payment type — CASH (default), CREDIT or PARTIAL. */
+  @IsOptional()
+  @IsEnum(SalesOrderPaymentType)
+  paymentType?: SalesOrderPaymentType;
+
+  /** Down-payment percentage when paymentType is PARTIAL (0-100). */
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber({ maxDecimalPlaces: 2 })
+  @Min(0)
+  @Max(100)
+  partialPaymentRate?: number;
 
   @IsOptional()
   @IsUUID()

@@ -194,7 +194,7 @@ export class PilotSeeder extends Seeder {
     } as never);
     em.persist(supplier);
 
-    // ── 2. Customer (for later outbound scenario) ──
+    // ── 2. Customers (multiple subtypes with credit limits, Sprint 2) ──
     const customer = em.create(Partner, {
       tenant,
       name: 'Moscow Textiles LLC',
@@ -202,9 +202,103 @@ export class PilotSeeder extends Seeder {
       types: [PartnerType.CUSTOMER],
       customerSubtype: CustomerSubtype.WHOLESALE,
       email: 'purchase@moscowtextiles.ru',
+      creditLimit: 120000,
       isActive: true,
     } as never);
     em.persist(customer);
+
+    // Additional customers across subtypes for Sprint 2 testing
+    interface DemoCustomer {
+      name: string;
+      code: string;
+      subtype: CustomerSubtype;
+      email: string;
+      creditLimit: number;
+    }
+    const demoCustomers: DemoCustomer[] = [
+      {
+        name: 'ABC Tekstil',
+        code: 'DLR-001',
+        subtype: CustomerSubtype.DEALER,
+        email: 'info@abctekstil.com',
+        creditLimit: 30000,
+      },
+      {
+        name: 'XYZ Kumaş',
+        code: 'DLR-002',
+        subtype: CustomerSubtype.DEALER,
+        email: 'info@xyzkumas.com',
+        creditLimit: 40000,
+      },
+      {
+        name: 'Başkent Dekor',
+        code: 'DLR-003',
+        subtype: CustomerSubtype.DEALER,
+        email: 'sales@baskentdekor.com',
+        creditLimit: 50000,
+      },
+      {
+        name: 'Megatex Toptan',
+        code: 'WHL-002',
+        subtype: CustomerSubtype.WHOLESALE,
+        email: 'orders@megatex.com',
+        creditLimit: 80000,
+      },
+      {
+        name: 'Hurriyet Perde Evi',
+        code: 'RTL-001',
+        subtype: CustomerSubtype.RETAIL,
+        email: 'info@hurriyetperde.com',
+        creditLimit: 0,
+      },
+      {
+        name: 'Modern Yaşam Retail',
+        code: 'RTL-002',
+        subtype: CustomerSubtype.RETAIL,
+        email: 'info@modernyasam.com',
+        creditLimit: 0,
+      },
+      {
+        name: 'İstinye Showroom',
+        code: 'SHW-001',
+        subtype: CustomerSubtype.SHOWROOM,
+        email: 'istinye@showroom.com',
+        creditLimit: 15000,
+      },
+      {
+        name: 'Bağdat Caddesi Showroom',
+        code: 'SHW-002',
+        subtype: CustomerSubtype.SHOWROOM,
+        email: 'bagdat@showroom.com',
+        creditLimit: 25000,
+      },
+      {
+        name: 'B2B Proje Grup',
+        code: 'B2B-001',
+        subtype: CustomerSubtype.B2B,
+        email: 'projects@b2bgroup.com',
+        creditLimit: 100000,
+      },
+    ];
+    for (const c of demoCustomers) {
+      const existing = await em.findOne(
+        Partner,
+        { code: c.code, tenant },
+        { filters: false },
+      );
+      if (existing) continue;
+      const p = em.create(Partner, {
+        tenant,
+        name: c.name,
+        code: c.code,
+        types: [PartnerType.CUSTOMER],
+        customerSubtype: c.subtype,
+        email: c.email,
+        creditLimit: c.creditLimit,
+        isActive: true,
+      } as never);
+      em.persist(p);
+    }
 
     // ── 3. Product + Variant ──
     const product = new Product('Premium Velvet', tenant);

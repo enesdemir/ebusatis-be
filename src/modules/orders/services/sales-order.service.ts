@@ -106,6 +106,9 @@ export class SalesOrderService {
         : undefined,
       note: data.note,
       internalNote: data.internalNote,
+      orderType: data.orderType,
+      paymentType: data.paymentType,
+      partialPaymentRate: data.partialPaymentRate,
       assignedTo: data.assignedToId
         ? this.em.getReference('User', data.assignedToId)
         : undefined,

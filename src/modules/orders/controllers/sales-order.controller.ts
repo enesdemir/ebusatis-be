@@ -22,6 +22,8 @@ interface AuthenticatedRequest extends ExpressRequest {
   };
 }
 import { SalesOrderService } from '../services/sales-order.service';
+import { PricingService } from '../services/pricing.service';
+import { CreditStatusService } from '../services/credit-status.service';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { TenantGuard } from '../../../common/guards/tenant.guard';
 import { PaginatedQueryDto } from '../../../common/dto/paginated-query.dto';
@@ -30,11 +32,68 @@ import {
   UpdateSalesOrderDto,
   AllocateRollDto,
 } from '../dto';
+import { SalesOrderType } from '../entities/sales-order.entity';
 
 @Controller('orders/sales')
 @UseGuards(JwtAuthGuard, TenantGuard)
 export class SalesOrderController {
-  constructor(private readonly service: SalesOrderService) {}
+  constructor(
+    private readonly service: SalesOrderService,
+    private readonly pricing: PricingService,
+    private readonly credit: CreditStatusService,
+  ) {}
+
+  /**
+   * Credit status snapshot for a partner — used by the SO wizard to
+   * display available credit and validate in real time.
+   */
+  @Get('credit-status/:partnerId')
+  async getCreditStatus(@Param('partnerId') partnerId: string) {
+    return this.credit.getCreditStatus(partnerId);
+  }
+
+  /**
+   * Check whether an order of `amount` would be allowed under the
+   * partner's credit limit and risk rules.
+   */
+  @Get('credit-check/:partnerId')
+  async checkCredit(
+    @Param('partnerId') partnerId: string,
+    @Query('amount') amount: string,
+  ) {
+    return this.credit.checkOrderAllowed(partnerId, Number(amount));
+  }
+
+  /**
+   * Apply the customer's subtype discount to a base price. Used as a
+   * price preview in the SO create wizard before the user commits.
+   */
+  @Get('pricing/preview')
+  async pricingPreview(
+    @Query('subtype') subtype?: string,
+    @Query('basePrice') basePrice?: string,
+  ) {
+    return this.pricing.applyCustomerDiscount(
+      Number(basePrice || 0),
+      subtype as never,
+    );
+  }
+
+  /**
+   * Validate a line's quantity against the customer subtype minimum.
+   */
+  @Get('pricing/min-quantity')
+  async minQuantity(
+    @Query('subtype') subtype: string,
+    @Query('orderType') orderType: string,
+    @Query('requested') requested: string,
+  ) {
+    return this.pricing.checkMinQuantity(
+      subtype as never,
+      orderType as SalesOrderType,
+      Number(requested),
+    );
+  }
 
   @Get()
   async findAll(@Query() query: PaginatedQueryDto & { partnerId?: string }) {

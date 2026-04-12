@@ -556,7 +556,11 @@
             "GENERAL",
             "SECURITY",
             "NOTIFICATIONS",
-            "BILLING"
+            "BILLING",
+            "INVENTORY",
+            "STORAGE",
+            "EMAIL",
+            "DOCUMENT"
           ],
           "mappedType": "enum"
         },
@@ -12674,6 +12678,68 @@
           "nullable": false,
           "length": 255,
           "mappedType": "string"
+        },
+        "order_type": {
+          "name": "order_type",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "default": "'FABRIC'",
+          "enumItems": [
+            "FABRIC",
+            "PRODUCT"
+          ],
+          "mappedType": "enum"
+        },
+        "payment_type": {
+          "name": "payment_type",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "default": "'CASH'",
+          "enumItems": [
+            "CASH",
+            "CREDIT",
+            "PARTIAL"
+          ],
+          "mappedType": "enum"
+        },
+        "partial_payment_rate": {
+          "name": "partial_payment_rate",
+          "type": "numeric(5,2)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "precision": 5,
+          "scale": 2,
+          "mappedType": "decimal"
+        },
+        "workflow_status": {
+          "name": "workflow_status",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "default": "'DRAFT'",
+          "enumItems": [
+            "DRAFT",
+            "PENDING_PAYMENT",
+            "PENDING_CREDIT_APPROVAL",
+            "BLOCKED_AWAITING_MATERIAL",
+            "APPROVED",
+            "ALLOCATED",
+            "READY_FOR_SHIPMENT",
+            "SHIPPED",
+            "DELIVERED",
+            "CANCELLED"
+          ],
+          "mappedType": "enum"
         },
         "partner_id": {
           "name": "partner_id",
