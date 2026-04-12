@@ -15,6 +15,7 @@ import { PurchaseOrderService } from '../services/purchase-order.service';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { TenantGuard } from '../../../common/guards/tenant.guard';
 import { PaginatedQueryDto } from '../../../common/dto/paginated-query.dto';
+import { CreatePurchaseOrderDto } from '../dto';
 
 @Controller('orders/purchase')
 @UseGuards(JwtAuthGuard, TenantGuard)
@@ -32,7 +33,7 @@ export class PurchaseOrderController {
   }
 
   @Post()
-  async create(@Body() data: any, @Req() req: any) {
+  async create(@Body() data: CreatePurchaseOrderDto, @Req() req: any) {
     return this.service.create(data, req.user?.sub);
   }
 

@@ -10,6 +10,11 @@ import {
 } from '@nestjs/common';
 import { SalesChannelsService } from '../services/sales-channels.service';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
+import {
+  CreateChannelDto,
+  UpdateChannelDto,
+  CreateChannelMappingDto,
+} from '../dto';
 
 @UseGuards(JwtAuthGuard)
 @Controller('sales-channels')
@@ -27,12 +32,12 @@ export class SalesChannelsController {
   }
 
   @Post()
-  create(@Body() data: any) {
+  create(@Body() data: CreateChannelDto) {
     return this.service.createChannel(data);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() data: any) {
+  update(@Param('id') id: string, @Body() data: UpdateChannelDto) {
     return this.service.updateChannel(id, data);
   }
 
@@ -42,7 +47,7 @@ export class SalesChannelsController {
   }
 
   @Post('mappings')
-  createMapping(@Body() data: any) {
+  createMapping(@Body() data: CreateChannelMappingDto) {
     return this.service.createMapping(data);
   }
 

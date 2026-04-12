@@ -16,6 +16,11 @@ import { SalesOrderService } from '../services/sales-order.service';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { TenantGuard } from '../../../common/guards/tenant.guard';
 import { PaginatedQueryDto } from '../../../common/dto/paginated-query.dto';
+import {
+  CreateSalesOrderDto,
+  UpdateSalesOrderDto,
+  AllocateRollDto,
+} from '../dto';
 
 @Controller('orders/sales')
 @UseGuards(JwtAuthGuard, TenantGuard)
@@ -33,12 +38,12 @@ export class SalesOrderController {
   }
 
   @Post()
-  async create(@Body() data: any, @Req() req: any) {
+  async create(@Body() data: CreateSalesOrderDto, @Req() req: any) {
     return this.service.create(data, req.user?.sub);
   }
 
   @Patch(':id')
-  async update(@Param('id') id: string, @Body() data: any) {
+  async update(@Param('id') id: string, @Body() data: UpdateSalesOrderDto) {
     return this.service.update(id, data);
   }
 
@@ -51,7 +56,7 @@ export class SalesOrderController {
   @Post('lines/:lineId/allocate')
   async allocateRoll(
     @Param('lineId') lineId: string,
-    @Body() body: { rollId: string; quantity: number },
+    @Body() body: AllocateRollDto,
   ) {
     return this.service.allocateRoll(lineId, body.rollId, body.quantity);
   }

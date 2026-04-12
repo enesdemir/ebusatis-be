@@ -15,6 +15,7 @@ import { InvoiceService } from '../services/invoice.service';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { TenantGuard } from '../../../common/guards/tenant.guard';
 import { PaginatedQueryDto } from '../../../common/dto/paginated-query.dto';
+import { CreateInvoiceDto } from '../dto';
 
 @Controller('finance/invoices')
 @UseGuards(JwtAuthGuard, TenantGuard)
@@ -32,7 +33,7 @@ export class InvoiceController {
   }
 
   @Post()
-  create(@Body() data: any, @Req() req: any) {
+  create(@Body() data: CreateInvoiceDto, @Req() req: any) {
     return this.service.create(data, req.user?.sub);
   }
 

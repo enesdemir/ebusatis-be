@@ -12,6 +12,7 @@ import { PaymentService } from '../services/payment.service';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { TenantGuard } from '../../../common/guards/tenant.guard';
 import { PaginatedQueryDto } from '../../../common/dto/paginated-query.dto';
+import { CreatePaymentDto } from '../dto';
 
 @Controller('finance/payments')
 @UseGuards(JwtAuthGuard, TenantGuard)
@@ -29,7 +30,7 @@ export class PaymentController {
   }
 
   @Post()
-  create(@Body() data: any, @Req() req: any) {
+  create(@Body() data: CreatePaymentDto, @Req() req: any) {
     return this.service.create(data, req.user?.sub);
   }
 

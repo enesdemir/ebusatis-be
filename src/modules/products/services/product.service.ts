@@ -11,18 +11,33 @@ import {
   QueryBuilderHelper,
   PaginatedResponse,
 } from '../../../common/helpers/query-builder.helper';
-import { PaginatedQueryDto } from '../../../common/dto/paginated-query.dto';
 import { Tenant } from '../../tenants/entities/tenant.entity';
+import { Category } from '../../definitions/entities/category.entity';
+import { UnitOfMeasure } from '../../definitions/entities/unit-of-measure.entity';
+import { TaxRate } from '../../definitions/entities/tax-rate.entity';
+import { Currency } from '../../definitions/entities/currency.entity';
+import { CreateProductDto } from '../dto/create-product.dto';
+import { UpdateProductDto } from '../dto/update-product.dto';
+import { ProductQueryDto } from '../dto/product-query.dto';
+import { CreateVariantDto } from '../dto/create-variant.dto';
+import { UpdateVariantDto } from '../dto/update-variant.dto';
 
+/**
+ * Product service.
+ *
+ * Manages the product catalogue (product cards + variants). Each
+ * product is tenant-scoped and can have N colour/pattern variants.
+ *
+ * Multi-tenant: BaseTenantEntity filter + manual TenantContext check.
+ * Error contract: custom AppExceptions only, no raw strings.
+ */
 @Injectable()
 export class ProductService {
   constructor(private readonly em: EntityManager) {}
 
-  // ─── Product CRUD ─────────────────────────────────────────
+  // ── Product CRUD ──
 
-  async findAll(
-    query: PaginatedQueryDto & { categoryId?: string },
-  ): Promise<PaginatedResponse<Product>> {
+  async findAll(query: ProductQueryDto): Promise<PaginatedResponse<Product>> {
     const where: FilterQuery<Product> = {};
     if (query.categoryId) {
       where.category = query.categoryId;
@@ -56,43 +71,62 @@ export class ProductService {
     return product;
   }
 
-  async create(data: any): Promise<Product> {
+  async create(dto: CreateProductDto): Promise<Product> {
     const tenantId = TenantContext.getTenantId();
     if (!tenantId) throw new TenantContextMissingException();
     const tenant = await this.em.findOneOrFail(Tenant, { id: tenantId });
 
     const product = this.em.create(Product, {
-      ...data,
+      name: dto.name,
+      code: dto.code,
+      description: dto.description,
+      trackingStrategy: dto.trackingStrategy,
+      fabricComposition: dto.fabricComposition,
+      washingInstructions: dto.washingInstructions,
+      collectionName: dto.collectionName,
+      moq: dto.moq,
+      origin: dto.origin,
+      isActive: dto.isActive ?? true,
       tenant,
-      category: data.categoryId
-        ? this.em.getReference('Category', data.categoryId)
+      category: dto.categoryId
+        ? this.em.getReference(Category, dto.categoryId)
         : undefined,
-      unit: data.unitId
-        ? this.em.getReference('UnitOfMeasure', data.unitId)
+      unit: dto.unitId
+        ? this.em.getReference(UnitOfMeasure, dto.unitId)
         : undefined,
-      taxRate: data.taxRateId
-        ? this.em.getReference('TaxRate', data.taxRateId)
+      taxRate: dto.taxRateId
+        ? this.em.getReference(TaxRate, dto.taxRateId)
         : undefined,
-    } as any);
+    } as Record<string, unknown>);
 
     await this.em.persistAndFlush(product);
     return product;
   }
 
-  async update(id: string, data: any): Promise<Product> {
+  async update(id: string, dto: UpdateProductDto): Promise<Product> {
     const product = await this.findOne(id);
-    this.em.assign(product, {
-      ...data,
-      category: data.categoryId
-        ? this.em.getReference('Category', data.categoryId)
-        : product.category,
-      unit: data.unitId
-        ? this.em.getReference('UnitOfMeasure', data.unitId)
-        : product.unit,
-      taxRate: data.taxRateId
-        ? this.em.getReference('TaxRate', data.taxRateId)
-        : product.taxRate,
-    } as any);
+
+    const assignData: Record<string, unknown> = { ...dto };
+    if (dto.categoryId !== undefined) {
+      assignData.category = dto.categoryId
+        ? this.em.getReference(Category, dto.categoryId)
+        : null;
+      delete assignData.categoryId;
+    }
+    if (dto.unitId !== undefined) {
+      assignData.unit = dto.unitId
+        ? this.em.getReference(UnitOfMeasure, dto.unitId)
+        : null;
+      delete assignData.unitId;
+    }
+    if (dto.taxRateId !== undefined) {
+      assignData.taxRate = dto.taxRateId
+        ? this.em.getReference(TaxRate, dto.taxRateId)
+        : null;
+      delete assignData.taxRateId;
+    }
+
+    this.em.assign(product, assignData);
     await this.em.flush();
     return product;
   }
@@ -103,52 +137,75 @@ export class ProductService {
     await this.em.flush();
   }
 
-  // ─── Variant CRUD ─────────────────────────────────────────
+  // ── Variant CRUD ──
 
   async getVariants(productId: string): Promise<ProductVariant[]> {
+    await this.findOne(productId);
     return this.em.find(
       ProductVariant,
-      { product: productId, deletedAt: null } as any,
+      { product: productId, deletedAt: null } as FilterQuery<ProductVariant>,
       { orderBy: { name: 'ASC' }, populate: ['currency'] as any },
     );
   }
 
-  async createVariant(productId: string, data: any): Promise<ProductVariant> {
+  async createVariant(
+    productId: string,
+    dto: CreateVariantDto,
+  ): Promise<ProductVariant> {
     const tenantId = TenantContext.getTenantId();
+    if (!tenantId) throw new TenantContextMissingException();
     const tenant = await this.em.findOneOrFail(Tenant, { id: tenantId });
-    const product = await this.em.findOneOrFail(Product, { id: productId });
+    const product = await this.findOne(productId);
 
     const variant = this.em.create(ProductVariant, {
-      ...data,
+      name: dto.name,
+      sku: dto.sku,
+      price: dto.price ?? 0,
+      costPrice: dto.costPrice,
+      minOrderQuantity: dto.minOrderQuantity,
+      colorCode: dto.colorCode,
+      width: dto.width,
+      weight: dto.weight,
+      martindale: dto.martindale,
+      primaryImageUrl: dto.primaryImageUrl,
+      barcode: dto.barcode,
+      isActive: dto.isActive ?? true,
       tenant,
       product,
-      currency: data.currencyId
-        ? this.em.getReference('Currency', data.currencyId)
+      currency: dto.currencyId
+        ? this.em.getReference(Currency, dto.currencyId)
         : undefined,
-    } as any);
+    } as Record<string, unknown>);
 
     await this.em.persistAndFlush(variant);
     return variant;
   }
 
-  async updateVariant(variantId: string, data: any): Promise<ProductVariant> {
-    const variant = await this.em.findOneOrFail(ProductVariant, {
-      id: variantId,
-    });
-    this.em.assign(variant, {
-      ...data,
-      currency: data.currencyId
-        ? this.em.getReference('Currency', data.currencyId)
-        : variant.currency,
-    } as any);
+  async updateVariant(
+    variantId: string,
+    dto: UpdateVariantDto,
+  ): Promise<ProductVariant> {
+    const variant = await this.em.findOne(ProductVariant, { id: variantId });
+    if (!variant)
+      throw new EntityNotFoundException('ProductVariant', variantId);
+
+    const assignData: Record<string, unknown> = { ...dto };
+    if (dto.currencyId !== undefined) {
+      assignData.currency = dto.currencyId
+        ? this.em.getReference(Currency, dto.currencyId)
+        : null;
+      delete assignData.currencyId;
+    }
+
+    this.em.assign(variant, assignData);
     await this.em.flush();
     return variant;
   }
 
   async removeVariant(variantId: string): Promise<void> {
-    const variant = await this.em.findOneOrFail(ProductVariant, {
-      id: variantId,
-    });
+    const variant = await this.em.findOne(ProductVariant, { id: variantId });
+    if (!variant)
+      throw new EntityNotFoundException('ProductVariant', variantId);
     variant.deletedAt = new Date();
     await this.em.flush();
   }

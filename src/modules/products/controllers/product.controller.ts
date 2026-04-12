@@ -14,64 +14,78 @@ import {
 import { ProductService } from '../services/product.service';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { TenantGuard } from '../../../common/guards/tenant.guard';
-import { PaginatedQueryDto } from '../../../common/dto/paginated-query.dto';
+import {
+  CreateProductDto,
+  UpdateProductDto,
+  ProductQueryDto,
+  CreateVariantDto,
+  UpdateVariantDto,
+} from '../dto';
 
+/**
+ * Product controller.
+ *
+ * CLAUDE.md compliance:
+ *   - JwtAuthGuard + TenantGuard on all endpoints.
+ *   - Every @Body / @Query uses a class-validator DTO.
+ *   - Errors returned as error code + i18n key by the service.
+ */
 @Controller('products')
 @UseGuards(JwtAuthGuard, TenantGuard)
 export class ProductController {
   constructor(private readonly productService: ProductService) {}
 
-  // ─── Product CRUD ─────────────────────────────────────────
+  // ── Product CRUD ──
 
   @Get()
-  async findAll(@Query() query: PaginatedQueryDto & { categoryId?: string }) {
+  findAll(@Query() query: ProductQueryDto) {
     return this.productService.findAll(query);
   }
 
   @Get(':id')
-  async findOne(@Param('id') id: string) {
+  findOne(@Param('id') id: string) {
     return this.productService.findOne(id);
   }
 
   @Post()
-  async create(@Body() data: any) {
-    return this.productService.create(data);
+  create(@Body() dto: CreateProductDto) {
+    return this.productService.create(dto);
   }
 
   @Patch(':id')
-  async update(@Param('id') id: string, @Body() data: any) {
-    return this.productService.update(id, data);
+  update(@Param('id') id: string, @Body() dto: UpdateProductDto) {
+    return this.productService.update(id, dto);
   }
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  async remove(@Param('id') id: string) {
+  remove(@Param('id') id: string) {
     return this.productService.remove(id);
   }
 
-  // ─── Variants ─────────────────────────────────────────────
+  // ── Variants ──
 
   @Get(':id/variants')
-  async getVariants(@Param('id') productId: string) {
+  getVariants(@Param('id') productId: string) {
     return this.productService.getVariants(productId);
   }
 
   @Post(':id/variants')
-  async createVariant(@Param('id') productId: string, @Body() data: any) {
-    return this.productService.createVariant(productId, data);
+  createVariant(@Param('id') productId: string, @Body() dto: CreateVariantDto) {
+    return this.productService.createVariant(productId, dto);
   }
 
   @Patch('variants/:variantId')
-  async updateVariant(
+  updateVariant(
     @Param('variantId') variantId: string,
-    @Body() data: any,
+    @Body() dto: UpdateVariantDto,
   ) {
-    return this.productService.updateVariant(variantId, data);
+    return this.productService.updateVariant(variantId, dto);
   }
 
   @Delete('variants/:variantId')
   @HttpCode(HttpStatus.NO_CONTENT)
-  async removeVariant(@Param('variantId') variantId: string) {
+  removeVariant(@Param('variantId') variantId: string) {
     return this.productService.removeVariant(variantId);
   }
 }
