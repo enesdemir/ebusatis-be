@@ -1,7 +1,6 @@
 import {
   Entity,
   Property,
-  Enum,
   ManyToOne,
   ManyToMany,
   OneToMany,

@@ -1,4 +1,4 @@
-import { PrimaryKey, Property, SerializedPrimaryKey } from '@mikro-orm/core';
+import { PrimaryKey, Property } from '@mikro-orm/core';
 import { v4 } from 'uuid';
 
 export abstract class BaseEntity {

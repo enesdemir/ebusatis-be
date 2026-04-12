@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { EntityManager } from '@mikro-orm/postgresql';
 import { BaseDefinitionService } from '../../../common/services/base-definition.service';
 import { Category } from '../entities/category.entity';
-import { PaginatedQueryDto } from '../../../common/dto/paginated-query.dto';
 
 @Injectable()
 export class CategoryService extends BaseDefinitionService<Category> {

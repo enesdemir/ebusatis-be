@@ -1,10 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { EntityManager } from '@mikro-orm/postgresql';
-import {
-  InventoryItem,
-  InventoryItemStatus,
-} from '../../inventory/entities/inventory-item.entity';
-import { InventoryTransaction } from '../../inventory/entities/inventory-transaction.entity';
+import { InventoryItemStatus } from '../../inventory/entities/inventory-item.entity';
 
 /**
  * Stok Raporları

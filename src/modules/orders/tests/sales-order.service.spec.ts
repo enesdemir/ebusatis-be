@@ -197,7 +197,7 @@ describe('SalesOrderService', () => {
       mockEm.persist.mockImplementation(() => {});
       mockEm.flush.mockResolvedValue(undefined);
 
-      const result = await service.create(
+      const _result = await service.create(
         { partnerId: 'p1', lines: [] },
         'user-1',
       );
@@ -261,7 +261,7 @@ describe('SalesOrderService', () => {
       );
       mockEm.flush.mockResolvedValue(undefined);
 
-      const result = await service.update('order-1', { note: 'Updated note' });
+      const _result = await service.update('order-1', { note: 'Updated note' });
 
       expect(mockEm.assign).toHaveBeenCalled();
       expect(mockEm.flush).toHaveBeenCalled();

@@ -7,7 +7,6 @@ import {
   Index,
   Unique,
   Filter,
-  Enum,
 } from '@mikro-orm/core';
 import { BaseEntity } from '../../../common/entities/base.entity';
 import { Tenant } from '../../tenants/entities/tenant.entity';

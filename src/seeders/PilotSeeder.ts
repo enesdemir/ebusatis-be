@@ -1,6 +1,5 @@
 import { EntityManager } from '@mikro-orm/core';
 import { Seeder } from '@mikro-orm/seeder';
-import { v4 } from 'uuid';
 
 import { Tenant } from '../modules/tenants/entities/tenant.entity';
 import { User } from '../modules/users/entities/user.entity';
@@ -21,7 +20,6 @@ import {
   TrackingStrategy,
 } from '../modules/products/entities/product.entity';
 import { ProductVariant } from '../modules/products/entities/product-variant.entity';
-import { StatusDefinition } from '../modules/definitions/entities/status-definition.entity';
 import { PurchaseOrder } from '../modules/orders/entities/purchase-order.entity';
 import { PurchaseOrderLine } from '../modules/orders/entities/purchase-order-line.entity';
 import {

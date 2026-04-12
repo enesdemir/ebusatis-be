@@ -1,4 +1,4 @@
-import { Entity, Property, Enum, Unique } from '@mikro-orm/core';
+import { Entity, Property, Enum } from '@mikro-orm/core';
 import { BaseTenantEntity } from './base-tenant.entity';
 
 /**

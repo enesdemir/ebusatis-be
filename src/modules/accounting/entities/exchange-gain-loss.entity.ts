@@ -1,4 +1,4 @@
-import { Entity, Property, ManyToOne } from '@mikro-orm/core';
+import { Entity, Property } from '@mikro-orm/core';
 import { BaseTenantEntity } from '../../../common/entities/base-tenant.entity';
 
 /**

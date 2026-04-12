@@ -1,11 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { EntityManager } from '@mikro-orm/postgresql';
 import { SupplierClaimService } from '../services/supplier-claim.service';
-import {
-  SupplierClaim,
-  ClaimStatus,
-  ClaimType,
-} from '../entities/supplier-claim.entity';
+import { ClaimStatus, ClaimType } from '../entities/supplier-claim.entity';
 import { DiscrepancyType } from '../entities/goods-receive-line.entity';
 import {
   TenantContextMissingException,

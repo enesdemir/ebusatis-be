@@ -109,7 +109,7 @@ describe('InvoiceService', () => {
         lines: [],
       };
 
-      const result = await service.create(data, 'user-1');
+      const _result = await service.create(data, 'user-1');
 
       expect(mockEm.create).toHaveBeenCalledWith(
         Invoice,

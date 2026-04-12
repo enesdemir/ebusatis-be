@@ -2,14 +2,8 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { EntityManager } from '@mikro-orm/postgresql';
 import { GoodsReceiveService } from '../services/goods-receive.service';
 import { InventoryService } from '../services/inventory.service';
-import {
-  GoodsReceive,
-  GoodsReceiveStatus,
-} from '../entities/goods-receive.entity';
-import {
-  GoodsReceiveLine,
-  DiscrepancyType,
-} from '../entities/goods-receive-line.entity';
+import { GoodsReceiveStatus } from '../entities/goods-receive.entity';
+import { DiscrepancyType } from '../entities/goods-receive-line.entity';
 import {
   TenantContextMissingException,
   GoodsReceiveNotFoundException,
