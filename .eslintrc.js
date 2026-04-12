@@ -52,8 +52,15 @@ module.exports = {
     {
       // Migrations and seeders contain legitimate locale data, entity
       // names in Turkish, and raw SQL — exempt them from the Turkish
-      // string detection rule.
-      files: ['src/migrations/**/*.ts', 'src/seeders/**/*.ts'],
+      // string detection rule. PDF templates emit user-facing rendered
+      // text in TR (the templates are the localisation unit, not the
+      // error contract that the rule is meant to enforce).
+      files: [
+        'src/migrations/**/*.ts',
+        'src/seeders/**/*.ts',
+        'src/modules/documents/pdf-templates/**/*.ts',
+        'src/common/services/pdf-template-helpers.ts',
+      ],
       rules: {
         'no-restricted-syntax': 'off',
       },
