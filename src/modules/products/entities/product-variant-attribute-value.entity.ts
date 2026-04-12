@@ -1,15 +1,23 @@
 import { Entity, Property, ManyToOne } from '@mikro-orm/core';
-import { BaseEntity } from '../../../common/entities/base.entity';
+import { BaseTenantEntity } from '../../../common/entities/base-tenant.entity';
 import { ProductVariant } from './product-variant.entity';
 import { Attribute, AttributeType } from './attribute.entity';
 
+/**
+ * Product Variant Attribute Value (EAV)
+ *
+ * Stores a single attribute value for a product variant.
+ *
+ * Tenant-scoped via BaseTenantEntity (stage 4 fix — was previously
+ * BaseEntity with no tenant isolation).
+ */
 @Entity({ tableName: 'product_variant_attribute_values' })
-export class ProductVariantAttributeValue extends BaseEntity {
+export class ProductVariantAttributeValue extends BaseTenantEntity {
   @ManyToOne(() => ProductVariant)
-  variant: ProductVariant;
+  variant!: ProductVariant;
 
   @ManyToOne(() => Attribute)
-  attribute: Attribute;
+  attribute!: Attribute;
 
   @Property({ nullable: true })
   valueString?: string;
@@ -20,13 +28,7 @@ export class ProductVariantAttributeValue extends BaseEntity {
   @Property({ nullable: true })
   valueBoolean?: boolean;
 
-  constructor(variant: ProductVariant, attribute: Attribute) {
-    super();
-    this.variant = variant;
-    this.attribute = attribute;
-  }
-
-  // Veriyi okumayı inanılmaz kolaylaştıran helper
+  /** Helper to read the typed value from the correct column. */
   getValue(): string | number | boolean | undefined {
     switch (this.attribute?.type) {
       case AttributeType.STRING:

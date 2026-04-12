@@ -1,15 +1,26 @@
 import { Entity, Property, ManyToOne } from '@mikro-orm/core';
-import { BaseEntity } from '../../../common/entities/base.entity';
+import { BaseTenantEntity } from '../../../common/entities/base-tenant.entity';
 import { Product } from './product.entity';
 import { Attribute, AttributeType } from './attribute.entity';
 
+/**
+ * Product Attribute Value (EAV)
+ *
+ * Stores a single attribute value for a product. The column used
+ * depends on the attribute type: valueString, valueNumber or
+ * valueBoolean.
+ *
+ * Tenant-scoped via BaseTenantEntity so the @Filter('tenant') applies
+ * automatically (stage 4 fix — was previously BaseEntity which meant
+ * no tenant isolation on this table).
+ */
 @Entity({ tableName: 'product_attribute_values' })
-export class ProductAttributeValue extends BaseEntity {
+export class ProductAttributeValue extends BaseTenantEntity {
   @ManyToOne(() => Product)
-  product: Product;
+  product!: Product;
 
   @ManyToOne(() => Attribute)
-  attribute: Attribute;
+  attribute!: Attribute;
 
   @Property({ nullable: true })
   valueString?: string;
@@ -20,13 +31,7 @@ export class ProductAttributeValue extends BaseEntity {
   @Property({ nullable: true })
   valueBoolean?: boolean;
 
-  constructor(product: Product, attribute: Attribute) {
-    super();
-    this.product = product;
-    this.attribute = attribute;
-  }
-
-  // EAV modelinde veriyi doğrudan çekebilmek için helper
+  /** Helper to read the typed value from the correct column. */
   getValue(): string | number | boolean | undefined {
     switch (this.attribute?.type) {
       case AttributeType.STRING:

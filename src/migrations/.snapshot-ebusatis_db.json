@@ -7029,6 +7029,15 @@
           "length": 6,
           "mappedType": "datetime"
         },
+        "tenant_id": {
+          "name": "tenant_id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "uuid"
+        },
         "variant_id": {
           "name": "variant_id",
           "type": "uuid",
@@ -7082,6 +7091,16 @@
       "schema": "public",
       "indexes": [
         {
+          "columnNames": [
+            "tenant_id"
+          ],
+          "composite": false,
+          "keyName": "product_variant_attribute_values_tenant_id_index",
+          "constraint": false,
+          "primary": false,
+          "unique": false
+        },
+        {
           "keyName": "product_variant_attribute_values_pkey",
           "columnNames": [
             "id"
@@ -7094,6 +7113,18 @@
       ],
       "checks": [],
       "foreignKeys": {
+        "product_variant_attribute_values_tenant_id_foreign": {
+          "constraintName": "product_variant_attribute_values_tenant_id_foreign",
+          "columnNames": [
+            "tenant_id"
+          ],
+          "localTableName": "public.product_variant_attribute_values",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.tenants",
+          "updateRule": "cascade"
+        },
         "product_variant_attribute_values_variant_id_foreign": {
           "constraintName": "product_variant_attribute_values_variant_id_foreign",
           "columnNames": [
@@ -7439,6 +7470,15 @@
           "length": 6,
           "mappedType": "datetime"
         },
+        "tenant_id": {
+          "name": "tenant_id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "uuid"
+        },
         "product_id": {
           "name": "product_id",
           "type": "uuid",
@@ -7492,6 +7532,16 @@
       "schema": "public",
       "indexes": [
         {
+          "columnNames": [
+            "tenant_id"
+          ],
+          "composite": false,
+          "keyName": "product_attribute_values_tenant_id_index",
+          "constraint": false,
+          "primary": false,
+          "unique": false
+        },
+        {
           "keyName": "product_attribute_values_pkey",
           "columnNames": [
             "id"
@@ -7504,6 +7554,18 @@
       ],
       "checks": [],
       "foreignKeys": {
+        "product_attribute_values_tenant_id_foreign": {
+          "constraintName": "product_attribute_values_tenant_id_foreign",
+          "columnNames": [
+            "tenant_id"
+          ],
+          "localTableName": "public.product_attribute_values",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.tenants",
+          "updateRule": "cascade"
+        },
         "product_attribute_values_product_id_foreign": {
           "constraintName": "product_attribute_values_product_id_foreign",
           "columnNames": [
@@ -18300,6 +18362,15 @@
           "length": 6,
           "mappedType": "datetime"
         },
+        "tenant_id": {
+          "name": "tenant_id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "uuid"
+        },
         "item_id": {
           "name": "item_id",
           "type": "uuid",
@@ -18370,13 +18441,12 @@
         },
         "note": {
           "name": "note",
-          "type": "varchar(255)",
+          "type": "text",
           "unsigned": false,
           "autoincrement": false,
           "primary": false,
           "nullable": true,
-          "length": 255,
-          "mappedType": "string"
+          "mappedType": "text"
         },
         "created_by_id": {
           "name": "created_by_id",
@@ -18392,6 +18462,16 @@
       "schema": "public",
       "indexes": [
         {
+          "columnNames": [
+            "tenant_id"
+          ],
+          "composite": false,
+          "keyName": "inventory_transactions_tenant_id_index",
+          "constraint": false,
+          "primary": false,
+          "unique": false
+        },
+        {
           "keyName": "inventory_transactions_pkey",
           "columnNames": [
             "id"
@@ -18404,6 +18484,18 @@
       ],
       "checks": [],
       "foreignKeys": {
+        "inventory_transactions_tenant_id_foreign": {
+          "constraintName": "inventory_transactions_tenant_id_foreign",
+          "columnNames": [
+            "tenant_id"
+          ],
+          "localTableName": "public.inventory_transactions",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.tenants",
+          "updateRule": "cascade"
+        },
         "inventory_transactions_item_id_foreign": {
           "constraintName": "inventory_transactions_item_id_foreign",
           "columnNames": [
