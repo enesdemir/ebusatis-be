@@ -1,8 +1,9 @@
+import { Injectable, BadRequestException } from '@nestjs/common';
 import {
-  Injectable,
-  NotFoundException,
-  BadRequestException,
-} from '@nestjs/common';
+  EntityNotFoundException,
+  TenantContextMissingException,
+  InventoryCutQuantityInvalidException,
+} from '../../../common/errors/app.exceptions';
 import { EntityManager, FilterQuery } from '@mikro-orm/postgresql';
 import {
   InventoryItem,
@@ -19,7 +20,6 @@ import {
 } from '../../../common/helpers/query-builder.helper';
 import { PaginatedQueryDto } from '../../../common/dto/paginated-query.dto';
 import { Tenant } from '../../tenants/entities/tenant.entity';
-import { User } from '../../users/entities/user.entity';
 
 interface RollListQuery extends PaginatedQueryDto {
   variantId?: string;
@@ -81,11 +81,11 @@ export class InventoryService {
         ] as any,
       },
     );
-    if (!item) throw new NotFoundException(`Top bulunamadı: ${id}`);
+    if (!item) throw new EntityNotFoundException('InventoryItem', id);
     return item;
   }
 
-  // ─── Top Girişi (Mal Kabul'den veya direkt) ───────────────
+  // ── Roll entry (from goods receive or direct) ──
 
   async createRoll(
     data: {
@@ -103,7 +103,7 @@ export class InventoryService {
     userId?: string,
   ): Promise<InventoryItem> {
     const tenantId = TenantContext.getTenantId();
-    if (!tenantId) throw new BadRequestException('Tenant context bulunamadı');
+    if (!tenantId) throw new TenantContextMissingException();
     const tenant = await this.em.findOneOrFail(Tenant, { id: tenantId });
 
     const item = this.em.create(InventoryItem, {
@@ -133,16 +133,14 @@ export class InventoryService {
 
     this.em.persist(item);
 
-    // Giriş transaction'ı
+    // Entry transaction
     const tx = this.em.create(InventoryTransaction, {
       item,
       type: TransactionType.PURCHASE,
       quantityChange: data.quantity,
       previousQuantity: 0,
       newQuantity: data.quantity,
-      note: data.goodsReceiveId
-        ? `Mal kabul: ${data.goodsReceiveId}`
-        : 'Direkt giriş',
+      note: data.goodsReceiveId ? `GR:${data.goodsReceiveId}` : 'DIRECT_ENTRY',
       createdBy: userId ? this.em.getReference('User', userId) : undefined,
     } as any);
     this.em.persist(tx);
@@ -164,17 +162,19 @@ export class InventoryService {
     const available =
       Number(item.currentQuantity) - Number(item.reservedQuantity);
 
-    if (amount <= 0)
-      throw new BadRequestException('Kesim miktarı pozitif olmalıdır');
-    if (amount > available)
-      throw new BadRequestException(
-        `Yetersiz stok. Mevcut: ${available}, İstenen: ${amount}`,
-      );
+    if (amount <= 0) throw new InventoryCutQuantityInvalidException();
+    if (amount > available) {
+      throw new BadRequestException({
+        error: 'STOCK_INSUFFICIENT',
+        message: 'errors.inventory.stock_insufficient',
+        metadata: { available, requested: amount },
+      });
+    }
 
     const prevQty = Number(item.currentQuantity);
     item.currentQuantity = prevQty - amount;
 
-    // Sıfıra düştüyse SOLD yap
+    // Mark as SOLD if quantity hits zero
     if (item.currentQuantity <= 0) {
       item.status = InventoryItemStatus.SOLD;
       item.currentQuantity = 0;
@@ -207,9 +207,11 @@ export class InventoryService {
     const item = await this.findOne(rollId);
 
     if (amount > Number(item.currentQuantity)) {
-      throw new BadRequestException(
-        `Fire miktarı kalan stoktan fazla olamaz. Kalan: ${item.currentQuantity}`,
-      );
+      throw new BadRequestException({
+        error: 'WASTE_EXCEEDS_STOCK',
+        message: 'errors.inventory.waste_exceeds_stock',
+        metadata: { remaining: item.currentQuantity },
+      });
     }
 
     const prevQty = Number(item.currentQuantity);
@@ -235,7 +237,7 @@ export class InventoryService {
     return item;
   }
 
-  // ─── Sayım Düzeltme (Adjustment) ─────────────────────────
+  // ── Stock adjustment ──
 
   async adjustStock(
     rollId: string,
@@ -244,7 +246,12 @@ export class InventoryService {
     userId?: string,
   ): Promise<InventoryItem> {
     const item = await this.findOne(rollId);
-    if (newQuantity < 0) throw new BadRequestException('Miktar negatif olamaz');
+    if (newQuantity < 0) {
+      throw new BadRequestException({
+        error: 'QUANTITY_NEGATIVE',
+        message: 'errors.inventory.quantity_negative',
+      });
+    }
 
     const prevQty = Number(item.currentQuantity);
     const diff = newQuantity - prevQty;
@@ -262,7 +269,7 @@ export class InventoryService {
       quantityChange: diff,
       previousQuantity: prevQty,
       newQuantity,
-      note: note || `Sayım düzeltme: ${prevQty} → ${newQuantity}`,
+      note: note || `ADJUSTMENT:${prevQty}->${newQuantity}`,
       createdBy: userId ? this.em.getReference('User', userId) : undefined,
     } as any);
     this.em.persist(tx);
@@ -271,7 +278,7 @@ export class InventoryService {
     return item;
   }
 
-  // ─── Hareket Tarihçesi ────────────────────────────────────
+  // ── Movement history ──
 
   async getMovements(rollId: string): Promise<InventoryTransaction[]> {
     return this.em.find(InventoryTransaction, { item: rollId } as any, {
@@ -280,7 +287,7 @@ export class InventoryService {
     });
   }
 
-  // ─── Stok Özeti (Varyant bazlı) ──────────────────────────
+  // ── Stock summary (by variant) ──
 
   async getSummary(): Promise<any[]> {
     const qb = this.em.createQueryBuilder(InventoryItem, 'i');

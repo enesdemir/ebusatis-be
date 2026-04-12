@@ -1,4 +1,5 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
+import { EntityNotFoundException } from '../../../common/errors/app.exceptions';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { EntityRepository, EntityManager } from '@mikro-orm/postgresql';
 import { StockValuation } from '../entities/stock-valuation.entity';
@@ -92,7 +93,7 @@ export class AccountingService {
 
   async updateTaxReport(id: string, data: any) {
     const r = await this.taxRepo.findOne({ id });
-    if (!r) throw new NotFoundException('Tax report not found');
+    if (!r) throw new EntityNotFoundException('TaxReport', id);
     Object.assign(r, data);
     await this.em.flush();
     return r;
