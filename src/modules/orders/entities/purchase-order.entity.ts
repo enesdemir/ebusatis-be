@@ -7,16 +7,19 @@ import { StatusDefinition } from '../../definitions/entities/status-definition.e
 import { User } from '../../users/entities/user.entity';
 
 /**
- * Satınalma Siparişi (Purchase Order)
+ * Purchase Order
  *
- * Ne işe yarar: Tedarikçiye verilen sipariş. Mal kabul ile eşleşir.
- * Nerede kullanılır: Tedarik yönetimi, mal kabul referansı, maliyet hesaplama
+ * The supplier-facing order placed by us. In the international-import
+ * flow this entity is the entry point: it spawns a SupplierProductionOrder
+ * (production tracking), eventually a Shipment (transit) and a
+ * GoodsReceive (warehouse arrival), and feeds into a LandedCostCalculation
+ * once the shipment lands.
  */
 @Entity({ tableName: 'purchase_orders' })
 export class PurchaseOrder extends BaseTenantEntity {
   @Property()
   @Index()
-  orderNumber!: string; // "PO-2026-0001"
+  orderNumber!: string; // e.g. "PO-2026-0001"
 
   @ManyToOne(() => Partner)
   supplier!: Partner;
@@ -36,7 +39,7 @@ export class PurchaseOrder extends BaseTenantEntity {
   @Property({ nullable: true, type: 'date' })
   expectedDeliveryDate?: Date;
 
-  // ─── Tutarlar ─────────────────────────────────────────────
+  // ─── Amounts ─────────────────────────────────────────────
 
   @Property({ type: 'decimal', precision: 14, scale: 2, default: 0 })
   totalAmount: number = 0;
@@ -47,13 +50,59 @@ export class PurchaseOrder extends BaseTenantEntity {
   @Property({ type: 'decimal', precision: 14, scale: 2, default: 0 })
   grandTotal: number = 0;
 
-  // ─── İthalat / Konteyner ──────────────────────────────────
+  // ─── Payment terms (stage 0.C) ────────────────────────────
+
+  /** Deposit prepaid to the supplier when the order is placed. */
+  @Property({ type: 'decimal', precision: 14, scale: 2, default: 0 })
+  downPaymentAmount: number = 0;
+
+  /**
+   * Free-text payment terms negotiated with the supplier.
+   * Example: "30% deposit, 70% on bill of lading", "Net 30".
+   */
+  @Property({ nullable: true, type: 'text' })
+  paymentTerms?: string;
+
+  // ─── Notification scheduling (stage 0.C) ──────────────────
+
+  /**
+   * Delivery warning configuration consumed by the scheduled
+   * notification engine. Each entry defines how many days before
+   * `expectedDeliveryDate` an alert should fire and which user groups
+   * should receive it. Example payload:
+   *   [
+   *     { daysBefore: 14, recipientGroupCodes: ['logistics_team'] },
+   *     { daysBefore: 7,  recipientGroupCodes: ['logistics_team', 'finance_team'] }
+   *   ]
+   */
+  @Property({ type: 'jsonb', nullable: true })
+  deliveryWarningConfig?: Array<{
+    daysBefore: number;
+    recipientGroupCodes?: string[];
+    recipientUserIds?: string[];
+  }>;
+
+  // ─── Document attachments (stage 0.C) ─────────────────────
+
+  /** QR code payload printed on the PO PDF; populated by the PDF service. */
+  @Property({ nullable: true, type: 'text' })
+  qrCode?: string;
+
+  /** URL of the digitally signed PO PDF. */
+  @Property({ nullable: true })
+  digitalSignatureUrl?: string;
+
+  // ─── Import / container metadata ──────────────────────────
+  //
+  // Light-weight container info kept for backwards compatibility. The
+  // detailed multi-leg information lives on the Shipment / ShipmentLeg
+  // entities introduced in stage 0.B / 0.C.
 
   @Property({ type: 'json', nullable: true })
   containerInfo?: {
     containerNo?: string;
     vessel?: string;
-    customsRef?: string; // GTD (Gümrük Beyannamesi)
+    customsRef?: string;
   };
 
   @Property({ nullable: true, type: 'text' })
