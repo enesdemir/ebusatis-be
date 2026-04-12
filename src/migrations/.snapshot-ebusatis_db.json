@@ -2014,6 +2014,203 @@
           "nullable": true,
           "mappedType": "text"
         },
+        "type": {
+          "name": "type",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "default": "'SEASONAL'",
+          "enumItems": [
+            "SEASONAL",
+            "THEMED",
+            "CAMPAIGN",
+            "PERMANENT"
+          ],
+          "mappedType": "enum"
+        },
+        "season": {
+          "name": "season",
+          "type": "varchar(255)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "length": 255,
+          "mappedType": "string"
+        },
+        "launch_date": {
+          "name": "launch_date",
+          "type": "date",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "length": 0,
+          "mappedType": "date"
+        },
+        "end_date": {
+          "name": "end_date",
+          "type": "date",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "length": 0,
+          "mappedType": "date"
+        },
+        "is_active": {
+          "name": "is_active",
+          "type": "boolean",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "default": "true",
+          "mappedType": "boolean"
+        },
+        "cover_image_url": {
+          "name": "cover_image_url",
+          "type": "varchar(255)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "length": 255,
+          "mappedType": "string"
+        }
+      },
+      "name": "product_collections",
+      "schema": "public",
+      "indexes": [
+        {
+          "columnNames": [
+            "tenant_id"
+          ],
+          "composite": false,
+          "keyName": "product_collections_tenant_id_index",
+          "constraint": false,
+          "primary": false,
+          "unique": false
+        },
+        {
+          "columnNames": [
+            "code"
+          ],
+          "composite": false,
+          "keyName": "product_collections_code_index",
+          "constraint": false,
+          "primary": false,
+          "unique": false
+        },
+        {
+          "keyName": "product_collections_pkey",
+          "columnNames": [
+            "id"
+          ],
+          "composite": false,
+          "constraint": true,
+          "primary": true,
+          "unique": true
+        }
+      ],
+      "checks": [],
+      "foreignKeys": {
+        "product_collections_tenant_id_foreign": {
+          "constraintName": "product_collections_tenant_id_foreign",
+          "columnNames": [
+            "tenant_id"
+          ],
+          "localTableName": "public.product_collections",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.tenants",
+          "updateRule": "cascade"
+        }
+      },
+      "nativeEnums": {}
+    },
+    {
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "uuid"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamptz",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": 6,
+          "mappedType": "datetime"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamptz",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": 6,
+          "mappedType": "datetime"
+        },
+        "deleted_at": {
+          "name": "deleted_at",
+          "type": "timestamptz",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "length": 6,
+          "mappedType": "datetime"
+        },
+        "tenant_id": {
+          "name": "tenant_id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "uuid"
+        },
+        "name": {
+          "name": "name",
+          "type": "varchar(255)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": 255,
+          "mappedType": "string"
+        },
+        "code": {
+          "name": "code",
+          "type": "varchar(255)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": 255,
+          "mappedType": "string"
+        },
+        "description": {
+          "name": "description",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "mappedType": "text"
+        },
         "is_active": {
           "name": "is_active",
           "type": "boolean",
@@ -3008,6 +3205,38 @@
             "COMPETITOR"
           ],
           "mappedType": "json"
+        },
+        "customer_subtype": {
+          "name": "customer_subtype",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "enumItems": [
+            "DEALER",
+            "WHOLESALE",
+            "RETAIL",
+            "B2B",
+            "SHOWROOM",
+            "ONLINE"
+          ],
+          "mappedType": "enum"
+        },
+        "supplier_subtype": {
+          "name": "supplier_subtype",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "enumItems": [
+            "FABRIC_FACTORY",
+            "RAW_MATERIAL",
+            "PACKAGING",
+            "LOGISTICS_PROVIDER"
+          ],
+          "mappedType": "enum"
         },
         "tax_id": {
           "name": "tax_id",
@@ -6141,6 +6370,21 @@
           "nullable": false,
           "default": "true",
           "mappedType": "boolean"
+        },
+        "production_status": {
+          "name": "production_status",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "enumItems": [
+            "PENDING",
+            "IN_PRODUCTION",
+            "PRODUCED",
+            "DISCONTINUED"
+          ],
+          "mappedType": "enum"
         }
       },
       "name": "product_variants",
@@ -6931,6 +7175,73 @@
             "id"
           ],
           "referencedTableName": "public.attributes",
+          "updateRule": "cascade"
+        }
+      },
+      "nativeEnums": {}
+    },
+    {
+      "columns": {
+        "product_collection_id": {
+          "name": "product_collection_id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "uuid"
+        },
+        "product_id": {
+          "name": "product_id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "uuid"
+        }
+      },
+      "name": "product_collections_products",
+      "schema": "public",
+      "indexes": [
+        {
+          "keyName": "product_collections_products_pkey",
+          "columnNames": [
+            "product_collection_id",
+            "product_id"
+          ],
+          "composite": true,
+          "constraint": true,
+          "primary": true,
+          "unique": true
+        }
+      ],
+      "checks": [],
+      "foreignKeys": {
+        "product_collections_products_product_collection_id_foreign": {
+          "constraintName": "product_collections_products_product_collection_id_foreign",
+          "columnNames": [
+            "product_collection_id"
+          ],
+          "localTableName": "public.product_collections_products",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.product_collections",
+          "deleteRule": "cascade",
+          "updateRule": "cascade"
+        },
+        "product_collections_products_product_id_foreign": {
+          "constraintName": "product_collections_products_product_id_foreign",
+          "columnNames": [
+            "product_id"
+          ],
+          "localTableName": "public.product_collections_products",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.products",
+          "deleteRule": "cascade",
           "updateRule": "cascade"
         }
       },
@@ -11347,6 +11658,8 @@
           "default": "'MAIN'",
           "enumItems": [
             "MAIN",
+            "BRANCH",
+            "SHOWROOM",
             "TRANSIT",
             "RETURN",
             "PRODUCTION",
@@ -11382,6 +11695,15 @@
           "primary": false,
           "nullable": true,
           "mappedType": "uuid"
+        },
+        "parent_id": {
+          "name": "parent_id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "mappedType": "uuid"
         }
       },
       "name": "warehouses",
@@ -11393,6 +11715,16 @@
           ],
           "composite": false,
           "keyName": "warehouses_tenant_id_index",
+          "constraint": false,
+          "primary": false,
+          "unique": false
+        },
+        {
+          "columnNames": [
+            "parent_id"
+          ],
+          "composite": false,
+          "keyName": "warehouses_parent_id_index",
           "constraint": false,
           "primary": false,
           "unique": false
@@ -11443,6 +11775,19 @@
             "id"
           ],
           "referencedTableName": "public.users",
+          "deleteRule": "set null",
+          "updateRule": "cascade"
+        },
+        "warehouses_parent_id_foreign": {
+          "constraintName": "warehouses_parent_id_foreign",
+          "columnNames": [
+            "parent_id"
+          ],
+          "localTableName": "public.warehouses",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.warehouses",
           "deleteRule": "set null",
           "updateRule": "cascade"
         }
@@ -14577,6 +14922,734 @@
           "nullable": false,
           "mappedType": "uuid"
         },
+        "sample_code": {
+          "name": "sample_code",
+          "type": "varchar(255)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": 255,
+          "mappedType": "string"
+        },
+        "product_id": {
+          "name": "product_id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "uuid"
+        },
+        "variant_id": {
+          "name": "variant_id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "mappedType": "uuid"
+        },
+        "type": {
+          "name": "type",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "default": "'SWATCH'",
+          "enumItems": [
+            "SWATCH",
+            "CUTTING",
+            "FULL_ROLL",
+            "HANGER"
+          ],
+          "mappedType": "enum"
+        },
+        "status": {
+          "name": "status",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "default": "'IN_STOCK'",
+          "enumItems": [
+            "IN_STOCK",
+            "LENT",
+            "RETURNED",
+            "LOST",
+            "DESTROYED"
+          ],
+          "mappedType": "enum"
+        },
+        "current_warehouse_id": {
+          "name": "current_warehouse_id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "mappedType": "uuid"
+        },
+        "current_holder_id": {
+          "name": "current_holder_id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "mappedType": "uuid"
+        },
+        "current_holder_user_id": {
+          "name": "current_holder_user_id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "mappedType": "uuid"
+        },
+        "notes": {
+          "name": "notes",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "mappedType": "text"
+        }
+      },
+      "name": "physical_samples",
+      "schema": "public",
+      "indexes": [
+        {
+          "columnNames": [
+            "tenant_id"
+          ],
+          "composite": false,
+          "keyName": "physical_samples_tenant_id_index",
+          "constraint": false,
+          "primary": false,
+          "unique": false
+        },
+        {
+          "columnNames": [
+            "sample_code"
+          ],
+          "composite": false,
+          "keyName": "physical_samples_sample_code_index",
+          "constraint": false,
+          "primary": false,
+          "unique": false
+        },
+        {
+          "keyName": "physical_samples_pkey",
+          "columnNames": [
+            "id"
+          ],
+          "composite": false,
+          "constraint": true,
+          "primary": true,
+          "unique": true
+        }
+      ],
+      "checks": [],
+      "foreignKeys": {
+        "physical_samples_tenant_id_foreign": {
+          "constraintName": "physical_samples_tenant_id_foreign",
+          "columnNames": [
+            "tenant_id"
+          ],
+          "localTableName": "public.physical_samples",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.tenants",
+          "updateRule": "cascade"
+        },
+        "physical_samples_product_id_foreign": {
+          "constraintName": "physical_samples_product_id_foreign",
+          "columnNames": [
+            "product_id"
+          ],
+          "localTableName": "public.physical_samples",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.products",
+          "updateRule": "cascade"
+        },
+        "physical_samples_variant_id_foreign": {
+          "constraintName": "physical_samples_variant_id_foreign",
+          "columnNames": [
+            "variant_id"
+          ],
+          "localTableName": "public.physical_samples",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.product_variants",
+          "deleteRule": "set null",
+          "updateRule": "cascade"
+        },
+        "physical_samples_current_warehouse_id_foreign": {
+          "constraintName": "physical_samples_current_warehouse_id_foreign",
+          "columnNames": [
+            "current_warehouse_id"
+          ],
+          "localTableName": "public.physical_samples",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.warehouses",
+          "deleteRule": "set null",
+          "updateRule": "cascade"
+        },
+        "physical_samples_current_holder_id_foreign": {
+          "constraintName": "physical_samples_current_holder_id_foreign",
+          "columnNames": [
+            "current_holder_id"
+          ],
+          "localTableName": "public.physical_samples",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.partners",
+          "deleteRule": "set null",
+          "updateRule": "cascade"
+        },
+        "physical_samples_current_holder_user_id_foreign": {
+          "constraintName": "physical_samples_current_holder_user_id_foreign",
+          "columnNames": [
+            "current_holder_user_id"
+          ],
+          "localTableName": "public.physical_samples",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.users",
+          "deleteRule": "set null",
+          "updateRule": "cascade"
+        }
+      },
+      "nativeEnums": {}
+    },
+    {
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "uuid"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamptz",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": 6,
+          "mappedType": "datetime"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamptz",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": 6,
+          "mappedType": "datetime"
+        },
+        "deleted_at": {
+          "name": "deleted_at",
+          "type": "timestamptz",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "length": 6,
+          "mappedType": "datetime"
+        },
+        "tenant_id": {
+          "name": "tenant_id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "uuid"
+        },
+        "sample_id": {
+          "name": "sample_id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "uuid"
+        },
+        "lent_to_partner_id": {
+          "name": "lent_to_partner_id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "mappedType": "uuid"
+        },
+        "lent_to_user_id": {
+          "name": "lent_to_user_id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "mappedType": "uuid"
+        },
+        "lent_at": {
+          "name": "lent_at",
+          "type": "timestamptz",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": 6,
+          "mappedType": "datetime"
+        },
+        "expected_return_date": {
+          "name": "expected_return_date",
+          "type": "date",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "length": 0,
+          "mappedType": "date"
+        },
+        "returned_at": {
+          "name": "returned_at",
+          "type": "timestamptz",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "length": 6,
+          "mappedType": "datetime"
+        },
+        "lent_by_user_id": {
+          "name": "lent_by_user_id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "mappedType": "uuid"
+        },
+        "returned_by_user_id": {
+          "name": "returned_by_user_id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "mappedType": "uuid"
+        },
+        "notes": {
+          "name": "notes",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "mappedType": "text"
+        }
+      },
+      "name": "sample_loan_history",
+      "schema": "public",
+      "indexes": [
+        {
+          "columnNames": [
+            "tenant_id"
+          ],
+          "composite": false,
+          "keyName": "sample_loan_history_tenant_id_index",
+          "constraint": false,
+          "primary": false,
+          "unique": false
+        },
+        {
+          "columnNames": [
+            "sample_id"
+          ],
+          "composite": false,
+          "keyName": "sample_loan_history_sample_id_index",
+          "constraint": false,
+          "primary": false,
+          "unique": false
+        },
+        {
+          "keyName": "sample_loan_history_pkey",
+          "columnNames": [
+            "id"
+          ],
+          "composite": false,
+          "constraint": true,
+          "primary": true,
+          "unique": true
+        }
+      ],
+      "checks": [],
+      "foreignKeys": {
+        "sample_loan_history_tenant_id_foreign": {
+          "constraintName": "sample_loan_history_tenant_id_foreign",
+          "columnNames": [
+            "tenant_id"
+          ],
+          "localTableName": "public.sample_loan_history",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.tenants",
+          "updateRule": "cascade"
+        },
+        "sample_loan_history_sample_id_foreign": {
+          "constraintName": "sample_loan_history_sample_id_foreign",
+          "columnNames": [
+            "sample_id"
+          ],
+          "localTableName": "public.sample_loan_history",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.physical_samples",
+          "updateRule": "cascade"
+        },
+        "sample_loan_history_lent_to_partner_id_foreign": {
+          "constraintName": "sample_loan_history_lent_to_partner_id_foreign",
+          "columnNames": [
+            "lent_to_partner_id"
+          ],
+          "localTableName": "public.sample_loan_history",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.partners",
+          "deleteRule": "set null",
+          "updateRule": "cascade"
+        },
+        "sample_loan_history_lent_to_user_id_foreign": {
+          "constraintName": "sample_loan_history_lent_to_user_id_foreign",
+          "columnNames": [
+            "lent_to_user_id"
+          ],
+          "localTableName": "public.sample_loan_history",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.users",
+          "deleteRule": "set null",
+          "updateRule": "cascade"
+        },
+        "sample_loan_history_lent_by_user_id_foreign": {
+          "constraintName": "sample_loan_history_lent_by_user_id_foreign",
+          "columnNames": [
+            "lent_by_user_id"
+          ],
+          "localTableName": "public.sample_loan_history",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.users",
+          "deleteRule": "set null",
+          "updateRule": "cascade"
+        },
+        "sample_loan_history_returned_by_user_id_foreign": {
+          "constraintName": "sample_loan_history_returned_by_user_id_foreign",
+          "columnNames": [
+            "returned_by_user_id"
+          ],
+          "localTableName": "public.sample_loan_history",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.users",
+          "deleteRule": "set null",
+          "updateRule": "cascade"
+        }
+      },
+      "nativeEnums": {}
+    },
+    {
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "uuid"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamptz",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": 6,
+          "mappedType": "datetime"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamptz",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": 6,
+          "mappedType": "datetime"
+        },
+        "deleted_at": {
+          "name": "deleted_at",
+          "type": "timestamptz",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "length": 6,
+          "mappedType": "datetime"
+        },
+        "tenant_id": {
+          "name": "tenant_id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "uuid"
+        },
+        "count_number": {
+          "name": "count_number",
+          "type": "varchar(255)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": 255,
+          "mappedType": "string"
+        },
+        "warehouse_id": {
+          "name": "warehouse_id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "uuid"
+        },
+        "type": {
+          "name": "type",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "default": "'CYCLE'",
+          "enumItems": [
+            "CYCLE",
+            "ANNUAL",
+            "SPOT",
+            "INITIAL"
+          ],
+          "mappedType": "enum"
+        },
+        "status": {
+          "name": "status",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "default": "'DRAFT'",
+          "enumItems": [
+            "DRAFT",
+            "IN_PROGRESS",
+            "COMPLETED",
+            "RECONCILED"
+          ],
+          "mappedType": "enum"
+        },
+        "started_at": {
+          "name": "started_at",
+          "type": "timestamptz",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "length": 6,
+          "mappedType": "datetime"
+        },
+        "completed_at": {
+          "name": "completed_at",
+          "type": "timestamptz",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "length": 6,
+          "mappedType": "datetime"
+        },
+        "created_by_id": {
+          "name": "created_by_id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "uuid"
+        },
+        "notes": {
+          "name": "notes",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "mappedType": "text"
+        }
+      },
+      "name": "inventory_counts",
+      "schema": "public",
+      "indexes": [
+        {
+          "columnNames": [
+            "tenant_id"
+          ],
+          "composite": false,
+          "keyName": "inventory_counts_tenant_id_index",
+          "constraint": false,
+          "primary": false,
+          "unique": false
+        },
+        {
+          "columnNames": [
+            "count_number"
+          ],
+          "composite": false,
+          "keyName": "inventory_counts_count_number_index",
+          "constraint": false,
+          "primary": false,
+          "unique": false
+        },
+        {
+          "keyName": "inventory_counts_pkey",
+          "columnNames": [
+            "id"
+          ],
+          "composite": false,
+          "constraint": true,
+          "primary": true,
+          "unique": true
+        }
+      ],
+      "checks": [],
+      "foreignKeys": {
+        "inventory_counts_tenant_id_foreign": {
+          "constraintName": "inventory_counts_tenant_id_foreign",
+          "columnNames": [
+            "tenant_id"
+          ],
+          "localTableName": "public.inventory_counts",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.tenants",
+          "updateRule": "cascade"
+        },
+        "inventory_counts_warehouse_id_foreign": {
+          "constraintName": "inventory_counts_warehouse_id_foreign",
+          "columnNames": [
+            "warehouse_id"
+          ],
+          "localTableName": "public.inventory_counts",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.warehouses",
+          "updateRule": "cascade"
+        },
+        "inventory_counts_created_by_id_foreign": {
+          "constraintName": "inventory_counts_created_by_id_foreign",
+          "columnNames": [
+            "created_by_id"
+          ],
+          "localTableName": "public.inventory_counts",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.users",
+          "updateRule": "cascade"
+        }
+      },
+      "nativeEnums": {}
+    },
+    {
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "uuid"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamptz",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": 6,
+          "mappedType": "datetime"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamptz",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": 6,
+          "mappedType": "datetime"
+        },
+        "deleted_at": {
+          "name": "deleted_at",
+          "type": "timestamptz",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "length": 6,
+          "mappedType": "datetime"
+        },
+        "tenant_id": {
+          "name": "tenant_id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "uuid"
+        },
         "receive_number": {
           "name": "receive_number",
           "type": "varchar(255)",
@@ -16628,6 +17701,192 @@
           ],
           "referencedTableName": "public.users",
           "deleteRule": "set null",
+          "updateRule": "cascade"
+        }
+      },
+      "nativeEnums": {}
+    },
+    {
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "uuid"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamptz",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": 6,
+          "mappedType": "datetime"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamptz",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": 6,
+          "mappedType": "datetime"
+        },
+        "deleted_at": {
+          "name": "deleted_at",
+          "type": "timestamptz",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "length": 6,
+          "mappedType": "datetime"
+        },
+        "tenant_id": {
+          "name": "tenant_id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "uuid"
+        },
+        "count_id": {
+          "name": "count_id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "uuid"
+        },
+        "item_id": {
+          "name": "item_id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "uuid"
+        },
+        "expected_quantity": {
+          "name": "expected_quantity",
+          "type": "numeric(12,2)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "precision": 12,
+          "scale": 2,
+          "mappedType": "decimal"
+        },
+        "actual_quantity": {
+          "name": "actual_quantity",
+          "type": "numeric(12,2)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "precision": 12,
+          "scale": 2,
+          "mappedType": "decimal"
+        },
+        "variance": {
+          "name": "variance",
+          "type": "numeric(12,2)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "precision": 12,
+          "scale": 2,
+          "mappedType": "decimal"
+        },
+        "notes": {
+          "name": "notes",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "mappedType": "text"
+        }
+      },
+      "name": "inventory_count_lines",
+      "schema": "public",
+      "indexes": [
+        {
+          "columnNames": [
+            "tenant_id"
+          ],
+          "composite": false,
+          "keyName": "inventory_count_lines_tenant_id_index",
+          "constraint": false,
+          "primary": false,
+          "unique": false
+        },
+        {
+          "columnNames": [
+            "count_id"
+          ],
+          "composite": false,
+          "keyName": "inventory_count_lines_count_id_index",
+          "constraint": false,
+          "primary": false,
+          "unique": false
+        },
+        {
+          "keyName": "inventory_count_lines_pkey",
+          "columnNames": [
+            "id"
+          ],
+          "composite": false,
+          "constraint": true,
+          "primary": true,
+          "unique": true
+        }
+      ],
+      "checks": [],
+      "foreignKeys": {
+        "inventory_count_lines_tenant_id_foreign": {
+          "constraintName": "inventory_count_lines_tenant_id_foreign",
+          "columnNames": [
+            "tenant_id"
+          ],
+          "localTableName": "public.inventory_count_lines",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.tenants",
+          "updateRule": "cascade"
+        },
+        "inventory_count_lines_count_id_foreign": {
+          "constraintName": "inventory_count_lines_count_id_foreign",
+          "columnNames": [
+            "count_id"
+          ],
+          "localTableName": "public.inventory_count_lines",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.inventory_counts",
+          "updateRule": "cascade"
+        },
+        "inventory_count_lines_item_id_foreign": {
+          "constraintName": "inventory_count_lines_item_id_foreign",
+          "columnNames": [
+            "item_id"
+          ],
+          "localTableName": "public.inventory_count_lines",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.inventory_items",
           "updateRule": "cascade"
         }
       },

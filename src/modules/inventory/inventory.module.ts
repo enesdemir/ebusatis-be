@@ -6,6 +6,8 @@ import { GoodsReceive } from './entities/goods-receive.entity';
 import { GoodsReceiveLine } from './entities/goods-receive-line.entity';
 import { SupplierClaim } from './entities/supplier-claim.entity';
 import { SupplierClaimLine } from './entities/supplier-claim-line.entity';
+import { InventoryCount } from './entities/inventory-count.entity';
+import { InventoryCountLine } from './entities/inventory-count-line.entity';
 
 import { InventoryService } from './services/inventory.service';
 import { GoodsReceiveService } from './services/goods-receive.service';
@@ -20,9 +22,9 @@ import { AuthModule } from '../auth/auth.module';
  * Inventory module.
  *
  * Owns the warehouse-side flows: inventory items / rolls, the
- * `PURCHASE` and `CUT` transaction streams, goods receive (with the
- * stage 0.C vehicle / driver / discrepancy fields) and supplier
- * claims raised from goods receive discrepancies.
+ * `PURCHASE` and `CUT` transaction streams, goods receive (with
+ * vehicle / driver / discrepancy fields), supplier claims and
+ * inventory counts (cycle / annual / spot).
  */
 @Module({
   imports: [
@@ -33,6 +35,8 @@ import { AuthModule } from '../auth/auth.module';
       GoodsReceiveLine,
       SupplierClaim,
       SupplierClaimLine,
+      InventoryCount,
+      InventoryCountLine,
     ]),
     AuthModule,
   ],

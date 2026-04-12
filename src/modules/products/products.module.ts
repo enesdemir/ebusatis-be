@@ -9,6 +9,9 @@ import { DigitalCatalog } from './entities/digital-catalog.entity';
 import { DigitalCatalogItem } from './entities/digital-catalog-item.entity';
 import { SupplierPriceList } from './entities/supplier-price-list.entity';
 import { SupplierPriceListItem } from './entities/supplier-price-list-item.entity';
+import { ProductCollection } from './entities/product-collection.entity';
+import { PhysicalSample } from './entities/physical-sample.entity';
+import { SampleLoanHistory } from './entities/sample-loan-history.entity';
 
 import { AttributesController } from './controllers/attributes.controller';
 import { ProductController } from './controllers/product.controller';
@@ -17,6 +20,14 @@ import { ProductService } from './services/product.service';
 
 import { AuthModule } from '../auth/auth.module';
 
+/**
+ * Products module.
+ *
+ * Stage 0.C additions:
+ * - ProductCollection entity (replaces the loose collectionName string)
+ * - PhysicalSample + SampleLoanHistory (kartela tracking)
+ * - ProductVariant.productionStatus enum
+ */
 @Module({
   imports: [
     MikroOrmModule.forFeature([
@@ -29,6 +40,9 @@ import { AuthModule } from '../auth/auth.module';
       DigitalCatalogItem,
       SupplierPriceList,
       SupplierPriceListItem,
+      ProductCollection,
+      PhysicalSample,
+      SampleLoanHistory,
     ]),
     AuthModule,
   ],

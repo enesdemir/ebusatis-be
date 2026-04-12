@@ -2,6 +2,7 @@ import { Entity, Property, Enum, ManyToOne, ManyToMany, OneToMany, Collection, I
 import { BaseTenantEntity } from '../../../common/entities/base-tenant.entity';
 import { ProductVariant } from './product-variant.entity';
 import { ProductAttributeValue } from './product-attribute-value.entity';
+import { ProductCollection } from './product-collection.entity';
 import { Tenant } from '../../tenants/entities/tenant.entity';
 import { Category } from '../../definitions/entities/category.entity';
 import { UnitOfMeasure } from '../../definitions/entities/unit-of-measure.entity';
@@ -72,7 +73,11 @@ export class Product extends BaseTenantEntity {
   @ManyToMany(() => Tag)
   tags = new Collection<Tag>(this);
 
-  // ─── İlişkiler ────────────────────────────────────────────
+  /** Product collections this product belongs to (inverse side). */
+  @ManyToMany({ entity: () => ProductCollection, mappedBy: 'products' })
+  collections = new Collection<ProductCollection>(this);
+
+  // ─── Relationships ────────────────────────────────────────
 
   @OneToMany(() => ProductVariant, variant => variant.product)
   variants = new Collection<ProductVariant>(this);

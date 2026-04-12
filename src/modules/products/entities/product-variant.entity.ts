@@ -1,8 +1,22 @@
-import { Entity, Property, ManyToOne, Collection, OneToMany, Index } from '@mikro-orm/core';
+import { Entity, Property, ManyToOne, Collection, OneToMany, Enum, Index } from '@mikro-orm/core';
 import { BaseTenantEntity } from '../../../common/entities/base-tenant.entity';
 import { Product } from './product.entity';
 import { ProductVariantAttributeValue } from './product-variant-attribute-value.entity';
 import { Currency } from '../../definitions/entities/currency.entity';
+
+/**
+ * Production lifecycle status for a product variant.
+ *
+ * Tracks whether the supplier is currently producing this variant,
+ * has finished or has not started yet. Updated either manually or by
+ * the SupplierProductionOrder lifecycle.
+ */
+export enum VariantProductionStatus {
+  PENDING = 'PENDING',
+  IN_PRODUCTION = 'IN_PRODUCTION',
+  PRODUCED = 'PRODUCED',
+  DISCONTINUED = 'DISCONTINUED',
+}
 
 /**
  * Ürün Varyantı (Product Variant) - Renk/Desen Katmanı
@@ -61,10 +75,14 @@ export class ProductVariant extends BaseTenantEntity {
   @Property({ nullable: true })
   barcode?: string; // Varyant barkodu
 
-  // ─── Durum ────────────────────────────────────────────────
+  // ── Status ─────────────────────────────────────────────────
 
   @Property({ default: true })
   isActive: boolean = true;
+
+  /** Supplier production lifecycle. Updated by the production module. */
+  @Enum({ items: () => VariantProductionStatus, nullable: true })
+  productionStatus?: VariantProductionStatus;
 
   // ─── EAV ──────────────────────────────────────────────────
 
