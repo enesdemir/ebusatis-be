@@ -12,6 +12,8 @@ import { SupplierPriceListItem } from './entities/supplier-price-list-item.entit
 import { ProductCollection } from './entities/product-collection.entity';
 import { PhysicalSample } from './entities/physical-sample.entity';
 import { SampleLoanHistory } from './entities/sample-loan-history.entity';
+import { BillOfMaterials } from './entities/bill-of-materials.entity';
+import { BomComponent } from './entities/bom-component.entity';
 
 import { AttributesController } from './controllers/attributes.controller';
 import { ProductController } from './controllers/product.controller';
@@ -43,6 +45,8 @@ import { AuthModule } from '../auth/auth.module';
       ProductCollection,
       PhysicalSample,
       SampleLoanHistory,
+      BillOfMaterials,
+      BomComponent,
     ]),
     AuthModule,
   ],

@@ -8,15 +8,21 @@ import { PurchaseOrder } from './entities/purchase-order.entity';
 import { PurchaseOrderLine } from './entities/purchase-order-line.entity';
 import { Partner } from '../partners/entities/partner.entity';
 import { Invoice } from '../finance/entities/invoice.entity';
+import { BillOfMaterials } from '../products/entities/bill-of-materials.entity';
+import { BomComponent } from '../products/entities/bom-component.entity';
+import { InventoryItem } from '../inventory/entities/inventory-item.entity';
 
 import { SalesOrderService } from './services/sales-order.service';
 import { PurchaseOrderService } from './services/purchase-order.service';
 import { PricingService } from './services/pricing.service';
 import { CreditStatusService } from './services/credit-status.service';
+import { AllocationService } from './services/allocation.service';
+import { BomCheckService } from './services/bom-check.service';
 import { SalesOrderController } from './controllers/sales-order.controller';
 import { PurchaseOrderController } from './controllers/purchase-order.controller';
 
 import { AuthModule } from '../auth/auth.module';
+import { InventoryModule } from '../inventory/inventory.module';
 
 @Module({
   imports: [
@@ -28,8 +34,12 @@ import { AuthModule } from '../auth/auth.module';
       PurchaseOrderLine,
       Partner,
       Invoice,
+      BillOfMaterials,
+      BomComponent,
+      InventoryItem,
     ]),
     AuthModule,
+    InventoryModule,
   ],
   controllers: [SalesOrderController, PurchaseOrderController],
   providers: [
@@ -37,6 +47,8 @@ import { AuthModule } from '../auth/auth.module';
     PurchaseOrderService,
     PricingService,
     CreditStatusService,
+    AllocationService,
+    BomCheckService,
   ],
   exports: [
     MikroOrmModule,
@@ -44,6 +56,8 @@ import { AuthModule } from '../auth/auth.module';
     PurchaseOrderService,
     PricingService,
     CreditStatusService,
+    AllocationService,
+    BomCheckService,
   ],
 })
 export class OrdersModule {}

@@ -7391,6 +7391,171 @@
     },
     {
       "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "uuid"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamptz",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": 6,
+          "mappedType": "datetime"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamptz",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": 6,
+          "mappedType": "datetime"
+        },
+        "deleted_at": {
+          "name": "deleted_at",
+          "type": "timestamptz",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "length": 6,
+          "mappedType": "datetime"
+        },
+        "tenant_id": {
+          "name": "tenant_id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "uuid"
+        },
+        "variant_id": {
+          "name": "variant_id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "uuid"
+        },
+        "name": {
+          "name": "name",
+          "type": "varchar(255)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": 255,
+          "mappedType": "string"
+        },
+        "yield": {
+          "name": "yield",
+          "type": "numeric(10,2)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "precision": 10,
+          "scale": 2,
+          "default": "1",
+          "mappedType": "decimal"
+        },
+        "is_active": {
+          "name": "is_active",
+          "type": "boolean",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "default": "true",
+          "mappedType": "boolean"
+        },
+        "notes": {
+          "name": "notes",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "mappedType": "text"
+        }
+      },
+      "name": "bills_of_materials",
+      "schema": "public",
+      "indexes": [
+        {
+          "columnNames": [
+            "tenant_id"
+          ],
+          "composite": false,
+          "keyName": "bills_of_materials_tenant_id_index",
+          "constraint": false,
+          "primary": false,
+          "unique": false
+        },
+        {
+          "keyName": "bills_of_materials_tenant_id_variant_id_unique",
+          "columnNames": [
+            "tenant_id",
+            "variant_id"
+          ],
+          "composite": true,
+          "constraint": true,
+          "primary": false,
+          "unique": true
+        },
+        {
+          "keyName": "bills_of_materials_pkey",
+          "columnNames": [
+            "id"
+          ],
+          "composite": false,
+          "constraint": true,
+          "primary": true,
+          "unique": true
+        }
+      ],
+      "checks": [],
+      "foreignKeys": {
+        "bills_of_materials_tenant_id_foreign": {
+          "constraintName": "bills_of_materials_tenant_id_foreign",
+          "columnNames": [
+            "tenant_id"
+          ],
+          "localTableName": "public.bills_of_materials",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.tenants",
+          "updateRule": "cascade"
+        },
+        "bills_of_materials_variant_id_foreign": {
+          "constraintName": "bills_of_materials_variant_id_foreign",
+          "columnNames": [
+            "variant_id"
+          ],
+          "localTableName": "public.bills_of_materials",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.product_variants",
+          "updateRule": "cascade"
+        }
+      },
+      "nativeEnums": {}
+    },
+    {
+      "columns": {
         "product_id": {
           "name": "product_id",
           "type": "uuid",
@@ -7682,6 +7847,192 @@
           ],
           "referencedTableName": "public.products",
           "deleteRule": "cascade",
+          "updateRule": "cascade"
+        }
+      },
+      "nativeEnums": {}
+    },
+    {
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "uuid"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamptz",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": 6,
+          "mappedType": "datetime"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamptz",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": 6,
+          "mappedType": "datetime"
+        },
+        "deleted_at": {
+          "name": "deleted_at",
+          "type": "timestamptz",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "length": 6,
+          "mappedType": "datetime"
+        },
+        "tenant_id": {
+          "name": "tenant_id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "uuid"
+        },
+        "bom_id": {
+          "name": "bom_id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "uuid"
+        },
+        "component_variant_id": {
+          "name": "component_variant_id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "uuid"
+        },
+        "quantity": {
+          "name": "quantity",
+          "type": "numeric(10,3)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "precision": 10,
+          "scale": 3,
+          "mappedType": "decimal"
+        },
+        "unit_id": {
+          "name": "unit_id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "mappedType": "uuid"
+        },
+        "is_required": {
+          "name": "is_required",
+          "type": "boolean",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "default": "true",
+          "mappedType": "boolean"
+        },
+        "notes": {
+          "name": "notes",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "mappedType": "text"
+        }
+      },
+      "name": "bom_components",
+      "schema": "public",
+      "indexes": [
+        {
+          "columnNames": [
+            "tenant_id"
+          ],
+          "composite": false,
+          "keyName": "bom_components_tenant_id_index",
+          "constraint": false,
+          "primary": false,
+          "unique": false
+        },
+        {
+          "keyName": "bom_components_pkey",
+          "columnNames": [
+            "id"
+          ],
+          "composite": false,
+          "constraint": true,
+          "primary": true,
+          "unique": true
+        }
+      ],
+      "checks": [],
+      "foreignKeys": {
+        "bom_components_tenant_id_foreign": {
+          "constraintName": "bom_components_tenant_id_foreign",
+          "columnNames": [
+            "tenant_id"
+          ],
+          "localTableName": "public.bom_components",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.tenants",
+          "updateRule": "cascade"
+        },
+        "bom_components_bom_id_foreign": {
+          "constraintName": "bom_components_bom_id_foreign",
+          "columnNames": [
+            "bom_id"
+          ],
+          "localTableName": "public.bom_components",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.bills_of_materials",
+          "updateRule": "cascade"
+        },
+        "bom_components_component_variant_id_foreign": {
+          "constraintName": "bom_components_component_variant_id_foreign",
+          "columnNames": [
+            "component_variant_id"
+          ],
+          "localTableName": "public.bom_components",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.product_variants",
+          "updateRule": "cascade"
+        },
+        "bom_components_unit_id_foreign": {
+          "constraintName": "bom_components_unit_id_foreign",
+          "columnNames": [
+            "unit_id"
+          ],
+          "localTableName": "public.bom_components",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.units_of_measure",
+          "deleteRule": "set null",
           "updateRule": "cascade"
         }
       },

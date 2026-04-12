@@ -24,6 +24,8 @@ interface AuthenticatedRequest extends ExpressRequest {
 import { SalesOrderService } from '../services/sales-order.service';
 import { PricingService } from '../services/pricing.service';
 import { CreditStatusService } from '../services/credit-status.service';
+import { AllocationService } from '../services/allocation.service';
+import { BomCheckService } from '../services/bom-check.service';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { TenantGuard } from '../../../common/guards/tenant.guard';
 import { PaginatedQueryDto } from '../../../common/dto/paginated-query.dto';
@@ -41,6 +43,8 @@ export class SalesOrderController {
     private readonly service: SalesOrderService,
     private readonly pricing: PricingService,
     private readonly credit: CreditStatusService,
+    private readonly allocation: AllocationService,
+    private readonly bomCheck: BomCheckService,
   ) {}
 
   /**
@@ -130,5 +134,69 @@ export class SalesOrderController {
     @Body() body: AllocateRollDto,
   ) {
     return this.service.allocateRoll(lineId, body.rollId, body.quantity);
+  }
+
+  // ── Sprint 3: FIFO allocation + BOM check ───────────────
+
+  /**
+   * List FIFO-sorted roll candidates for an SO line's variant.
+   */
+  @Get('lines/:lineId/available-rolls')
+  async availableRolls(@Param('lineId') lineId: string) {
+    return this.allocation.getAvailableRollsForLine(lineId);
+  }
+
+  /**
+   * Preview the FIFO allocation plan for a quantity. No mutation.
+   */
+  @Get('lines/:lineId/allocate-preview')
+  async allocatePreview(
+    @Param('lineId') lineId: string,
+    @Query('quantity') quantity: string,
+  ) {
+    return this.allocation.previewAllocation(lineId, Number(quantity));
+  }
+
+  /**
+   * Execute the FIFO allocation. `approveCut=true` is required when the
+   * plan involves splitting a roll.
+   */
+  @Post('lines/:lineId/allocate-fifo')
+  async allocateFifo(
+    @Param('lineId') lineId: string,
+    @Body() body: { quantity: number; approveCut?: boolean },
+    @Req() req: AuthenticatedRequest,
+  ) {
+    return this.allocation.allocateForLine(
+      lineId,
+      body.quantity,
+      body.approveCut ?? false,
+      req.user?.sub,
+    );
+  }
+
+  /** Confirm that a reserved allocation has been physically cut. */
+  @Patch('allocations/:id/confirm-cut')
+  async confirmCut(@Param('id') id: string) {
+    return this.allocation.confirmCut(id);
+  }
+
+  /** Cancel a reserved allocation and release the reservation. */
+  @Patch('allocations/:id/cancel')
+  async cancelAllocation(@Param('id') id: string) {
+    return this.allocation.cancelAllocation(id);
+  }
+
+  /**
+   * BOM availability check for a variant + requested quantity.
+   * PRODUCT-type SOs use this to decide whether to block on material
+   * shortage (`BLOCKED_AWAITING_MATERIAL`).
+   */
+  @Get('bom-check/:variantId')
+  async checkBom(
+    @Param('variantId') variantId: string,
+    @Query('quantity') quantity: string,
+  ) {
+    return this.bomCheck.checkMaterialAvailability(variantId, Number(quantity));
   }
 }

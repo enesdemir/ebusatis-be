@@ -68,6 +68,8 @@ import {
   ClaimStatus,
 } from '../modules/inventory/entities/supplier-claim.entity';
 import { SupplierClaimLine } from '../modules/inventory/entities/supplier-claim-line.entity';
+import { BillOfMaterials } from '../modules/products/entities/bill-of-materials.entity';
+import { BomComponent } from '../modules/products/entities/bom-component.entity';
 import {
   InventoryItem,
   InventoryItemStatus,
@@ -321,6 +323,101 @@ export class PilotSeeder extends Seeder {
     variant.standardGSM = 300;
     variant.gsmTolerance = 5;
     em.persist(variant);
+
+    // ── 3b. PRODUCT variant + BOM (Sprint 3) ──
+    // A finished curtain that consumes fabric + accessories per BOM.
+    const curtainProduct = new Product('Hazır Perde', tenant);
+    curtainProduct.code = 'FIN-CRT';
+    curtainProduct.trackingStrategy = TrackingStrategy.BULK;
+    curtainProduct.unit = metreUnit;
+    em.persist(curtainProduct);
+
+    const curtainVariant = new ProductVariant(
+      'Standart Perde',
+      'FIN-CRT-STD',
+      curtainProduct,
+    );
+    curtainVariant.tenant = tenant;
+    curtainVariant.price = 750;
+    curtainVariant.currency = usdCurrency;
+    em.persist(curtainVariant);
+
+    await em.flush();
+
+    // Build a BOM: 1 curtain = 1m fabric + 2 rings + 1 tag
+    const curtainBom = em.create(BillOfMaterials, {
+      tenant,
+      variant: curtainVariant,
+      name: 'Standart Perde BOM',
+      yield: 1,
+      isActive: true,
+    } as unknown as BillOfMaterials);
+    em.persist(curtainBom);
+
+    // Accessory variants (rings + tag) — placeholder BULK products.
+    const ringProduct = new Product('Perde Halkası', tenant);
+    ringProduct.code = 'ACC-RNG';
+    ringProduct.trackingStrategy = TrackingStrategy.BULK;
+    ringProduct.unit = metreUnit; // technically "piece", but reusing
+    em.persist(ringProduct);
+    const ringVariant = new ProductVariant(
+      'Metal Halka',
+      'ACC-RNG-MTL',
+      ringProduct,
+    );
+    ringVariant.tenant = tenant;
+    ringVariant.price = 2;
+    em.persist(ringVariant);
+
+    const tagProduct = new Product('Perde Etiketi', tenant);
+    tagProduct.code = 'ACC-TAG';
+    tagProduct.trackingStrategy = TrackingStrategy.BULK;
+    tagProduct.unit = metreUnit;
+    em.persist(tagProduct);
+    const tagVariant = new ProductVariant(
+      'Kraft Etiket',
+      'ACC-TAG-KFT',
+      tagProduct,
+    );
+    tagVariant.tenant = tenant;
+    tagVariant.price = 0.5;
+    em.persist(tagVariant);
+
+    await em.flush();
+
+    // BOM components: 1m fabric + 2 rings + 1 tag per curtain
+    const bomC1 = em.create(BomComponent, {
+      tenant,
+      bom: curtainBom,
+      componentVariant: variant, // Emerald Green fabric
+      quantity: 1,
+      unit: metreUnit,
+      isRequired: true,
+      notes: '1 metre of fabric per curtain',
+    } as unknown as BomComponent);
+    em.persist(bomC1);
+
+    const bomC2 = em.create(BomComponent, {
+      tenant,
+      bom: curtainBom,
+      componentVariant: ringVariant,
+      quantity: 2,
+      unit: metreUnit,
+      isRequired: true,
+      notes: '2 rings per curtain',
+    } as unknown as BomComponent);
+    em.persist(bomC2);
+
+    const bomC3 = em.create(BomComponent, {
+      tenant,
+      bom: curtainBom,
+      componentVariant: tagVariant,
+      quantity: 1,
+      unit: metreUnit,
+      isRequired: false,
+      notes: 'Decorative tag — optional',
+    } as unknown as BomComponent);
+    em.persist(bomC3);
 
     await em.flush();
 
