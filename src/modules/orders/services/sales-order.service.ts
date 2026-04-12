@@ -1,11 +1,21 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { EntityManager, FilterQuery } from '@mikro-orm/postgresql';
 import { SalesOrder } from '../entities/sales-order.entity';
 import { SalesOrderLine } from '../entities/sales-order-line.entity';
-import { OrderRollAllocation, AllocationStatus } from '../entities/order-roll-allocation.entity';
+import {
+  OrderRollAllocation,
+  AllocationStatus,
+} from '../entities/order-roll-allocation.entity';
 import { InventoryItem } from '../../inventory/entities/inventory-item.entity';
 import { TenantContext } from '../../../common/context/tenant.context';
-import { QueryBuilderHelper, PaginatedResponse } from '../../../common/helpers/query-builder.helper';
+import {
+  QueryBuilderHelper,
+  PaginatedResponse,
+} from '../../../common/helpers/query-builder.helper';
 import { PaginatedQueryDto } from '../../../common/dto/paginated-query.dto';
 import { Tenant } from '../../tenants/entities/tenant.entity';
 
@@ -13,7 +23,9 @@ import { Tenant } from '../../tenants/entities/tenant.entity';
 export class SalesOrderService {
   constructor(private readonly em: EntityManager) {}
 
-  async findAll(query: PaginatedQueryDto & { partnerId?: string }): Promise<PaginatedResponse<SalesOrder>> {
+  async findAll(
+    query: PaginatedQueryDto & { partnerId?: string },
+  ): Promise<PaginatedResponse<SalesOrder>> {
     const where: FilterQuery<SalesOrder> = {};
     if (query.partnerId) where.partner = query.partnerId;
     return QueryBuilderHelper.paginate(this.em, SalesOrder, query, {
@@ -25,9 +37,29 @@ export class SalesOrderService {
   }
 
   async findOne(id: string): Promise<SalesOrder> {
-    const order = await this.em.findOne(SalesOrder, { id }, {
-      populate: ['partner', 'counterparty', 'warehouse', 'currency', 'status', 'paymentMethod', 'deliveryMethod', 'assignedTo', 'createdBy', 'lines', 'lines.variant', 'lines.variant.product', 'lines.taxRate', 'lines.allocations', 'lines.allocations.roll'] as any,
-    });
+    const order = await this.em.findOne(
+      SalesOrder,
+      { id },
+      {
+        populate: [
+          'partner',
+          'counterparty',
+          'warehouse',
+          'currency',
+          'status',
+          'paymentMethod',
+          'deliveryMethod',
+          'assignedTo',
+          'createdBy',
+          'lines',
+          'lines.variant',
+          'lines.variant.product',
+          'lines.taxRate',
+          'lines.allocations',
+          'lines.allocations.roll',
+        ] as any,
+      },
+    );
     if (!order) throw new NotFoundException(`Sipariş bulunamadı: ${id}`);
     return order;
   }
@@ -45,29 +77,48 @@ export class SalesOrderService {
       tenant,
       orderNumber,
       partner: this.em.getReference('Partner', data.partnerId),
-      counterparty: data.counterpartyId ? this.em.getReference('Counterparty', data.counterpartyId) : undefined,
-      warehouse: data.warehouseId ? this.em.getReference('Warehouse', data.warehouseId) : undefined,
-      currency: data.currencyId ? this.em.getReference('Currency', data.currencyId) : undefined,
+      counterparty: data.counterpartyId
+        ? this.em.getReference('Counterparty', data.counterpartyId)
+        : undefined,
+      warehouse: data.warehouseId
+        ? this.em.getReference('Warehouse', data.warehouseId)
+        : undefined,
+      currency: data.currencyId
+        ? this.em.getReference('Currency', data.currencyId)
+        : undefined,
       exchangeRate: data.exchangeRate,
-      status: data.statusId ? this.em.getReference('StatusDefinition', data.statusId) : undefined,
+      status: data.statusId
+        ? this.em.getReference('StatusDefinition', data.statusId)
+        : undefined,
       orderDate: data.orderDate ? new Date(data.orderDate) : new Date(),
-      expectedDeliveryDate: data.expectedDeliveryDate ? new Date(data.expectedDeliveryDate) : undefined,
-      paymentMethod: data.paymentMethodId ? this.em.getReference('PaymentMethod', data.paymentMethodId) : undefined,
-      deliveryMethod: data.deliveryMethodId ? this.em.getReference('DeliveryMethod', data.deliveryMethodId) : undefined,
+      expectedDeliveryDate: data.expectedDeliveryDate
+        ? new Date(data.expectedDeliveryDate)
+        : undefined,
+      paymentMethod: data.paymentMethodId
+        ? this.em.getReference('PaymentMethod', data.paymentMethodId)
+        : undefined,
+      deliveryMethod: data.deliveryMethodId
+        ? this.em.getReference('DeliveryMethod', data.deliveryMethodId)
+        : undefined,
       note: data.note,
       internalNote: data.internalNote,
-      assignedTo: data.assignedToId ? this.em.getReference('User', data.assignedToId) : undefined,
+      assignedTo: data.assignedToId
+        ? this.em.getReference('User', data.assignedToId)
+        : undefined,
       createdBy: this.em.getReference('User', userId),
     } as any);
     this.em.persist(order);
 
     // Satırları oluştur
     let totalAmount = 0;
-    let taxAmount = 0;
+    const taxAmount = 0;
     if (data.lines?.length) {
       for (let i = 0; i < data.lines.length; i++) {
         const lineData = data.lines[i];
-        const lineTotal = lineData.requestedQuantity * lineData.unitPrice * (1 - (lineData.discount || 0) / 100);
+        const lineTotal =
+          lineData.requestedQuantity *
+          lineData.unitPrice *
+          (1 - (lineData.discount || 0) / 100);
         totalAmount += lineTotal;
 
         const line = this.em.create(SalesOrderLine, {
@@ -78,7 +129,9 @@ export class SalesOrderService {
           requestedQuantity: lineData.requestedQuantity,
           unitPrice: lineData.unitPrice,
           discount: lineData.discount || 0,
-          taxRate: lineData.taxRateId ? this.em.getReference('TaxRate', lineData.taxRateId) : undefined,
+          taxRate: lineData.taxRateId
+            ? this.em.getReference('TaxRate', lineData.taxRateId)
+            : undefined,
           lineTotal,
           note: lineData.note,
         } as any);
@@ -98,8 +151,12 @@ export class SalesOrderService {
     const order = await this.findOne(id);
     this.em.assign(order, {
       ...data,
-      partner: data.partnerId ? this.em.getReference('Partner', data.partnerId) : order.partner,
-      status: data.statusId ? this.em.getReference('StatusDefinition', data.statusId) : order.status,
+      partner: data.partnerId
+        ? this.em.getReference('Partner', data.partnerId)
+        : order.partner,
+      status: data.statusId
+        ? this.em.getReference('StatusDefinition', data.statusId)
+        : order.status,
     } as any);
     await this.em.flush();
     return order;
@@ -117,15 +174,24 @@ export class SalesOrderService {
    * Sipariş satırına top tahsis et.
    * InventoryItem.reservedQuantity artar.
    */
-  async allocateRoll(orderLineId: string, rollId: string, quantity: number): Promise<OrderRollAllocation> {
+  async allocateRoll(
+    orderLineId: string,
+    rollId: string,
+    quantity: number,
+  ): Promise<OrderRollAllocation> {
     const tenantId = TenantContext.getTenantId();
     const tenant = await this.em.findOneOrFail(Tenant, { id: tenantId });
-    const orderLine = await this.em.findOneOrFail(SalesOrderLine, { id: orderLineId });
+    const orderLine = await this.em.findOneOrFail(SalesOrderLine, {
+      id: orderLineId,
+    });
     const roll = await this.em.findOneOrFail(InventoryItem, { id: rollId });
 
-    const available = Number(roll.currentQuantity) - Number(roll.reservedQuantity);
+    const available =
+      Number(roll.currentQuantity) - Number(roll.reservedQuantity);
     if (quantity > available) {
-      throw new BadRequestException(`Yetersiz stok. Müsait: ${available}, İstenen: ${quantity}`);
+      throw new BadRequestException(
+        `Yetersiz stok. Müsait: ${available}, İstenen: ${quantity}`,
+      );
     }
 
     // Rezervasyon

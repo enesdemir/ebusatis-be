@@ -11,10 +11,12 @@ export class TenantHelper {
   /** Test tenant'i olustur */
   async createTenant(name = 'Test Tenant', domain = 'test'): Promise<string> {
     const id = v4();
-    await this.em.getConnection().execute(
-      `INSERT INTO tenants (id, name, domain, is_active, created_at, updated_at) VALUES (?, ?, ?, true, now(), now())`,
-      [id, name, domain],
-    );
+    await this.em
+      .getConnection()
+      .execute(
+        `INSERT INTO tenants (id, name, domain, is_active, created_at, updated_at) VALUES (?, ?, ?, true, now(), now())`,
+        [id, name, domain],
+      );
     return id;
   }
 
@@ -26,10 +28,12 @@ export class TenantHelper {
     isSuperAdmin = false,
   ): Promise<string> {
     const id = v4();
-    await this.em.getConnection().execute(
-      `INSERT INTO users (id, email, password_hash, tenant_id, is_super_admin, is_active, locale, created_at, updated_at) VALUES (?, ?, ?, ?, ?, true, 'tr', now(), now())`,
-      [id, email, passwordHash, tenantId, isSuperAdmin],
-    );
+    await this.em
+      .getConnection()
+      .execute(
+        `INSERT INTO users (id, email, password_hash, tenant_id, is_super_admin, is_active, locale, created_at, updated_at) VALUES (?, ?, ?, ?, ?, true, 'tr', now(), now())`,
+        [id, email, passwordHash, tenantId, isSuperAdmin],
+      );
     return id;
   }
 

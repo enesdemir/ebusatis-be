@@ -1,4 +1,15 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseGuards, NotFoundException } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  Query,
+  UseGuards,
+  NotFoundException,
+} from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { TenantsService } from './tenants.service';
 import { CreateTenantDto } from './dto/create-tenant.dto';
@@ -25,7 +36,9 @@ export class TenantsController {
   async impersonate(@Param('id') id: string) {
     const tenant = await this.tenantsService.findOne(id);
     if (!tenant.users || tenant.users.length === 0) {
-      throw new NotFoundException('No users found in this tenant to impersonate.');
+      throw new NotFoundException(
+        'No users found in this tenant to impersonate.',
+      );
     }
     const targetUser = tenant.users[0];
     return this.authService.impersonate(targetUser.id);
@@ -70,7 +83,9 @@ export class TenantsController {
 
   @Get(':id/statistics')
   @RequirePermissions('tenants.manage')
-  @ApiOperation({ summary: 'Get tenant statistics (user count, last login, etc.)' })
+  @ApiOperation({
+    summary: 'Get tenant statistics (user count, last login, etc.)',
+  })
   getStatistics(@Param('id') id: string) {
     return this.tenantsService.getStatistics(id);
   }
@@ -84,7 +99,9 @@ export class TenantsController {
 
   @Patch(':id/subscription')
   @RequirePermissions('tenants.manage')
-  @ApiOperation({ summary: 'Update tenant subscription status (Activate/Suspend/Trial)' })
+  @ApiOperation({
+    summary: 'Update tenant subscription status (Activate/Suspend/Trial)',
+  })
   updateSubscription(
     @Param('id') id: string,
     @Body('subscriptionStatus') subscriptionStatus: SubscriptionStatus,

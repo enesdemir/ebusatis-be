@@ -8,14 +8,14 @@ import {
   SupplierClaimNoDiscrepancyException,
   SupplierClaimAlreadyOpenException,
 } from '../../../common/errors/app.exceptions';
-import { QueryBuilderHelper, PaginatedResponse } from '../../../common/helpers/query-builder.helper';
+import {
+  QueryBuilderHelper,
+  PaginatedResponse,
+} from '../../../common/helpers/query-builder.helper';
 import { Tenant } from '../../tenants/entities/tenant.entity';
 import { Currency } from '../../definitions/entities/currency.entity';
 import { User } from '../../users/entities/user.entity';
-import {
-  SupplierClaim,
-  ClaimStatus,
-} from '../entities/supplier-claim.entity';
+import { SupplierClaim, ClaimStatus } from '../entities/supplier-claim.entity';
 import { SupplierClaimLine } from '../entities/supplier-claim-line.entity';
 import {
   GoodsReceiveLine,
@@ -43,11 +43,18 @@ export class SupplierClaimService {
 
   // ── Read ──
 
-  async findAll(query: SupplierClaimQueryDto): Promise<PaginatedResponse<SupplierClaim>> {
+  async findAll(
+    query: SupplierClaimQueryDto,
+  ): Promise<PaginatedResponse<SupplierClaim>> {
     return QueryBuilderHelper.paginate(this.em, SupplierClaim, query, {
       searchFields: ['claimNumber', 'description'],
       defaultSortBy: 'openedAt',
-      populate: ['supplier', 'goodsReceive', 'purchaseOrder', 'currency'] as any,
+      populate: [
+        'supplier',
+        'goodsReceive',
+        'purchaseOrder',
+        'currency',
+      ] as any,
     });
   }
 
@@ -85,7 +92,10 @@ export class SupplierClaimService {
    * per affected variant and each goods receive line gets its `claim`
    * pointer updated so the round-trip lookup works.
    */
-  async open(dto: OpenSupplierClaimDto, userId: string): Promise<SupplierClaim> {
+  async open(
+    dto: OpenSupplierClaimDto,
+    userId: string,
+  ): Promise<SupplierClaim> {
     const tenantId = TenantContext.getTenantId();
     if (!tenantId) throw new TenantContextMissingException();
     const tenant = await this.em.findOneOrFail(Tenant, { id: tenantId });
@@ -113,7 +123,9 @@ export class SupplierClaimService {
         throw new GoodsReceiveLineNotFoundException(lineDto.goodsReceiveLineId);
       }
       if (grLine.discrepancyType === DiscrepancyType.NONE) {
-        throw new SupplierClaimNoDiscrepancyException(lineDto.goodsReceiveLineId);
+        throw new SupplierClaimNoDiscrepancyException(
+          lineDto.goodsReceiveLineId,
+        );
       }
       if (grLine.claim) {
         throw new SupplierClaimAlreadyOpenException(
@@ -125,7 +137,9 @@ export class SupplierClaimService {
     }
 
     // Tenant-scoped sequence number for the claim.
-    const count = await this.em.count(SupplierClaim, { tenant: tenantId } as any);
+    const count = await this.em.count(SupplierClaim, {
+      tenant: tenantId,
+    } as any);
     const claimNumber = `CLM-${new Date().getFullYear()}-${String(count + 1).padStart(4, '0')}`;
 
     // Total claimed amount = sum of (affectedQuantity * unitPrice) over the lines.
@@ -137,9 +151,9 @@ export class SupplierClaimService {
     const claim = this.em.create(SupplierClaim, {
       tenant,
       claimNumber,
-      supplier: (goodsReceive.supplier as any),
+      supplier: goodsReceive.supplier as any,
       goodsReceive,
-      purchaseOrder: (goodsReceive.purchaseOrder as any),
+      purchaseOrder: goodsReceive.purchaseOrder as any,
       claimType: dto.claimType,
       status: ClaimStatus.OPEN,
       claimedAmount,
@@ -161,7 +175,7 @@ export class SupplierClaimService {
         tenant,
         claim,
         goodsReceiveLine: grLine,
-        variant: (grLine.variant as any),
+        variant: grLine.variant as any,
         affectedQuantity: lineDto.affectedQuantity,
         unitPrice: lineDto.unitPrice,
         lineTotal: round2(lineDto.affectedQuantity * lineDto.unitPrice),
@@ -181,7 +195,10 @@ export class SupplierClaimService {
    * Update an existing supplier claim. Status transitions to a
    * resolved / rejected / closed state automatically stamp `resolvedAt`.
    */
-  async update(id: string, dto: UpdateSupplierClaimDto): Promise<SupplierClaim> {
+  async update(
+    id: string,
+    dto: UpdateSupplierClaimDto,
+  ): Promise<SupplierClaim> {
     const claim = await this.findOne(id);
 
     if (dto.status !== undefined) {
@@ -196,7 +213,8 @@ export class SupplierClaimService {
         claim.resolvedAt = new Date();
       }
     }
-    if (dto.settledAmount !== undefined) claim.settledAmount = dto.settledAmount;
+    if (dto.settledAmount !== undefined)
+      claim.settledAmount = dto.settledAmount;
     if (dto.description !== undefined) claim.description = dto.description;
     if (dto.photoUrls !== undefined) claim.photoUrls = dto.photoUrls;
 

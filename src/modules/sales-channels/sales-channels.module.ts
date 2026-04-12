@@ -7,7 +7,13 @@ import { SalesChannelsService } from './services/sales-channels.service';
 import { SalesChannelsController } from './controllers/sales-channels.controller';
 
 @Module({
-  imports: [MikroOrmModule.forFeature([SalesChannel, ChannelProductMapping, ChannelOrder])],
+  imports: [
+    MikroOrmModule.forFeature([
+      SalesChannel,
+      ChannelProductMapping,
+      ChannelOrder,
+    ]),
+  ],
   controllers: [SalesChannelsController],
   providers: [SalesChannelsService],
   exports: [SalesChannelsService, MikroOrmModule],

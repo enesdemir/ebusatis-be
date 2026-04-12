@@ -1,7 +1,10 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { EntityRepository } from '@mikro-orm/postgresql';
-import { PlatformConfig, ConfigCategory } from '../entities/platform-config.entity';
+import {
+  PlatformConfig,
+  ConfigCategory,
+} from '../entities/platform-config.entity';
 
 @Injectable()
 export class PlatformConfigService {
@@ -13,7 +16,9 @@ export class PlatformConfigService {
   /** Returns all configs, optionally filtered by category. */
   async findAll(category?: ConfigCategory): Promise<PlatformConfig[]> {
     const where = category ? { category } : {};
-    return this.configRepository.find(where, { orderBy: { category: 'ASC', key: 'ASC' } });
+    return this.configRepository.find(where, {
+      orderBy: { category: 'ASC', key: 'ASC' },
+    });
   }
 
   /** Returns a single config by key. */
@@ -26,7 +31,13 @@ export class PlatformConfigService {
   }
 
   /** Creates or updates a config value. */
-  async upsert(key: string, value: string, category?: ConfigCategory, description?: string, valueType?: string): Promise<PlatformConfig> {
+  async upsert(
+    key: string,
+    value: string,
+    category?: ConfigCategory,
+    description?: string,
+    valueType?: string,
+  ): Promise<PlatformConfig> {
     const em = this.configRepository.getEntityManager();
     let config = await this.configRepository.findOne({ key });
     if (config) {
@@ -46,7 +57,9 @@ export class PlatformConfigService {
   }
 
   /** Bulk update multiple configs at once. */
-  async bulkUpdate(configs: { key: string; value: string }[]): Promise<PlatformConfig[]> {
+  async bulkUpdate(
+    configs: { key: string; value: string }[],
+  ): Promise<PlatformConfig[]> {
     const em = this.configRepository.getEntityManager();
     const results: PlatformConfig[] = [];
     for (const item of configs) {

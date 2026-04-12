@@ -21,7 +21,8 @@ import { TenantForbiddenException } from '../errors/app.exceptions';
 export class TenantGuard implements CanActivate {
   canActivate(context: ExecutionContext): boolean {
     const request = context.switchToHttp().getRequest();
-    const tenantId = TenantContext.getTenantId() || request.headers['x-tenant-id'];
+    const tenantId =
+      TenantContext.getTenantId() || request.headers['x-tenant-id'];
 
     if (!tenantId) {
       throw new TenantForbiddenException();

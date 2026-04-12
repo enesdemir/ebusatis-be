@@ -27,7 +27,12 @@ export class Tenant extends BaseEntity {
   subscriptionStatus: SubscriptionStatus = SubscriptionStatus.ACTIVE;
 
   @Property({ type: 'json' })
-  features: Record<string, boolean> = { stock: true, b2b: false, production: false, invoice: false };
+  features: Record<string, boolean> = {
+    stock: true,
+    b2b: false,
+    production: false,
+    invoice: false,
+  };
 
   @OneToMany('User', 'tenant')
   users = new Collection<any>(this);

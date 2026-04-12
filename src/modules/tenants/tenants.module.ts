@@ -8,10 +8,7 @@ import { TenantOnboardingService } from './services/tenant-onboarding.service';
 import { AuthModule } from '../auth/auth.module';
 
 @Module({
-  imports: [
-    MikroOrmModule.forFeature([Tenant]),
-    AuthModule,
-  ],
+  imports: [MikroOrmModule.forFeature([Tenant]), AuthModule],
   controllers: [TenantsController],
   providers: [TenantsService, TenantOnboardingService],
   exports: [MikroOrmModule, TenantsService, TenantOnboardingService],

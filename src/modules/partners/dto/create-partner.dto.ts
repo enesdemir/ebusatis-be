@@ -1,4 +1,13 @@
-import { IsString, IsOptional, IsEnum, IsArray, IsNumber, IsBoolean, IsEmail, Min } from 'class-validator';
+import {
+  IsString,
+  IsOptional,
+  IsEnum,
+  IsArray,
+  IsNumber,
+  IsBoolean,
+  IsEmail,
+  Min,
+} from 'class-validator';
 import { PartnerType, RiskScore } from '../entities/partner.entity';
 
 export class CreatePartnerDto {
@@ -18,7 +27,10 @@ export class CreatePartnerDto {
 export class UpdatePartnerDto {
   @IsOptional() @IsString() name?: string;
   @IsOptional() @IsString() code?: string;
-  @IsOptional() @IsArray() @IsEnum(PartnerType, { each: true }) types?: PartnerType[];
+  @IsOptional()
+  @IsArray()
+  @IsEnum(PartnerType, { each: true })
+  types?: PartnerType[];
   @IsOptional() @IsString() taxId?: string;
   @IsOptional() @IsEmail() email?: string;
   @IsOptional() @IsString() phone?: string;

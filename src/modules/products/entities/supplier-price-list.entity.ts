@@ -1,4 +1,10 @@
-import { Entity, Property, ManyToOne, OneToMany, Collection } from '@mikro-orm/core';
+import {
+  Entity,
+  Property,
+  ManyToOne,
+  OneToMany,
+  Collection,
+} from '@mikro-orm/core';
 import { BaseTenantEntity } from '../../../common/entities/base-tenant.entity';
 import { Partner } from '../../partners/entities/partner.entity';
 import { Currency } from '../../definitions/entities/currency.entity';

@@ -1,7 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { EntityManager } from '@mikro-orm/postgresql';
-import { GoodsReceive, GoodsReceiveStatus } from '../entities/goods-receive.entity';
-import { GoodsReceiveLine, DiscrepancyType } from '../entities/goods-receive-line.entity';
+import {
+  GoodsReceive,
+  GoodsReceiveStatus,
+} from '../entities/goods-receive.entity';
+import {
+  GoodsReceiveLine,
+  DiscrepancyType,
+} from '../entities/goods-receive-line.entity';
 import { InventoryService } from './inventory.service';
 import { TenantContext } from '../../../common/context/tenant.context';
 import {
@@ -9,7 +15,10 @@ import {
   GoodsReceiveNotFoundException,
   GoodsReceiveLineNotFoundException,
 } from '../../../common/errors/app.exceptions';
-import { QueryBuilderHelper, PaginatedResponse } from '../../../common/helpers/query-builder.helper';
+import {
+  QueryBuilderHelper,
+  PaginatedResponse,
+} from '../../../common/helpers/query-builder.helper';
 import { Tenant } from '../../tenants/entities/tenant.entity';
 import { Partner } from '../../partners/entities/partner.entity';
 import { Warehouse } from '../../definitions/entities/warehouse.entity';
@@ -43,11 +52,19 @@ export class GoodsReceiveService {
 
   // ── Read ──
 
-  async findAll(query: GoodsReceiveQueryDto): Promise<PaginatedResponse<GoodsReceive>> {
+  async findAll(
+    query: GoodsReceiveQueryDto,
+  ): Promise<PaginatedResponse<GoodsReceive>> {
     return QueryBuilderHelper.paginate(this.em, GoodsReceive, query, {
       searchFields: ['receiveNumber'],
       defaultSortBy: 'receivedAt',
-      populate: ['supplier', 'warehouse', 'createdBy', 'purchaseOrder', 'shipment'] as any,
+      populate: [
+        'supplier',
+        'warehouse',
+        'createdBy',
+        'purchaseOrder',
+        'shipment',
+      ] as any,
     });
   }
 
@@ -85,13 +102,18 @@ export class GoodsReceiveService {
    * The tenant is read from the request context (defense in depth) so
    * the caller does not need to provide it.
    */
-  async create(dto: CreateGoodsReceiveDto, userId: string): Promise<GoodsReceive> {
+  async create(
+    dto: CreateGoodsReceiveDto,
+    userId: string,
+  ): Promise<GoodsReceive> {
     const tenantId = TenantContext.getTenantId();
     if (!tenantId) throw new TenantContextMissingException();
     const tenant = await this.em.findOneOrFail(Tenant, { id: tenantId });
 
     // Tenant-scoped sequence number.
-    const count = await this.em.count(GoodsReceive, { tenant: tenantId } as any);
+    const count = await this.em.count(GoodsReceive, {
+      tenant: tenantId,
+    } as any);
     const receiveNumber = `GR-${new Date().getFullYear()}-${String(count + 1).padStart(4, '0')}`;
 
     const gr = this.em.create(GoodsReceive, {

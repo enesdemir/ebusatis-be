@@ -60,20 +60,29 @@ describe('AuthService', () => {
       mockUserRepo.findOne.mockResolvedValue(user);
       (bcrypt.compare as jest.Mock).mockResolvedValue(true);
 
-      const result = await service.validateUser('test@example.com', 'password123');
+      const result = await service.validateUser(
+        'test@example.com',
+        'password123',
+      );
 
       expect(result).toBe(user);
       expect(mockUserRepo.findOne).toHaveBeenCalledWith(
         { email: 'test@example.com' },
         { populate: ['tenant'] },
       );
-      expect(bcrypt.compare).toHaveBeenCalledWith('password123', user.passwordHash);
+      expect(bcrypt.compare).toHaveBeenCalledWith(
+        'password123',
+        user.passwordHash,
+      );
     });
 
     it('should return null when user is not found', async () => {
       mockUserRepo.findOne.mockResolvedValue(null);
 
-      const result = await service.validateUser('unknown@example.com', 'password123');
+      const result = await service.validateUser(
+        'unknown@example.com',
+        'password123',
+      );
 
       expect(result).toBeNull();
     });
@@ -83,7 +92,10 @@ describe('AuthService', () => {
       mockUserRepo.findOne.mockResolvedValue(user);
       (bcrypt.compare as jest.Mock).mockResolvedValue(false);
 
-      const result = await service.validateUser('test@example.com', 'wrong-password');
+      const result = await service.validateUser(
+        'test@example.com',
+        'wrong-password',
+      );
 
       expect(result).toBeNull();
     });
@@ -99,7 +111,10 @@ describe('AuthService', () => {
       mockUserRepo.findOne.mockResolvedValue(user);
       (bcrypt.compare as jest.Mock).mockResolvedValue(true);
 
-      const result = await service.login({ email: 'test@example.com', password: 'password123' });
+      const result = await service.login({
+        email: 'test@example.com',
+        password: 'password123',
+      });
 
       expect(result.access_token).toBe('signed-jwt-token');
       expect(result.user).toEqual({
@@ -117,7 +132,10 @@ describe('AuthService', () => {
       mockUserRepo.findOne.mockResolvedValue(user);
       (bcrypt.compare as jest.Mock).mockResolvedValue(true);
 
-      await service.login({ email: 'test@example.com', password: 'password123' });
+      await service.login({
+        email: 'test@example.com',
+        password: 'password123',
+      });
 
       expect(user.lastLoginAt).toBeInstanceOf(Date);
       expect(mockFlush).toHaveBeenCalled();
@@ -153,7 +171,10 @@ describe('AuthService', () => {
       mockUserRepo.findOne.mockResolvedValue(user);
       (bcrypt.compare as jest.Mock).mockResolvedValue(true);
 
-      await service.login({ email: 'test@example.com', password: 'password123' });
+      await service.login({
+        email: 'test@example.com',
+        password: 'password123',
+      });
 
       expect(mockJwtService.sign).toHaveBeenCalledWith({
         sub: 'user-1',
@@ -168,12 +189,22 @@ describe('AuthService', () => {
       mockUserRepo.findOne.mockResolvedValue(user);
       (bcrypt.compare as jest.Mock).mockResolvedValue(true);
 
-      await service.login({ email: 'test@example.com', password: 'password123' });
+      await service.login({
+        email: 'test@example.com',
+        password: 'password123',
+      });
 
       expect(mockJwtService.sign).toHaveBeenCalledWith(
         expect.objectContaining({ tenantId: null }),
       );
-      expect((await service.login({ email: 'test@example.com', password: 'password123' })).user.tenantId).toBeNull();
+      expect(
+        (
+          await service.login({
+            email: 'test@example.com',
+            password: 'password123',
+          })
+        ).user.tenantId,
+      ).toBeNull();
     });
   });
 

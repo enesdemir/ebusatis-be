@@ -1,4 +1,12 @@
-import { Entity, Property, Enum, ManyToOne, ManyToMany, Collection, Index } from '@mikro-orm/core';
+import {
+  Entity,
+  Property,
+  Enum,
+  ManyToOne,
+  ManyToMany,
+  Collection,
+  Index,
+} from '@mikro-orm/core';
 import { BaseTenantEntity } from '../../../common/entities/base-tenant.entity';
 import { NotificationTemplate } from './notification-template.entity';
 import { UserGroup } from '../../iam/entities/user-group.entity';

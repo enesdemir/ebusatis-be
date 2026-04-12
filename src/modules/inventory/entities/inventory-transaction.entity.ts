@@ -4,11 +4,11 @@ import { InventoryItem } from './inventory-item.entity';
 import { User } from '../../users/entities/user.entity';
 
 export enum TransactionType {
-  PURCHASE = 'PURCHASE',       // Giriş
-  SALE_CUT = 'SALE_CUT',       // Satış Kesimi
-  WASTE = 'WASTE',             // Fire
-  ADJUSTMENT = 'ADJUSTMENT',   // Sayım Farkı
-  RETURN = 'RETURN',           // İade
+  PURCHASE = 'PURCHASE', // Giriş
+  SALE_CUT = 'SALE_CUT', // Satış Kesimi
+  WASTE = 'WASTE', // Fire
+  ADJUSTMENT = 'ADJUSTMENT', // Sayım Farkı
+  RETURN = 'RETURN', // İade
 }
 
 @Entity({ tableName: 'inventory_transactions' })
@@ -37,7 +37,13 @@ export class InventoryTransaction extends BaseEntity {
   @ManyToOne(() => User, { nullable: true })
   createdBy?: User;
 
-  constructor(item: InventoryItem, type: TransactionType, quantityChange: number, previous: number, checkUser?: User) {
+  constructor(
+    item: InventoryItem,
+    type: TransactionType,
+    quantityChange: number,
+    previous: number,
+    checkUser?: User,
+  ) {
     super();
     this.item = item;
     this.type = type;

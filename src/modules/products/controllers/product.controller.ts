@@ -1,4 +1,16 @@
-import { Controller, UseGuards, Get, Post, Patch, Delete, Body, Param, Query, HttpCode, HttpStatus } from '@nestjs/common';
+import {
+  Controller,
+  UseGuards,
+  Get,
+  Post,
+  Patch,
+  Delete,
+  Body,
+  Param,
+  Query,
+  HttpCode,
+  HttpStatus,
+} from '@nestjs/common';
 import { ProductService } from '../services/product.service';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { TenantGuard } from '../../../common/guards/tenant.guard';
@@ -50,7 +62,10 @@ export class ProductController {
   }
 
   @Patch('variants/:variantId')
-  async updateVariant(@Param('variantId') variantId: string, @Body() data: any) {
+  async updateVariant(
+    @Param('variantId') variantId: string,
+    @Body() data: any,
+  ) {
     return this.productService.updateVariant(variantId, data);
   }
 

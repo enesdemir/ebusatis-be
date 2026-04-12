@@ -1,4 +1,14 @@
-import { Controller, Get, Post, Patch, Delete, Body, Param, Query, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Patch,
+  Delete,
+  Body,
+  Param,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { PermissionsService } from '../services/permissions.service';
 import { Permission } from '../entities/permission.entity';
@@ -13,7 +23,9 @@ export class PermissionsController {
   constructor(private readonly permissionsService: PermissionsService) {}
 
   @Get()
-  @ApiOperation({ summary: 'List all permissions, optionally filtered by scope' })
+  @ApiOperation({
+    summary: 'List all permissions, optionally filtered by scope',
+  })
   async findAll(@Query('scope') scope?: string): Promise<Permission[]> {
     return this.permissionsService.findAll(scope);
   }
@@ -27,7 +39,13 @@ export class PermissionsController {
   @Post()
   @ApiOperation({ summary: 'Create a new permission definition' })
   async create(
-    @Body() body: { slug: string; category: string; assignableScope?: string; description?: string },
+    @Body()
+    body: {
+      slug: string;
+      category: string;
+      assignableScope?: string;
+      description?: string;
+    },
   ): Promise<Permission> {
     return this.permissionsService.create(body);
   }
@@ -36,7 +54,8 @@ export class PermissionsController {
   @ApiOperation({ summary: 'Update a permission definition' })
   async update(
     @Param('id') id: string,
-    @Body() body: { category?: string; assignableScope?: string; description?: string },
+    @Body()
+    body: { category?: string; assignableScope?: string; description?: string },
   ): Promise<Permission> {
     return this.permissionsService.update(id, body);
   }

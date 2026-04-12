@@ -1,12 +1,21 @@
 import { SalesChannelsService } from '../services/sales-channels.service';
 
-const mockChRepo = { findAll: jest.fn(), findOne: jest.fn(), create: jest.fn() };
+const mockChRepo = {
+  findAll: jest.fn(),
+  findOne: jest.fn(),
+  create: jest.fn(),
+};
 const mockMapRepo = { find: jest.fn(), create: jest.fn() };
 const mockOrdRepo = { find: jest.fn() };
 const mockEm = { persistAndFlush: jest.fn(), flush: jest.fn() };
 
 function createService() {
-  return new (SalesChannelsService as any)(mockChRepo, mockMapRepo, mockOrdRepo, mockEm);
+  return new (SalesChannelsService as any)(
+    mockChRepo,
+    mockMapRepo,
+    mockOrdRepo,
+    mockEm,
+  );
 }
 
 describe('SalesChannelsService', () => {

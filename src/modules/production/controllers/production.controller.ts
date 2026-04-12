@@ -1,4 +1,13 @@
-import { Controller, Get, Post, Patch, Body, Param, Query, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Patch,
+  Body,
+  Param,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { ProductionService } from '../services/production.service';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { TenantGuard } from '../../../common/guards/tenant.guard';
@@ -48,7 +57,10 @@ export class ProductionController {
   }
 
   @Patch('orders/:id/status')
-  updateStatus(@Param('id') id: string, @Body() dto: UpdateSupplierProductionStatusDto) {
+  updateStatus(
+    @Param('id') id: string,
+    @Body() dto: UpdateSupplierProductionStatusDto,
+  ) {
     return this.service.updateOrderStatus(id, dto.status);
   }
 

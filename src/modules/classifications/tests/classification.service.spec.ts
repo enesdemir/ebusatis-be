@@ -11,7 +11,9 @@ describe('ClassificationService', () => {
   let mockEm: Record<string, jest.Mock>;
 
   /** Helper: create a mock ClassificationNode */
-  const createMockNode = (overrides: Partial<ClassificationNode> = {}): Partial<ClassificationNode> => ({
+  const createMockNode = (
+    overrides: Partial<ClassificationNode> = {},
+  ): Partial<ClassificationNode> => ({
     id: 'node-1',
     classificationType: 'PRODUCT_CATEGORY',
     module: 'pim',
@@ -68,7 +70,11 @@ describe('ClassificationService', () => {
 
   describe('getTree', () => {
     it('should build correct hierarchy from flat nodes', async () => {
-      const root = createMockNode({ id: 'root-1', path: 'product_category.root', depth: 0 });
+      const root = createMockNode({
+        id: 'root-1',
+        path: 'product_category.root',
+        depth: 0,
+      });
       const child1 = createMockNode({
         id: 'child-1',
         code: 'CHILD1',
@@ -107,8 +113,16 @@ describe('ClassificationService', () => {
 
     it('should handle deeply nested tree (3 levels)', async () => {
       const root = createMockNode({ id: 'r', depth: 0 });
-      const l1 = createMockNode({ id: 'l1', depth: 1, parent: { id: 'r' } as any });
-      const l2 = createMockNode({ id: 'l2', depth: 2, parent: { id: 'l1' } as any });
+      const l1 = createMockNode({
+        id: 'l1',
+        depth: 1,
+        parent: { id: 'r' } as any,
+      });
+      const l2 = createMockNode({
+        id: 'l2',
+        depth: 2,
+        parent: { id: 'l1' } as any,
+      });
 
       mockRepo.find.mockResolvedValue([root, l1, l2]);
 
@@ -131,13 +145,18 @@ describe('ClassificationService', () => {
       const result = await service.findOne('node-1');
 
       expect(result).toBe(node);
-      expect(mockRepo.findOne).toHaveBeenCalledWith({ id: 'node-1' }, { populate: ['parent'] });
+      expect(mockRepo.findOne).toHaveBeenCalledWith(
+        { id: 'node-1' },
+        { populate: ['parent'] },
+      );
     });
 
     it('should throw NotFoundException when node does not exist', async () => {
       mockRepo.findOne.mockResolvedValue(null);
 
-      await expect(service.findOne('nonexistent')).rejects.toThrow(NotFoundException);
+      await expect(service.findOne('nonexistent')).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 
@@ -246,7 +265,7 @@ describe('ClassificationService', () => {
 
       // findOne is called twice: once for node, once for newParent
       mockRepo.findOne
-        .mockResolvedValueOnce(node)   // findOne(id) for the node
+        .mockResolvedValueOnce(node) // findOne(id) for the node
         .mockResolvedValueOnce(newParent) // findOne(newParentId)
         // isDescendant traversal — no parent found (not a descendant)
         .mockResolvedValueOnce(null);
@@ -255,7 +274,9 @@ describe('ClassificationService', () => {
       mockRepo.find.mockResolvedValue([]);
       mockEm.flush.mockResolvedValue(undefined);
 
-      const result = await service.move('moving-node', { newParentId: 'new-parent' } as any);
+      const result = await service.move('moving-node', {
+        newParentId: 'new-parent',
+      } as any);
 
       expect(result.parent).toBe(newParent);
       expect(result.depth).toBe(1);
@@ -276,7 +297,7 @@ describe('ClassificationService', () => {
       });
 
       mockRepo.findOne
-        .mockResolvedValueOnce(node)       // findOne for the node being moved
+        .mockResolvedValueOnce(node) // findOne for the node being moved
         .mockResolvedValueOnce(descendant) // findOne for newParent
         // isDescendant: find desc-node -> parent is parent-node -> match!
         .mockResolvedValueOnce(descendant);
@@ -314,12 +335,27 @@ describe('ClassificationService', () => {
 
   describe('deactivate', () => {
     it('should deactivate node and all descendants', async () => {
-      const node = createMockNode({ id: 'deact-1', isActive: true, classificationType: 'PRODUCT_CATEGORY', path: 'product_category.deact_1' });
+      const node = createMockNode({
+        id: 'deact-1',
+        isActive: true,
+        classificationType: 'PRODUCT_CATEGORY',
+        path: 'product_category.deact_1',
+      });
       // getChildren returns DTOs (toDto copies) but deactivate sets isActive on those DTOs
       // The real behavior: deactivate fetches descendants from DB and sets isActive=false on entity refs
       // In the mock: findOne returns the node, then getChildren's internal find returns entity-like objects
-      const child1 = createMockNode({ id: 'child-1', isActive: true, classificationType: 'PRODUCT_CATEGORY', path: 'product_category.deact_1.child1' });
-      const child2 = createMockNode({ id: 'child-2', isActive: true, classificationType: 'PRODUCT_CATEGORY', path: 'product_category.deact_1.child2' });
+      const child1 = createMockNode({
+        id: 'child-1',
+        isActive: true,
+        classificationType: 'PRODUCT_CATEGORY',
+        path: 'product_category.deact_1.child1',
+      });
+      const child2 = createMockNode({
+        id: 'child-2',
+        isActive: true,
+        classificationType: 'PRODUCT_CATEGORY',
+        path: 'product_category.deact_1.child2',
+      });
 
       // findOne for the node (deactivate calls findOne first)
       mockRepo.findOne.mockResolvedValueOnce(node);
@@ -343,7 +379,9 @@ describe('ClassificationService', () => {
       const systemNode = createMockNode({ id: 'sys-1', isSystem: true });
       mockRepo.findOne.mockResolvedValue(systemNode);
 
-      await expect(service.deactivate('sys-1')).rejects.toThrow(BadRequestException);
+      await expect(service.deactivate('sys-1')).rejects.toThrow(
+        BadRequestException,
+      );
     });
   });
 
@@ -353,7 +391,10 @@ describe('ClassificationService', () => {
 
   describe('getChildren', () => {
     it('should return direct children when recursive=false', async () => {
-      const child = createMockNode({ id: 'ch-1', parent: { id: 'p-1' } as any });
+      const child = createMockNode({
+        id: 'ch-1',
+        parent: { id: 'p-1' } as any,
+      });
       mockRepo.find.mockResolvedValue([child]);
 
       const result = await service.getChildren('p-1', false);
@@ -372,8 +413,16 @@ describe('ClassificationService', () => {
         path: 'product_category.p_1',
         classificationType: 'PRODUCT_CATEGORY',
       });
-      const desc1 = createMockNode({ id: 'd-1', path: 'product_category.p_1.d1', depth: 1 });
-      const desc2 = createMockNode({ id: 'd-2', path: 'product_category.p_1.d1.d2', depth: 2 });
+      const desc1 = createMockNode({
+        id: 'd-1',
+        path: 'product_category.p_1.d1',
+        depth: 1,
+      });
+      const desc2 = createMockNode({
+        id: 'd-2',
+        path: 'product_category.p_1.d1.d2',
+        depth: 2,
+      });
 
       // findOne for parent
       mockRepo.findOne.mockResolvedValue(parent);
@@ -424,7 +473,9 @@ describe('ClassificationService', () => {
       const node = createMockNode({ id: 'sys-del', isSystem: true });
       mockRepo.findOne.mockResolvedValue(node);
 
-      await expect(service.remove('sys-del')).rejects.toThrow(BadRequestException);
+      await expect(service.remove('sys-del')).rejects.toThrow(
+        BadRequestException,
+      );
     });
   });
 
@@ -483,7 +534,10 @@ describe('ClassificationService', () => {
         properties: { newKey: 'newValue' },
       } as any);
 
-      expect(result.properties).toEqual({ existingKey: 'value', newKey: 'newValue' });
+      expect(result.properties).toEqual({
+        existingKey: 'value',
+        newKey: 'newValue',
+      });
     });
 
     it('should throw BadRequestException when deactivating a system node', async () => {

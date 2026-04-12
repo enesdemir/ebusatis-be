@@ -1,4 +1,13 @@
-import { Entity, Property, Enum, ManyToOne, OneToMany, ManyToMany, Collection, Index } from '@mikro-orm/core';
+import {
+  Entity,
+  Property,
+  Enum,
+  ManyToOne,
+  OneToMany,
+  ManyToMany,
+  Collection,
+  Index,
+} from '@mikro-orm/core';
 import { BaseTenantEntity } from '../../../common/entities/base-tenant.entity';
 import { Currency } from '../../definitions/entities/currency.entity';
 import { Tag } from '../../definitions/entities/tag.entity';

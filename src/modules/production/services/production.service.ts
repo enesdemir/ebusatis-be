@@ -51,12 +51,32 @@ export class ProductionService {
     nameKey: string;
     sortOrder: number;
   }> = [
-    { code: StandardMilestoneCode.DYEHOUSE, nameKey: 'milestones.dyehouse', sortOrder: 0 },
-    { code: StandardMilestoneCode.WEAVING, nameKey: 'milestones.weaving', sortOrder: 1 },
-    { code: StandardMilestoneCode.FINISHING, nameKey: 'milestones.finishing', sortOrder: 2 },
+    {
+      code: StandardMilestoneCode.DYEHOUSE,
+      nameKey: 'milestones.dyehouse',
+      sortOrder: 0,
+    },
+    {
+      code: StandardMilestoneCode.WEAVING,
+      nameKey: 'milestones.weaving',
+      sortOrder: 1,
+    },
+    {
+      code: StandardMilestoneCode.FINISHING,
+      nameKey: 'milestones.finishing',
+      sortOrder: 2,
+    },
     { code: StandardMilestoneCode.QC, nameKey: 'milestones.qc', sortOrder: 3 },
-    { code: StandardMilestoneCode.PACKAGING, nameKey: 'milestones.packaging', sortOrder: 4 },
-    { code: StandardMilestoneCode.READY_FOR_PICKUP, nameKey: 'milestones.ready_for_pickup', sortOrder: 5 },
+    {
+      code: StandardMilestoneCode.PACKAGING,
+      nameKey: 'milestones.packaging',
+      sortOrder: 4,
+    },
+    {
+      code: StandardMilestoneCode.READY_FOR_PICKUP,
+      nameKey: 'milestones.ready_for_pickup',
+      sortOrder: 5,
+    },
   ];
 
   constructor(
@@ -74,7 +94,14 @@ export class ProductionService {
   // ── Supplier production orders ──
 
   async findAllOrders(query: SupplierProductionOrderQueryDto) {
-    const { page = 1, limit = 20, search, status, supplierId, purchaseOrderId } = query;
+    const {
+      page = 1,
+      limit = 20,
+      search,
+      status,
+      supplierId,
+      purchaseOrderId,
+    } = query;
     const where: Record<string, any> = {};
     if (search) where.productionNumber = { $like: `%${search}%` };
     if (status) where.status = status;
@@ -118,7 +145,9 @@ export class ProductionService {
    * milestone template. The tenant is read from the request context
    * (defense in depth) — caller does not need to provide it.
    */
-  async createOrder(dto: CreateSupplierProductionOrderDto): Promise<SupplierProductionOrder> {
+  async createOrder(
+    dto: CreateSupplierProductionOrderDto,
+  ): Promise<SupplierProductionOrder> {
     const tenantId = TenantContext.getTenantId();
     if (!tenantId) throw new TenantContextMissingException();
 
@@ -135,7 +164,9 @@ export class ProductionService {
       plannedQuantity: dto.plannedQuantity,
       status: dto.status ?? SupplierProductionStatus.AWAITING_START,
       factoryLocation: dto.factoryLocation,
-      estimatedStartDate: dto.estimatedStartDate ? new Date(dto.estimatedStartDate) : undefined,
+      estimatedStartDate: dto.estimatedStartDate
+        ? new Date(dto.estimatedStartDate)
+        : undefined,
       estimatedCompletionDate: dto.estimatedCompletionDate
         ? new Date(dto.estimatedCompletionDate)
         : undefined,
@@ -167,7 +198,10 @@ export class ProductionService {
     const order = await this.findOrderById(id);
     order.status = status;
 
-    if (status === SupplierProductionStatus.IN_DYEHOUSE && !order.actualStartDate) {
+    if (
+      status === SupplierProductionStatus.IN_DYEHOUSE &&
+      !order.actualStartDate
+    ) {
       order.actualStartDate = new Date();
     }
     if (
@@ -183,7 +217,10 @@ export class ProductionService {
 
   // ── Milestones ──
 
-  async updateMilestone(id: string, dto: UpdateMilestoneDto): Promise<ProductionMilestone> {
+  async updateMilestone(
+    id: string,
+    dto: UpdateMilestoneDto,
+  ): Promise<ProductionMilestone> {
     const ms = await this.milestoneRepo.findOne({ id });
     if (!ms) throw new ProductionMilestoneNotFoundException(id);
 
@@ -195,9 +232,11 @@ export class ProductionService {
     }
     if (dto.status !== undefined) ms.status = dto.status;
     if (dto.startedAt !== undefined) ms.startedAt = new Date(dto.startedAt);
-    if (dto.completedAt !== undefined) ms.completedAt = new Date(dto.completedAt);
+    if (dto.completedAt !== undefined)
+      ms.completedAt = new Date(dto.completedAt);
     if (dto.note !== undefined) ms.note = dto.note;
-    if (dto.assignedToId !== undefined) (ms as any).assignedTo = dto.assignedToId;
+    if (dto.assignedToId !== undefined)
+      (ms as any).assignedTo = dto.assignedToId;
     await this.em.flush();
     return ms;
   }
@@ -254,7 +293,10 @@ export class ProductionService {
     return qc;
   }
 
-  async updateQC(id: string, dto: UpdateQualityCheckDto): Promise<QualityCheck> {
+  async updateQC(
+    id: string,
+    dto: UpdateQualityCheckDto,
+  ): Promise<QualityCheck> {
     const qc = await this.qcRepo.findOne({ id });
     if (!qc) throw new QualityCheckNotFoundException(id);
     this.em.assign(qc, dto as any);

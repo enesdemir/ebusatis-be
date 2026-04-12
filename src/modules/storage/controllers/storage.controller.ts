@@ -1,6 +1,14 @@
 import {
-  Controller, Post, Delete, Get, Param, Query,
-  UseGuards, UseInterceptors, UploadedFile, UploadedFiles,
+  Controller,
+  Post,
+  Delete,
+  Get,
+  Param,
+  Query,
+  UseGuards,
+  UseInterceptors,
+  UploadedFile,
+  UploadedFiles,
 } from '@nestjs/common';
 import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import { StorageService, UploadResult } from '../services/storage.service';
@@ -17,7 +25,9 @@ export class StorageController {
    * Body: multipart/form-data, field: "file"
    */
   @Post('upload')
-  @UseInterceptors(FileInterceptor('file', { limits: { fileSize: 10 * 1024 * 1024 } })) // 10MB limit
+  @UseInterceptors(
+    FileInterceptor('file', { limits: { fileSize: 10 * 1024 * 1024 } }),
+  ) // 10MB limit
   async uploadFile(
     @UploadedFile() file: Express.Multer.File,
     @Query('folder') folder?: string,
@@ -31,7 +41,9 @@ export class StorageController {
    * Body: multipart/form-data, field: "files"
    */
   @Post('upload-multiple')
-  @UseInterceptors(FilesInterceptor('files', 10, { limits: { fileSize: 10 * 1024 * 1024 } }))
+  @UseInterceptors(
+    FilesInterceptor('files', 10, { limits: { fileSize: 10 * 1024 * 1024 } }),
+  )
   async uploadMultiple(
     @UploadedFiles() files: Express.Multer.File[],
     @Query('folder') folder?: string,

@@ -41,13 +41,15 @@ export class StorageService implements OnModuleInit {
         // Public read policy (gorsel dosyalar icin)
         const policy = JSON.stringify({
           Version: '2012-10-17',
-          Statement: [{
-            Sid: 'PublicRead',
-            Effect: 'Allow',
-            Principal: '*',
-            Action: ['s3:GetObject'],
-            Resource: [`arn:aws:s3:::${this.bucket}/*`],
-          }],
+          Statement: [
+            {
+              Sid: 'PublicRead',
+              Effect: 'Allow',
+              Principal: '*',
+              Action: ['s3:GetObject'],
+              Resource: [`arn:aws:s3:::${this.bucket}/*`],
+            },
+          ],
         });
         await this.client.setBucketPolicy(this.bucket, policy);
         this.logger.log(`Bucket "${this.bucket}" olusturuldu (public read)`);
@@ -64,7 +66,15 @@ export class StorageService implements OnModuleInit {
    * @param file Multer file objesi
    * @param folder Klasor yolu (orn: "products/images", "production/media")
    */
-  async upload(file: { buffer: Buffer; originalname: string; mimetype: string; size: number }, folder = 'uploads'): Promise<UploadResult> {
+  async upload(
+    file: {
+      buffer: Buffer;
+      originalname: string;
+      mimetype: string;
+      size: number;
+    },
+    folder = 'uploads',
+  ): Promise<UploadResult> {
     const ext = file.originalname.split('.').pop() || 'bin';
     const key = `${folder}/${v4()}.${ext}`;
 
@@ -75,7 +85,8 @@ export class StorageService implements OnModuleInit {
 
     const endpoint = this.config.get('MINIO_ENDPOINT', 'localhost');
     const port = this.config.get('MINIO_PORT', '9000');
-    const protocol = this.config.get('MINIO_USE_SSL', 'false') === 'true' ? 'https' : 'http';
+    const protocol =
+      this.config.get('MINIO_USE_SSL', 'false') === 'true' ? 'https' : 'http';
     const url = `${protocol}://${endpoint}:${port}/${this.bucket}/${key}`;
 
     return {
@@ -91,7 +102,15 @@ export class StorageService implements OnModuleInit {
   /**
    * Birden fazla dosya yukle.
    */
-  async uploadMultiple(files: Array<{ buffer: Buffer; originalname: string; mimetype: string; size: number }>, folder = 'uploads'): Promise<UploadResult[]> {
+  async uploadMultiple(
+    files: Array<{
+      buffer: Buffer;
+      originalname: string;
+      mimetype: string;
+      size: number;
+    }>,
+    folder = 'uploads',
+  ): Promise<UploadResult[]> {
     return Promise.all(files.map((f) => this.upload(f, folder)));
   }
 
@@ -112,12 +131,20 @@ export class StorageService implements OnModuleInit {
   /**
    * Klasordeki dosyalari listele.
    */
-  async listFiles(prefix: string): Promise<Array<{ name: string; size: number; lastModified: Date }>> {
+  async listFiles(
+    prefix: string,
+  ): Promise<Array<{ name: string; size: number; lastModified: Date }>> {
     return new Promise((resolve, reject) => {
-      const files: Array<{ name: string; size: number; lastModified: Date }> = [];
+      const files: Array<{ name: string; size: number; lastModified: Date }> =
+        [];
       const stream = this.client.listObjects(this.bucket, prefix, true);
       stream.on('data', (obj) => {
-        if (obj.name) files.push({ name: obj.name, size: obj.size, lastModified: obj.lastModified });
+        if (obj.name)
+          files.push({
+            name: obj.name,
+            size: obj.size,
+            lastModified: obj.lastModified,
+          });
       });
       stream.on('end', () => resolve(files));
       stream.on('error', reject);

@@ -2,8 +2,8 @@ import { Entity, Property, Enum, Unique } from '@mikro-orm/core';
 import { BaseDefinitionEntity } from '../../../common/entities/base-definition.entity';
 
 export enum CurrencyPosition {
-  PREFIX = 'PREFIX',   // $100
-  SUFFIX = 'SUFFIX',   // 100₺
+  PREFIX = 'PREFIX', // $100
+  SUFFIX = 'SUFFIX', // 100₺
 }
 
 /**

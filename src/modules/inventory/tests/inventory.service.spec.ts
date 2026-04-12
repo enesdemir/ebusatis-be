@@ -73,7 +73,9 @@ describe('InventoryService', () => {
         data: [createMockRoll()],
         meta: { total: 1, page: 1, limit: 20, totalPages: 1 },
       };
-      (QueryBuilderHelper.paginate as jest.Mock).mockResolvedValue(paginatedResult);
+      (QueryBuilderHelper.paginate as jest.Mock).mockResolvedValue(
+        paginatedResult,
+      );
 
       const result = await service.findAll({ page: 1, limit: 20 });
 
@@ -90,8 +92,13 @@ describe('InventoryService', () => {
     });
 
     it('should apply variant and warehouse filters when provided', async () => {
-      const paginatedResult = { data: [], meta: { total: 0, page: 1, limit: 20, totalPages: 0 } };
-      (QueryBuilderHelper.paginate as jest.Mock).mockResolvedValue(paginatedResult);
+      const paginatedResult = {
+        data: [],
+        meta: { total: 0, page: 1, limit: 20, totalPages: 0 },
+      };
+      (QueryBuilderHelper.paginate as jest.Mock).mockResolvedValue(
+        paginatedResult,
+      );
 
       await service.findAll({
         page: 1,
@@ -132,7 +139,11 @@ describe('InventoryService', () => {
         expect.any(Function),
         { id: 'roll-1' },
         expect.objectContaining({
-          populate: expect.arrayContaining(['variant', 'warehouse', 'transactions']),
+          populate: expect.arrayContaining([
+            'variant',
+            'warehouse',
+            'transactions',
+          ]),
         }),
       );
     });
@@ -140,7 +151,9 @@ describe('InventoryService', () => {
     it('should throw NotFoundException when roll does not exist', async () => {
       mockEm.findOne.mockResolvedValue(null);
 
-      await expect(service.findOne('nonexistent')).rejects.toThrow(NotFoundException);
+      await expect(service.findOne('nonexistent')).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 
@@ -152,13 +165,18 @@ describe('InventoryService', () => {
     it('should create a roll with initial transaction', async () => {
       (TenantContext.getTenantId as jest.Mock).mockReturnValue('tenant-1');
       mockEm.findOneOrFail.mockResolvedValue(mockTenant);
-      mockEm.getReference.mockImplementation((entity: string, id: string) => ({ id }));
+      mockEm.getReference.mockImplementation((entity: string, id: string) => ({
+        id,
+      }));
 
-      const createdRoll = createMockRoll({ currentQuantity: 50, initialQuantity: 50 });
+      const createdRoll = createMockRoll({
+        currentQuantity: 50,
+        initialQuantity: 50,
+      });
       const createdTx = { id: 'tx-1', type: 'PURCHASE', quantityChange: 50 };
       mockEm.create
-        .mockReturnValueOnce(createdRoll)  // InventoryItem
-        .mockReturnValueOnce(createdTx);   // InventoryTransaction
+        .mockReturnValueOnce(createdRoll) // InventoryItem
+        .mockReturnValueOnce(createdTx); // InventoryTransaction
       mockEm.persist.mockImplementation(() => {});
       mockEm.flush.mockResolvedValue(undefined);
 
@@ -195,13 +213,21 @@ describe('InventoryService', () => {
     it('should reduce currentQuantity and create SALE_CUT transaction', async () => {
       const roll = createMockRoll({ currentQuantity: 80, reservedQuantity: 0 });
       mockEm.findOne.mockResolvedValue(roll);
-      mockEm.getReference.mockImplementation((entity: string, id: string) => ({ id }));
+      mockEm.getReference.mockImplementation((entity: string, id: string) => ({
+        id,
+      }));
       const tx = { id: 'tx-1', type: 'SALE_CUT', quantityChange: -20 };
       mockEm.create.mockReturnValue(tx);
       mockEm.persist.mockImplementation(() => {});
       mockEm.flush.mockResolvedValue(undefined);
 
-      const result = await service.cutRoll('roll-1', 20, 'ref-1', 'Test cut', 'user-1');
+      const result = await service.cutRoll(
+        'roll-1',
+        20,
+        'ref-1',
+        'Test cut',
+        'user-1',
+      );
 
       expect(result.currentQuantity).toBe(60);
       expect(mockEm.create).toHaveBeenCalledWith(
@@ -218,7 +244,9 @@ describe('InventoryService', () => {
     it('should set status to SOLD when quantity reaches zero', async () => {
       const roll = createMockRoll({ currentQuantity: 10, reservedQuantity: 0 });
       mockEm.findOne.mockResolvedValue(roll);
-      mockEm.getReference.mockImplementation((entity: string, id: string) => ({ id }));
+      mockEm.getReference.mockImplementation((entity: string, id: string) => ({
+        id,
+      }));
       mockEm.create.mockReturnValue({ id: 'tx-1' });
       mockEm.persist.mockImplementation(() => {});
       mockEm.flush.mockResolvedValue(undefined);
@@ -233,16 +261,25 @@ describe('InventoryService', () => {
       const roll = createMockRoll({ currentQuantity: 80, reservedQuantity: 0 });
       mockEm.findOne.mockResolvedValue(roll);
 
-      await expect(service.cutRoll('roll-1', 0)).rejects.toThrow(BadRequestException);
-      await expect(service.cutRoll('roll-1', -5)).rejects.toThrow(BadRequestException);
+      await expect(service.cutRoll('roll-1', 0)).rejects.toThrow(
+        BadRequestException,
+      );
+      await expect(service.cutRoll('roll-1', -5)).rejects.toThrow(
+        BadRequestException,
+      );
     });
 
     it('should throw BadRequestException when cut amount exceeds available stock', async () => {
-      const roll = createMockRoll({ currentQuantity: 50, reservedQuantity: 40 });
+      const roll = createMockRoll({
+        currentQuantity: 50,
+        reservedQuantity: 40,
+      });
       mockEm.findOne.mockResolvedValue(roll);
 
       // Available = 50 - 40 = 10, requesting 20
-      await expect(service.cutRoll('roll-1', 20)).rejects.toThrow(BadRequestException);
+      await expect(service.cutRoll('roll-1', 20)).rejects.toThrow(
+        BadRequestException,
+      );
     });
   });
 
@@ -254,12 +291,19 @@ describe('InventoryService', () => {
     it('should reduce quantity and create WASTE transaction', async () => {
       const roll = createMockRoll({ currentQuantity: 50 });
       mockEm.findOne.mockResolvedValue(roll);
-      mockEm.getReference.mockImplementation((entity: string, id: string) => ({ id }));
+      mockEm.getReference.mockImplementation((entity: string, id: string) => ({
+        id,
+      }));
       mockEm.create.mockReturnValue({ id: 'tx-1', type: 'WASTE' });
       mockEm.persist.mockImplementation(() => {});
       mockEm.flush.mockResolvedValue(undefined);
 
-      const result = await service.markWaste('roll-1', 5, 'Defective fabric', 'user-1');
+      const result = await service.markWaste(
+        'roll-1',
+        5,
+        'Defective fabric',
+        'user-1',
+      );
 
       expect(result.currentQuantity).toBe(45);
       expect(mockEm.create).toHaveBeenCalledWith(
@@ -288,7 +332,9 @@ describe('InventoryService', () => {
       const roll = createMockRoll({ currentQuantity: 10 });
       mockEm.findOne.mockResolvedValue(roll);
 
-      await expect(service.markWaste('roll-1', 15)).rejects.toThrow(BadRequestException);
+      await expect(service.markWaste('roll-1', 15)).rejects.toThrow(
+        BadRequestException,
+      );
     });
   });
 
@@ -300,12 +346,19 @@ describe('InventoryService', () => {
     it('should update quantity and create ADJUSTMENT transaction', async () => {
       const roll = createMockRoll({ currentQuantity: 80 });
       mockEm.findOne.mockResolvedValue(roll);
-      mockEm.getReference.mockImplementation((entity: string, id: string) => ({ id }));
+      mockEm.getReference.mockImplementation((entity: string, id: string) => ({
+        id,
+      }));
       mockEm.create.mockReturnValue({ id: 'tx-1', type: 'ADJUSTMENT' });
       mockEm.persist.mockImplementation(() => {});
       mockEm.flush.mockResolvedValue(undefined);
 
-      const result = await service.adjustStock('roll-1', 75, 'Count correction', 'user-1');
+      const result = await service.adjustStock(
+        'roll-1',
+        75,
+        'Count correction',
+        'user-1',
+      );
 
       expect(result.currentQuantity).toBe(75);
       expect(mockEm.create).toHaveBeenCalledWith(
@@ -349,7 +402,9 @@ describe('InventoryService', () => {
       const roll = createMockRoll({ currentQuantity: 80 });
       mockEm.findOne.mockResolvedValue(roll);
 
-      await expect(service.adjustStock('roll-1', -10)).rejects.toThrow(BadRequestException);
+      await expect(service.adjustStock('roll-1', -10)).rejects.toThrow(
+        BadRequestException,
+      );
     });
   });
 });

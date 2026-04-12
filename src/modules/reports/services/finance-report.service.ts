@@ -23,10 +23,13 @@ export class FinanceReportService {
       .whereNull('i.deleted_at')
       .where('i.type', 'SALES')
       .select(
-        'p.id as partnerId', 'p.name as partnerName',
+        'p.id as partnerId',
+        'p.name as partnerName',
         knex.raw('sum(i.grand_total)::numeric(14,2) as "totalInvoiced"'),
         knex.raw('sum(i.paid_amount)::numeric(14,2) as "totalPaid"'),
-        knex.raw('(sum(i.grand_total) - sum(i.paid_amount))::numeric(14,2) as "balance"'),
+        knex.raw(
+          '(sum(i.grand_total) - sum(i.paid_amount))::numeric(14,2) as "balance"',
+        ),
         knex.raw('count(i.id)::int as "invoiceCount"'),
       )
       .groupBy('p.id', 'p.name')
@@ -47,15 +50,18 @@ export class FinanceReportService {
       .whereNull('i.deleted_at')
       .where('i.type', 'SALES')
       .whereNotIn('i.status', ['PAID', 'CANCELLED'])
-      .where(function() {
+      .where(function () {
         this.whereNotNull('i.due_date');
       })
       .select(
-        'p.id as partnerId', 'p.name as partnerName',
+        'p.id as partnerId',
+        'p.name as partnerName',
         'i.invoice_number as invoiceNumber',
         'i.grand_total as grandTotal',
         'i.paid_amount as paidAmount',
-        knex.raw('(i.grand_total - i.paid_amount)::numeric(14,2) as "remaining"'),
+        knex.raw(
+          '(i.grand_total - i.paid_amount)::numeric(14,2) as "remaining"',
+        ),
         'i.due_date as dueDate',
         knex.raw(`(current_date - i.due_date::date) as "overdueDays"`),
         knex.raw(`

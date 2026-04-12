@@ -21,17 +21,35 @@ import { ErrorApiResponse } from '../interfaces/api-response.interface';
  * Custom AppException classes bypass this map because they already
  * carry their own `error` code and i18n key in the exception body.
  */
-const STATUS_CODE_DEFAULTS: Record<number, { error: string; messageKey: string }> = {
+const STATUS_CODE_DEFAULTS: Record<
+  number,
+  { error: string; messageKey: string }
+> = {
   400: { error: 'BAD_REQUEST', messageKey: 'errors.http.bad_request' },
   401: { error: 'UNAUTHORIZED', messageKey: 'errors.http.unauthorized' },
   403: { error: 'FORBIDDEN', messageKey: 'errors.http.forbidden' },
   404: { error: 'NOT_FOUND', messageKey: 'errors.http.not_found' },
-  405: { error: 'METHOD_NOT_ALLOWED', messageKey: 'errors.http.method_not_allowed' },
+  405: {
+    error: 'METHOD_NOT_ALLOWED',
+    messageKey: 'errors.http.method_not_allowed',
+  },
   409: { error: 'CONFLICT', messageKey: 'errors.http.conflict' },
-  422: { error: 'UNPROCESSABLE_ENTITY', messageKey: 'errors.http.unprocessable_entity' },
-  429: { error: 'TOO_MANY_REQUESTS', messageKey: 'errors.http.too_many_requests' },
-  500: { error: 'INTERNAL_SERVER_ERROR', messageKey: 'errors.http.internal_server_error' },
-  503: { error: 'SERVICE_UNAVAILABLE', messageKey: 'errors.http.service_unavailable' },
+  422: {
+    error: 'UNPROCESSABLE_ENTITY',
+    messageKey: 'errors.http.unprocessable_entity',
+  },
+  429: {
+    error: 'TOO_MANY_REQUESTS',
+    messageKey: 'errors.http.too_many_requests',
+  },
+  500: {
+    error: 'INTERNAL_SERVER_ERROR',
+    messageKey: 'errors.http.internal_server_error',
+  },
+  503: {
+    error: 'SERVICE_UNAVAILABLE',
+    messageKey: 'errors.http.service_unavailable',
+  },
 };
 
 /**
@@ -65,7 +83,8 @@ export class GlobalExceptionFilter implements ExceptionFilter {
       exception instanceof HttpException ? exception.getResponse() : null;
 
     // Pick the status-code fallback first; AppException fields override it.
-    const fallback = STATUS_CODE_DEFAULTS[statusCode] ?? STATUS_CODE_DEFAULTS[500];
+    const fallback =
+      STATUS_CODE_DEFAULTS[statusCode] ?? STATUS_CODE_DEFAULTS[500];
     let error = fallback.error;
     let message = fallback.messageKey;
     let metadata: Record<string, unknown> | undefined;
@@ -79,11 +98,16 @@ export class GlobalExceptionFilter implements ExceptionFilter {
       // return strings like "Bad Request" or "Unauthorized". The
       // heuristic checks below ensure only contract-compliant fields
       // are accepted; everything else falls back to the status default.
-      if (typeof resp.error === 'string' && /^[A-Z][A-Z0-9_]*$/.test(resp.error)) {
+      if (
+        typeof resp.error === 'string' &&
+        /^[A-Z][A-Z0-9_]*$/.test(resp.error)
+      ) {
         error = resp.error;
       }
       if (resp.message) {
-        const raw = Array.isArray(resp.message) ? resp.message.join(', ') : String(resp.message);
+        const raw = Array.isArray(resp.message)
+          ? resp.message.join(', ')
+          : String(resp.message);
         if (/^(errors|success|validation|warnings)\./.test(raw)) {
           message = raw;
         }

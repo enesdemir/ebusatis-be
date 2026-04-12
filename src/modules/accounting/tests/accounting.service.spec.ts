@@ -2,11 +2,20 @@ import { AccountingService } from '../services/accounting.service';
 
 const mockValRepo = { findAndCount: jest.fn(), create: jest.fn() };
 const mockFxRepo = { findAndCount: jest.fn(), create: jest.fn() };
-const mockTaxRepo = { findAndCount: jest.fn(), findOne: jest.fn(), create: jest.fn() };
+const mockTaxRepo = {
+  findAndCount: jest.fn(),
+  findOne: jest.fn(),
+  create: jest.fn(),
+};
 const mockEm = { persistAndFlush: jest.fn(), flush: jest.fn() };
 
 function createService() {
-  return new (AccountingService as any)(mockValRepo, mockFxRepo, mockTaxRepo, mockEm);
+  return new (AccountingService as any)(
+    mockValRepo,
+    mockFxRepo,
+    mockTaxRepo,
+    mockEm,
+  );
 }
 
 describe('AccountingService', () => {
@@ -41,7 +50,10 @@ describe('AccountingService', () => {
     const r = { id: '1', status: 'DRAFT', payableTax: 0 };
     mockTaxRepo.findOne.mockResolvedValue(r);
     mockEm.flush.mockResolvedValue(undefined);
-    await service.updateTaxReport('1', { status: 'CALCULATED', payableTax: 5000 });
+    await service.updateTaxReport('1', {
+      status: 'CALCULATED',
+      payableTax: 5000,
+    });
     expect(r.status).toBe('CALCULATED');
   });
 

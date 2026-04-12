@@ -1,5 +1,13 @@
-
-import { Controller, Get, Post, Put, Delete, Body, Param, Request } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Put,
+  Delete,
+  Body,
+  Param,
+  Request,
+} from '@nestjs/common';
 import { UsersService } from './users.service';
 import { TenantContext } from '../../common/context/tenant.context';
 
@@ -9,16 +17,19 @@ export class UsersController {
 
   @Get()
   async findAll(@Request() req) {
-    const tenantId = TenantContext.getTenantId() || req.user?.tenantId; 
-    if(!tenantId) throw new Error("Tenant context missing");
+    const tenantId = TenantContext.getTenantId() || req.user?.tenantId;
+    if (!tenantId) throw new Error('Tenant context missing');
 
     return this.usersService.findAll(tenantId);
   }
 
   @Post()
-  async create(@Request() req, @Body() createUserDto: { email: string; roleIds?: string[] }) {
+  async create(
+    @Request() req,
+    @Body() createUserDto: { email: string; roleIds?: string[] },
+  ) {
     const tenantId = TenantContext.getTenantId() || req.user?.tenantId;
-    if(!tenantId) throw new Error("Tenant context missing");
+    if (!tenantId) throw new Error('Tenant context missing');
 
     return this.usersService.create(tenantId, createUserDto);
   }
@@ -30,7 +41,7 @@ export class UsersController {
     @Body() updateUserDto: { roleIds?: string[] },
   ) {
     const tenantId = TenantContext.getTenantId() || req.user?.tenantId;
-    if(!tenantId) throw new Error("Tenant context missing");
+    if (!tenantId) throw new Error('Tenant context missing');
 
     return this.usersService.update(id, tenantId, updateUserDto);
   }
@@ -38,9 +49,8 @@ export class UsersController {
   @Delete(':id')
   async remove(@Request() req, @Param('id') id: string) {
     const tenantId = TenantContext.getTenantId() || req.user?.tenantId;
-    if(!tenantId) throw new Error("Tenant context missing");
+    if (!tenantId) throw new Error('Tenant context missing');
 
     return this.usersService.remove(id, tenantId);
   }
 }
-

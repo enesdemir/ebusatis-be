@@ -1,4 +1,8 @@
-import { Injectable, ConflictException, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  ConflictException,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { EntityRepository, FilterQuery, wrap } from '@mikro-orm/postgresql';
 import { Tenant, SubscriptionStatus } from './entities/tenant.entity';
@@ -31,9 +35,13 @@ export class TenantsService {
    * Creates a new tenant with an admin user.
    */
   async create(createTenantDto: CreateTenantDto): Promise<Tenant> {
-    const existing = await this.tenantRepository.findOne({ domain: createTenantDto.domain });
+    const existing = await this.tenantRepository.findOne({
+      domain: createTenantDto.domain,
+    });
     if (existing) {
-      throw new ConflictException(`Tenant with domain '${createTenantDto.domain}' already exists.`);
+      throw new ConflictException(
+        `Tenant with domain '${createTenantDto.domain}' already exists.`,
+      );
     }
     const em = this.tenantRepository.getEntityManager();
     const tenant = new Tenant(createTenantDto.name, createTenantDto.domain);
@@ -86,7 +94,7 @@ export class TenantsService {
       offset,
     });
     return {
-      data: data.map(tenant => ({
+      data: data.map((tenant) => ({
         id: tenant.id,
         name: tenant.name,
         domain: tenant.domain,
@@ -110,7 +118,10 @@ export class TenantsService {
    * Retrieves a single tenant by ID with populated relations.
    */
   async findOne(id: string): Promise<Tenant> {
-    const tenant = await this.tenantRepository.findOne({ id }, { populate: ['users'] });
+    const tenant = await this.tenantRepository.findOne(
+      { id },
+      { populate: ['users'] },
+    );
     if (!tenant) {
       throw new NotFoundException(`Tenant with ID '${id}' not found.`);
     }
@@ -130,12 +141,16 @@ export class TenantsService {
     ).length;
     const lastLogin = users
       .filter((u: any) => u.lastLoginAt)
-      .sort((a: any, b: any) => (b.lastLoginAt?.getTime() ?? 0) - (a.lastLoginAt?.getTime() ?? 0));
+      .sort(
+        (a: any, b: any) =>
+          (b.lastLoginAt?.getTime() ?? 0) - (a.lastLoginAt?.getTime() ?? 0),
+      );
     return {
       tenantId: tenant.id,
       userCount: users.length,
       activeUserCountLast30Days: activeUserCount,
-      lastLoginAt: lastLogin.length > 0 ? (lastLogin[0] as any).lastLoginAt : null,
+      lastLoginAt:
+        lastLogin.length > 0 ? (lastLogin[0] as any).lastLoginAt : null,
       createdAt: tenant.createdAt,
     };
   }
@@ -153,7 +168,10 @@ export class TenantsService {
   /**
    * Updates subscription status specifically.
    */
-  async updateSubscription(id: string, subscriptionStatus: SubscriptionStatus): Promise<Tenant> {
+  async updateSubscription(
+    id: string,
+    subscriptionStatus: SubscriptionStatus,
+  ): Promise<Tenant> {
     const tenant = await this.findOne(id);
     tenant.subscriptionStatus = subscriptionStatus;
     await this.tenantRepository.getEntityManager().flush();
@@ -163,7 +181,10 @@ export class TenantsService {
   /**
    * Toggles feature flags for a tenant.
    */
-  async updateFeatures(id: string, features: Record<string, boolean>): Promise<Tenant> {
+  async updateFeatures(
+    id: string,
+    features: Record<string, boolean>,
+  ): Promise<Tenant> {
     const tenant = await this.findOne(id);
     tenant.features = { ...tenant.features, ...features };
     await this.tenantRepository.getEntityManager().flush();

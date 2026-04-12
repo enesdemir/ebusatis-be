@@ -12,7 +12,10 @@ import {
   CarrierPaymentSchedule,
   CarrierPaymentTrigger,
 } from '../entities/carrier-payment-schedule.entity';
-import { ContainerEvent, ContainerEventType } from '../entities/container-event.entity';
+import {
+  ContainerEvent,
+  ContainerEventType,
+} from '../entities/container-event.entity';
 import { CustomsDeclaration } from '../entities/customs-declaration.entity';
 import { FreightQuote } from '../entities/freight-quote.entity';
 import {
@@ -74,7 +77,9 @@ describe('LogisticsService', () => {
       persist: jest.fn(),
       persistAndFlush: jest.fn().mockResolvedValue(undefined),
       flush: jest.fn().mockResolvedValue(undefined),
-      assign: jest.fn((target: any, source: any) => Object.assign(target, source)),
+      assign: jest.fn((target: any, source: any) =>
+        Object.assign(target, source),
+      ),
       removeAndFlush: jest.fn().mockResolvedValue(undefined),
     };
 
@@ -83,9 +88,15 @@ describe('LogisticsService', () => {
         LogisticsService,
         { provide: getRepositoryToken(Shipment), useValue: shipmentRepo },
         { provide: getRepositoryToken(ShipmentLeg), useValue: legRepo },
-        { provide: getRepositoryToken(CarrierPaymentSchedule), useValue: carrierPaymentRepo },
+        {
+          provide: getRepositoryToken(CarrierPaymentSchedule),
+          useValue: carrierPaymentRepo,
+        },
         { provide: getRepositoryToken(ContainerEvent), useValue: eventRepo },
-        { provide: getRepositoryToken(CustomsDeclaration), useValue: customsRepo },
+        {
+          provide: getRepositoryToken(CustomsDeclaration),
+          useValue: customsRepo,
+        },
         { provide: getRepositoryToken(FreightQuote), useValue: quoteRepo },
         { provide: EntityManager, useValue: em },
       ],
@@ -326,8 +337,16 @@ describe('LogisticsService', () => {
 
     it('should mark quote selected and unmark siblings', async () => {
       const shipmentRef = { id: 'sh-1' };
-      const quote: any = { id: 'q-1', shipment: shipmentRef, isSelected: false };
-      const sibling: any = { id: 'q-2', shipment: shipmentRef, isSelected: true };
+      const quote: any = {
+        id: 'q-1',
+        shipment: shipmentRef,
+        isSelected: false,
+      };
+      const sibling: any = {
+        id: 'q-2',
+        shipment: shipmentRef,
+        isSelected: true,
+      };
       quoteRepo.findOne.mockResolvedValue(quote);
       quoteRepo.find.mockResolvedValue([sibling]);
 
@@ -344,9 +363,9 @@ describe('LogisticsService', () => {
   describe('createQuote', () => {
     it('should throw without tenant context', async () => {
       (TenantContext.getTenantId as jest.Mock).mockReturnValue(undefined);
-      await expect(
-        service.createQuote({ price: 100 } as any),
-      ).rejects.toThrow(TenantContextMissingException);
+      await expect(service.createQuote({ price: 100 } as any)).rejects.toThrow(
+        TenantContextMissingException,
+      );
     });
 
     it('should persist quote with provided fields', async () => {
@@ -438,7 +457,10 @@ describe('LogisticsService', () => {
       };
       legRepo.findOne.mockResolvedValue(leg);
 
-      await service.updateLeg('leg-1', { freightCost: 200, notes: 'new' } as any);
+      await service.updateLeg('leg-1', {
+        freightCost: 200,
+        notes: 'new',
+      } as any);
 
       expect(leg.freightCost).toBe(200);
       expect(leg.storageCost).toBe(50);

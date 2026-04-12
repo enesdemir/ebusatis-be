@@ -1,7 +1,10 @@
 import { EntityManager, FilterQuery } from '@mikro-orm/postgresql';
 import { BaseDefinitionEntity } from '../entities/base-definition.entity';
 import { TenantContext } from '../context/tenant.context';
-import { QueryBuilderHelper, PaginatedResponse } from '../helpers/query-builder.helper';
+import {
+  QueryBuilderHelper,
+  PaginatedResponse,
+} from '../helpers/query-builder.helper';
 import { PaginatedQueryDto } from '../dto/paginated-query.dto';
 import { Tenant } from '../../modules/tenants/entities/tenant.entity';
 import {
@@ -49,7 +52,9 @@ export abstract class BaseDefinitionService<T extends BaseDefinitionEntity> {
    * Throws `EntityNotFoundException` if not found.
    */
   async findOne(id: string): Promise<T> {
-    const entity = await this.em.findOne(this.entityClass, { id } as FilterQuery<T>);
+    const entity = await this.em.findOne(this.entityClass, {
+      id,
+    } as FilterQuery<T>);
     if (!entity) {
       throw new EntityNotFoundException(this.entityClass.name, id);
     }
@@ -123,7 +128,9 @@ export abstract class BaseDefinitionService<T extends BaseDefinitionEntity> {
    * Bulk reorder of `sortOrder`.
    * Body shape: [{ id: "xxx", sortOrder: 0 }, { id: "yyy", sortOrder: 1 }]
    */
-  async reorder(items: Array<{ id: string; sortOrder: number }>): Promise<void> {
+  async reorder(
+    items: Array<{ id: string; sortOrder: number }>,
+  ): Promise<void> {
     for (const item of items) {
       const entity = await this.findOne(item.id);
       entity.sortOrder = item.sortOrder;

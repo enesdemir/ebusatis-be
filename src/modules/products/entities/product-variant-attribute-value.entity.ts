@@ -25,14 +25,18 @@ export class ProductVariantAttributeValue extends BaseEntity {
     this.variant = variant;
     this.attribute = attribute;
   }
-  
+
   // Veriyi okumayı inanılmaz kolaylaştıran helper
   getValue(): string | number | boolean | undefined {
     switch (this.attribute?.type) {
-      case AttributeType.STRING: return this.valueString;
-      case AttributeType.NUMBER: return this.valueNumber;
-      case AttributeType.BOOLEAN: return this.valueBoolean;
-      default: return undefined;
+      case AttributeType.STRING:
+        return this.valueString;
+      case AttributeType.NUMBER:
+        return this.valueNumber;
+      case AttributeType.BOOLEAN:
+        return this.valueBoolean;
+      default:
+        return undefined;
     }
   }
 }

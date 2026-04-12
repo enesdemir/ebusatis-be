@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ConflictException,
+} from '@nestjs/common';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { EntityRepository, FilterQuery } from '@mikro-orm/postgresql';
 import { User } from '../../users/entities/user.entity';
@@ -51,7 +55,7 @@ export class AdminUsersService {
       offset,
     });
     return {
-      data: data.map(user => ({
+      data: data.map((user) => ({
         id: user.id,
         email: user.email,
         isSuperAdmin: user.isSuperAdmin,
@@ -60,9 +64,13 @@ export class AdminUsersService {
         locale: user.locale,
         lastLoginAt: user.lastLoginAt,
         tenant: user.tenant
-          ? { id: user.tenant.id, name: user.tenant.name, domain: user.tenant.domain }
+          ? {
+              id: user.tenant.id,
+              name: user.tenant.name,
+              domain: user.tenant.domain,
+            }
           : null,
-        roles: user.roles.getItems().map(r => ({ id: r.id, name: r.name })),
+        roles: user.roles.getItems().map((r) => ({ id: r.id, name: r.name })),
         createdAt: user.createdAt,
       })),
       meta: {
@@ -94,12 +102,16 @@ export class AdminUsersService {
       locale: user.locale,
       lastLoginAt: user.lastLoginAt,
       tenant: user.tenant
-        ? { id: user.tenant.id, name: user.tenant.name, domain: user.tenant.domain }
+        ? {
+            id: user.tenant.id,
+            name: user.tenant.name,
+            domain: user.tenant.domain,
+          }
         : null,
-      roles: user.roles.getItems().map(r => ({
+      roles: user.roles.getItems().map((r) => ({
         id: r.id,
         name: r.name,
-        permissions: r.permissions.getItems().map(p => p.slug),
+        permissions: r.permissions.getItems().map((p) => p.slug),
       })),
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
@@ -132,7 +144,11 @@ export class AdminUsersService {
     admin.isActive = true;
     admin.passwordHash = '$2b$10$EpIxNt.irO7y7P/s3f.uUO.6X.L/8.q.Z.g.w/0.1.2.3'; // TODO: Send setup email
     await this.userRepository.getEntityManager().persistAndFlush(admin);
-    return { id: admin.id, email: admin.email, isSuperAdmin: admin.isSuperAdmin };
+    return {
+      id: admin.id,
+      email: admin.email,
+      isSuperAdmin: admin.isSuperAdmin,
+    };
   }
 
   /**
@@ -144,7 +160,9 @@ export class AdminUsersService {
       throw new NotFoundException(`User with ID '${id}' not found`);
     }
     if (user.isTenantOwner) {
-      throw new ConflictException('Firma sahipleri (Tenant Owner) sistemden direkt silinemez. Önce firmayı silmelisiniz.');
+      throw new ConflictException(
+        'Firma sahipleri (Tenant Owner) sistemden direkt silinemez. Önce firmayı silmelisiniz.',
+      );
     }
     await this.userRepository.getEntityManager().removeAndFlush(user);
     return { success: true };

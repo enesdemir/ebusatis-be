@@ -1,4 +1,12 @@
-import { IsString, IsEnum, IsOptional, IsNumber, IsBoolean, Min, Max } from 'class-validator';
+import {
+  IsString,
+  IsEnum,
+  IsOptional,
+  IsNumber,
+  IsBoolean,
+  Min,
+  Max,
+} from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { UnitCategory } from '../entities/unit-of-measure.entity';
 
@@ -24,7 +32,10 @@ export class CreateUnitDto {
   @IsString()
   symbol: string;
 
-  @ApiPropertyOptional({ example: 1, description: 'Temel birime dönüşüm katsayısı' })
+  @ApiPropertyOptional({
+    example: 1,
+    description: 'Temel birime dönüşüm katsayısı',
+  })
   @IsOptional()
   @IsNumber()
   baseConversionFactor?: number;

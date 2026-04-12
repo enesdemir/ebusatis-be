@@ -18,7 +18,10 @@ import {
 import { PurchaseOrder } from '../../orders/entities/purchase-order.entity';
 import { PurchaseOrderLine } from '../../orders/entities/purchase-order-line.entity';
 import { Shipment } from '../../logistics/entities/shipment.entity';
-import { ShipmentLeg, ShipmentLegType } from '../../logistics/entities/shipment-leg.entity';
+import {
+  ShipmentLeg,
+  ShipmentLegType,
+} from '../../logistics/entities/shipment-leg.entity';
 import { CustomsDeclaration } from '../../logistics/entities/customs-declaration.entity';
 import { Currency } from '../../definitions/entities/currency.entity';
 import { CalculateLandedCostDto } from '../dto/calculate-landed-cost.dto';
@@ -151,13 +154,17 @@ export class LandedCostService {
 
     const allocations = this.allocate(lines, buckets);
 
-    const totalLandedCost = Object.values(buckets).reduce((sum, v) => sum + v, 0);
+    const totalLandedCost = Object.values(buckets).reduce(
+      (sum, v) => sum + v,
+      0,
+    );
 
     // Resolve the currency: prefer the PO currency, otherwise fall back
     // to the tenant default. This is the currency the calculation is
     // reported in; line allocations are stored in the same unit.
     const currency =
-      purchaseOrder.currency ?? (await this.currencyRepo.findOneOrFail({ isDefault: true }));
+      purchaseOrder.currency ??
+      (await this.currencyRepo.findOneOrFail({ isDefault: true }));
 
     const calc = this.calcRepo.create({
       tenant,
@@ -290,8 +297,7 @@ export class LandedCostService {
       buckets.otherCosts;
 
     return lineMetrics.map(({ line, qty, value }) => {
-      const share =
-        totalValue > 0 ? value / totalValue : qty / totalQuantity;
+      const share = totalValue > 0 ? value / totalValue : qty / totalQuantity;
 
       const allocatedFreight = round2(buckets.freightCost * share);
       const allocatedCustomsDuty = round2(buckets.customsDuty * share);

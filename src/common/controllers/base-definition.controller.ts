@@ -1,4 +1,14 @@
-import { Get, Post, Patch, Delete, Body, Param, Query, HttpCode, HttpStatus } from '@nestjs/common';
+import {
+  Get,
+  Post,
+  Patch,
+  Delete,
+  Body,
+  Param,
+  Query,
+  HttpCode,
+  HttpStatus,
+} from '@nestjs/common';
 import { BaseDefinitionEntity } from '../entities/base-definition.entity';
 import { BaseDefinitionService } from '../services/base-definition.service';
 import { PaginatedQueryDto } from '../dto/paginated-query.dto';

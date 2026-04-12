@@ -1,9 +1,18 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { EntityRepository, EntityManager } from '@mikro-orm/postgresql';
 import { ClassificationNode } from '../entities/classification-node.entity';
 import { ClassificationModules } from '../entities/classification-types';
-import { CreateClassificationNodeDto, UpdateClassificationNodeDto, MoveNodeDto, ReorderDto } from '../dto';
+import {
+  CreateClassificationNodeDto,
+  UpdateClassificationNodeDto,
+  MoveNodeDto,
+  ReorderDto,
+} from '../dto';
 
 @Injectable()
 export class ClassificationService {
@@ -27,9 +36,16 @@ export class ClassificationService {
   }
 
   /** Moduldeki tum classification tiplerinin ozetini dondur */
-  async getSummary(module?: string): Promise<Array<{ type: string; module: string; count: number }>> {
-    const qb = this.em.createQueryBuilder(ClassificationNode, 'c')
-      .select(['c.classification_type as type', 'c.module as module', 'count(*) as count'])
+  async getSummary(
+    module?: string,
+  ): Promise<Array<{ type: string; module: string; count: number }>> {
+    const qb = this.em
+      .createQueryBuilder(ClassificationNode, 'c')
+      .select([
+        'c.classification_type as type',
+        'c.module as module',
+        'count(*) as count',
+      ])
       .groupBy(['c.classification_type', 'c.module']);
 
     if (module) {
@@ -49,13 +65,19 @@ export class ClassificationService {
   /** Bir dugumun tum cocuklarini getir (recursive) */
   async getChildren(id: string, recursive = false): Promise<any[]> {
     if (!recursive) {
-      const nodes = await this.repo.find({ parent: id } as any, { orderBy: { sortOrder: 'ASC' }, populate: ['parent'] });
+      const nodes = await this.repo.find({ parent: id } as any, {
+        orderBy: { sortOrder: 'ASC' },
+        populate: ['parent'],
+      });
       return nodes.map((n) => this.toDto(n));
     }
     // Path-based recursive query
     const parent = await this.findOne(id);
     const all = await this.repo.find(
-      { classificationType: parent.classificationType, path: { $like: `${parent.path}.%` } },
+      {
+        classificationType: parent.classificationType,
+        path: { $like: `${parent.path}.%` },
+      },
       { orderBy: { path: 'ASC', sortOrder: 'ASC' }, populate: ['parent'] },
     );
     return all.map((n) => this.toDto(n));
@@ -65,10 +87,19 @@ export class ClassificationService {
   //  CRUD
   // ════════════════════════════════════════════════════════
 
-  async create(dto: CreateClassificationNodeDto, tenantId?: string): Promise<ClassificationNode> {
-    const module = (ClassificationModules as any)[dto.classificationType] || 'other';
+  async create(
+    dto: CreateClassificationNodeDto,
+    tenantId?: string,
+  ): Promise<ClassificationNode> {
+    const module =
+      (ClassificationModules as any)[dto.classificationType] || 'other';
 
-    const node = new ClassificationNode(dto.classificationType, module, dto.code, dto.names);
+    const node = new ClassificationNode(
+      dto.classificationType,
+      module,
+      dto.code,
+      dto.names,
+    );
     node.descriptions = dto.descriptions;
     node.properties = dto.properties;
     node.tags = dto.tags;
@@ -101,7 +132,10 @@ export class ClassificationService {
     return node;
   }
 
-  async update(id: string, dto: UpdateClassificationNodeDto): Promise<ClassificationNode> {
+  async update(
+    id: string,
+    dto: UpdateClassificationNodeDto,
+  ): Promise<ClassificationNode> {
     const node = await this.findOne(id);
     if (node.isSystem && dto.isActive === false) {
       throw new BadRequestException('System nodes cannot be deactivated');
@@ -109,7 +143,8 @@ export class ClassificationService {
 
     if (dto.names !== undefined) node.names = dto.names;
     if (dto.descriptions !== undefined) node.descriptions = dto.descriptions;
-    if (dto.properties !== undefined) node.properties = { ...node.properties, ...dto.properties };
+    if (dto.properties !== undefined)
+      node.properties = { ...node.properties, ...dto.properties };
     if (dto.tags !== undefined) node.tags = dto.tags;
     if (dto.icon !== undefined) node.icon = dto.icon;
     if (dto.color !== undefined) node.color = dto.color;
@@ -123,12 +158,15 @@ export class ClassificationService {
 
   async remove(id: string): Promise<void> {
     const node = await this.findOne(id);
-    if (node.isSystem) throw new BadRequestException('System nodes cannot be deleted');
+    if (node.isSystem)
+      throw new BadRequestException('System nodes cannot be deleted');
 
     // Child var mi kontrol et
     const childCount = await this.repo.count({ parent: id } as any);
     if (childCount > 0) {
-      throw new BadRequestException(`Cannot delete: ${childCount} child nodes exist. Remove children first.`);
+      throw new BadRequestException(
+        `Cannot delete: ${childCount} child nodes exist. Remove children first.`,
+      );
     }
 
     node.deletedAt = new Date();
@@ -151,7 +189,9 @@ export class ClassificationService {
 
     // Ayni tip olmali
     if (node.classificationType !== newParent.classificationType) {
-      throw new BadRequestException('Cannot move between different classification types');
+      throw new BadRequestException(
+        'Cannot move between different classification types',
+      );
     }
 
     const oldPath = node.path;
@@ -169,7 +209,8 @@ export class ClassificationService {
   /** Cascade deaktif: Bir dugumu pasif yapinca tum alt agac pasif olur */
   async deactivate(id: string): Promise<void> {
     const node = await this.findOne(id);
-    if (node.isSystem) throw new BadRequestException('System nodes cannot be deactivated');
+    if (node.isSystem)
+      throw new BadRequestException('System nodes cannot be deactivated');
 
     node.isActive = false;
     // Alt agaci da deaktif et
@@ -203,17 +244,31 @@ export class ClassificationService {
   // ════════════════════════════════════════════════════════
 
   /** nodeId, potentialDescendantId'nin alt agacinda mi? */
-  private async isDescendant(nodeId: string, potentialDescendantId: string): Promise<boolean> {
-    let current = await this.repo.findOne({ id: potentialDescendantId }, { populate: ['parent'] });
+  private async isDescendant(
+    nodeId: string,
+    potentialDescendantId: string,
+  ): Promise<boolean> {
+    let current = await this.repo.findOne(
+      { id: potentialDescendantId },
+      { populate: ['parent'] },
+    );
     while (current?.parent) {
-      if ((current.parent as any).id === nodeId || current.parent.id === nodeId) return true;
-      current = await this.repo.findOne({ id: current.parent.id }, { populate: ['parent'] });
+      if ((current.parent as any).id === nodeId || current.parent.id === nodeId)
+        return true;
+      current = await this.repo.findOne(
+        { id: current.parent.id },
+        { populate: ['parent'] },
+      );
     }
     return false;
   }
 
   /** Alt agacin path'lerini toplu guncelle */
-  private async updateChildPaths(oldPathPrefix: string, newPathPrefix: string, type: string): Promise<void> {
+  private async updateChildPaths(
+    oldPathPrefix: string,
+    newPathPrefix: string,
+    type: string,
+  ): Promise<void> {
     const descendants = await this.repo.find({
       classificationType: type,
       path: { $like: `${oldPathPrefix}.%` },

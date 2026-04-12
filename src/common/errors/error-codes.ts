@@ -56,4 +56,4 @@ export const ErrorCode = {
   USER_TENANT_OWNER_DELETE_FORBIDDEN: 'USER_TENANT_OWNER_DELETE_FORBIDDEN',
 } as const;
 
-export type ErrorCodeType = typeof ErrorCode[keyof typeof ErrorCode];
+export type ErrorCodeType = (typeof ErrorCode)[keyof typeof ErrorCode];

@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ConflictException,
+} from '@nestjs/common';
 import { EntityManager, FilterQuery } from '@mikro-orm/postgresql';
 import { Partner } from '../entities/partner.entity';
 import { PartnerAddress } from '../entities/partner-address.entity';
@@ -6,12 +10,22 @@ import { PartnerContact } from '../entities/partner-contact.entity';
 import { Counterparty } from '../entities/counterparty.entity';
 import { Interaction } from '../entities/interaction.entity';
 import { TenantContext } from '../../../common/context/tenant.context';
-import { QueryBuilderHelper, PaginatedResponse } from '../../../common/helpers/query-builder.helper';
+import {
+  QueryBuilderHelper,
+  PaginatedResponse,
+} from '../../../common/helpers/query-builder.helper';
 import { PaginatedQueryDto } from '../../../common/dto/paginated-query.dto';
 import { Tenant } from '../../tenants/entities/tenant.entity';
 import { User } from '../../users/entities/user.entity';
 import { ClassificationNode } from '../../classifications/entities/classification-node.entity';
-import { CreatePartnerDto, UpdatePartnerDto, CreateAddressDto, CreateContactDto, CreateCounterpartyDto, CreateInteractionDto } from '../dto/create-partner.dto';
+import {
+  CreatePartnerDto,
+  UpdatePartnerDto,
+  CreateAddressDto,
+  CreateContactDto,
+  CreateCounterpartyDto,
+  CreateInteractionDto,
+} from '../dto/create-partner.dto';
 
 @Injectable()
 export class PartnerService {
@@ -19,7 +33,9 @@ export class PartnerService {
 
   // ─── Partner CRUD ─────────────────────────────────────────
 
-  async findAll(query: PaginatedQueryDto & { type?: string }): Promise<PaginatedResponse<Partner>> {
+  async findAll(
+    query: PaginatedQueryDto & { type?: string },
+  ): Promise<PaginatedResponse<Partner>> {
     const where: FilterQuery<Partner> = {};
     if (query.type) {
       // JSON array içinde arama: types alanında belirli bir tip var mı?
@@ -34,10 +50,28 @@ export class PartnerService {
   }
 
   async findOne(id: string): Promise<Partner> {
-    const partner = await this.em.findOne(Partner, { id }, {
-      populate: ['addresses', 'addresses.country', 'addresses.state', 'addresses.city', 'contacts', 'counterparties', 'assignedReps', 'defaultCurrency', 'tags'] as any,
-      populateWhere: { addresses: { deletedAt: null }, contacts: { deletedAt: null }, counterparties: { deletedAt: null } } as any,
-    });
+    const partner = await this.em.findOne(
+      Partner,
+      { id },
+      {
+        populate: [
+          'addresses',
+          'addresses.country',
+          'addresses.state',
+          'addresses.city',
+          'contacts',
+          'counterparties',
+          'assignedReps',
+          'defaultCurrency',
+          'tags',
+        ] as any,
+        populateWhere: {
+          addresses: { deletedAt: null },
+          contacts: { deletedAt: null },
+          counterparties: { deletedAt: null },
+        } as any,
+      },
+    );
     if (!partner) throw new NotFoundException(`Partner bulunamadı: ${id}`);
     return partner;
   }
@@ -50,7 +84,9 @@ export class PartnerService {
     const partner = this.em.create(Partner, {
       ...dto,
       tenant,
-      defaultCurrency: dto.defaultCurrencyId ? this.em.getReference('Currency', dto.defaultCurrencyId) : undefined,
+      defaultCurrency: dto.defaultCurrencyId
+        ? this.em.getReference('Currency', dto.defaultCurrencyId)
+        : undefined,
     } as any);
 
     await this.em.persistAndFlush(partner);
@@ -61,7 +97,9 @@ export class PartnerService {
     const partner = await this.findOne(id);
     this.em.assign(partner, {
       ...dto,
-      defaultCurrency: dto.defaultCurrencyId ? this.em.getReference('Currency', dto.defaultCurrencyId) : partner.defaultCurrency,
+      defaultCurrency: dto.defaultCurrencyId
+        ? this.em.getReference('Currency', dto.defaultCurrencyId)
+        : partner.defaultCurrency,
     } as any);
     await this.em.flush();
     return partner;
@@ -76,13 +114,17 @@ export class PartnerService {
   // ─── Address ──────────────────────────────────────────────
 
   async getAddresses(partnerId: string): Promise<PartnerAddress[]> {
-    return this.em.find(PartnerAddress, { partner: partnerId, deletedAt: null } as any);
+    return this.em.find(PartnerAddress, {
+      partner: partnerId,
+      deletedAt: null,
+    } as any);
   }
 
   private resolveAddressRefs(dto: Partial<CreateAddressDto>) {
     const { partnerId, countryId, stateId, cityId, ...rest } = dto;
     const refs: any = { ...rest };
-    if (countryId) refs.country = this.em.getReference(ClassificationNode, countryId);
+    if (countryId)
+      refs.country = this.em.getReference(ClassificationNode, countryId);
     if (stateId) refs.state = this.em.getReference(ClassificationNode, stateId);
     if (cityId) refs.city = this.em.getReference(ClassificationNode, cityId);
     // null gonderilirse relation'i temizle
@@ -108,8 +150,14 @@ export class PartnerService {
     return address;
   }
 
-  async updateAddress(addressId: string, dto: Partial<CreateAddressDto>): Promise<PartnerAddress> {
-    const address = await this.em.findOneOrFail(PartnerAddress, { id: addressId, deletedAt: null } as any);
+  async updateAddress(
+    addressId: string,
+    dto: Partial<CreateAddressDto>,
+  ): Promise<PartnerAddress> {
+    const address = await this.em.findOneOrFail(PartnerAddress, {
+      id: addressId,
+      deletedAt: null,
+    } as any);
     const refs = this.resolveAddressRefs(dto);
     this.em.assign(address, refs as any);
     await this.em.flush();
@@ -117,7 +165,10 @@ export class PartnerService {
   }
 
   async removeAddress(addressId: string): Promise<void> {
-    const address = await this.em.findOneOrFail(PartnerAddress, { id: addressId, deletedAt: null } as any);
+    const address = await this.em.findOneOrFail(PartnerAddress, {
+      id: addressId,
+      deletedAt: null,
+    } as any);
     address.deletedAt = new Date();
     await this.em.flush();
   }
@@ -125,7 +176,10 @@ export class PartnerService {
   // ─── Contact ──────────────────────────────────────────────
 
   async getContacts(partnerId: string): Promise<PartnerContact[]> {
-    return this.em.find(PartnerContact, { partner: partnerId, deletedAt: null } as any);
+    return this.em.find(PartnerContact, {
+      partner: partnerId,
+      deletedAt: null,
+    } as any);
   }
 
   async createContact(dto: CreateContactDto): Promise<PartnerContact> {
@@ -143,8 +197,14 @@ export class PartnerService {
     return contact;
   }
 
-  async updateContact(contactId: string, dto: Partial<CreateContactDto>): Promise<PartnerContact> {
-    const contact = await this.em.findOneOrFail(PartnerContact, { id: contactId, deletedAt: null } as any);
+  async updateContact(
+    contactId: string,
+    dto: Partial<CreateContactDto>,
+  ): Promise<PartnerContact> {
+    const contact = await this.em.findOneOrFail(PartnerContact, {
+      id: contactId,
+      deletedAt: null,
+    } as any);
     const { partnerId, ...updateData } = dto;
     this.em.assign(contact, updateData as any);
     await this.em.flush();
@@ -152,7 +212,10 @@ export class PartnerService {
   }
 
   async removeContact(contactId: string): Promise<void> {
-    const contact = await this.em.findOneOrFail(PartnerContact, { id: contactId, deletedAt: null } as any);
+    const contact = await this.em.findOneOrFail(PartnerContact, {
+      id: contactId,
+      deletedAt: null,
+    } as any);
     contact.deletedAt = new Date();
     await this.em.flush();
   }
@@ -160,7 +223,10 @@ export class PartnerService {
   // ─── Counterparty (Cari Hesap) ────────────────────────────
 
   async getCounterparties(partnerId: string): Promise<Counterparty[]> {
-    return this.em.find(Counterparty, { partner: partnerId, deletedAt: null } as any);
+    return this.em.find(Counterparty, {
+      partner: partnerId,
+      deletedAt: null,
+    } as any);
   }
 
   async createCounterparty(dto: CreateCounterpartyDto): Promise<Counterparty> {
@@ -178,8 +244,14 @@ export class PartnerService {
     return counterparty;
   }
 
-  async updateCounterparty(counterpartyId: string, dto: Partial<CreateCounterpartyDto>): Promise<Counterparty> {
-    const cp = await this.em.findOneOrFail(Counterparty, { id: counterpartyId, deletedAt: null } as any);
+  async updateCounterparty(
+    counterpartyId: string,
+    dto: Partial<CreateCounterpartyDto>,
+  ): Promise<Counterparty> {
+    const cp = await this.em.findOneOrFail(Counterparty, {
+      id: counterpartyId,
+      deletedAt: null,
+    } as any);
     const { partnerId, ...updateData } = dto;
     this.em.assign(cp, updateData as any);
     await this.em.flush();
@@ -187,7 +259,10 @@ export class PartnerService {
   }
 
   async removeCounterparty(counterpartyId: string): Promise<void> {
-    const cp = await this.em.findOneOrFail(Counterparty, { id: counterpartyId, deletedAt: null } as any);
+    const cp = await this.em.findOneOrFail(Counterparty, {
+      id: counterpartyId,
+      deletedAt: null,
+    } as any);
     cp.deletedAt = new Date();
     await this.em.flush();
   }
@@ -202,7 +277,10 @@ export class PartnerService {
     );
   }
 
-  async createInteraction(dto: CreateInteractionDto, userId: string): Promise<Interaction> {
+  async createInteraction(
+    dto: CreateInteractionDto,
+    userId: string,
+  ): Promise<Interaction> {
     const tenantId = TenantContext.getTenantId();
     const tenant = await this.em.findOneOrFail(Tenant, { id: tenantId });
     const partner = await this.em.findOneOrFail(Partner, { id: dto.partnerId });
@@ -213,7 +291,9 @@ export class PartnerService {
       tenant,
       partner,
       createdBy: user,
-      nextActionDate: dto.nextActionDate ? new Date(dto.nextActionDate) : undefined,
+      nextActionDate: dto.nextActionDate
+        ? new Date(dto.nextActionDate)
+        : undefined,
     } as any);
 
     await this.em.persistAndFlush(interaction);

@@ -52,7 +52,10 @@ export class GoodsReceiveController {
   }
 
   @Patch('lines/:id/discrepancy')
-  reportDiscrepancy(@Param('id') id: string, @Body() dto: ReportDiscrepancyDto) {
+  reportDiscrepancy(
+    @Param('id') id: string,
+    @Body() dto: ReportDiscrepancyDto,
+  ) {
     return this.grService.reportDiscrepancy(id, dto);
   }
 }

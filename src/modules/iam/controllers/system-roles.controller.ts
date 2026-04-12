@@ -1,4 +1,13 @@
-import { Controller, Get, Post, Put, Delete, Body, Param, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Put,
+  Delete,
+  Body,
+  Param,
+  UseGuards,
+} from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { IsString, IsNotEmpty, IsArray } from 'class-validator';
 import { RolesService } from '../services/roles.service';
@@ -53,7 +62,10 @@ export class SystemRolesController {
 
   @Put(':id')
   @ApiOperation({ summary: 'Update a system role template' })
-  async update(@Param('id') id: string, @Body() dto: UpdateSystemRoleDto): Promise<Role> {
+  async update(
+    @Param('id') id: string,
+    @Body() dto: UpdateSystemRoleDto,
+  ): Promise<Role> {
     return this.rolesService.updateSystemRole(id, dto);
   }
 

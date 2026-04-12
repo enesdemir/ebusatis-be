@@ -39,7 +39,7 @@ async function bootstrap() {
   // ── Security: CORS (restrict origins) ──
   const allowedOrigins = (process.env.CORS_ORIGINS || 'http://localhost:3000')
     .split(',')
-    .map(origin => origin.trim());
+    .map((origin) => origin.trim());
 
   app.enableCors({
     origin: allowedOrigins,
@@ -53,11 +53,13 @@ async function bootstrap() {
   app.setGlobalPrefix('api');
 
   // ── Validation ──
-  app.useGlobalPipes(new ValidationPipe({
-    transform: true,
-    whitelist: true,
-    forbidNonWhitelisted: true,
-  }));
+  app.useGlobalPipes(
+    new ValidationPipe({
+      transform: true,
+      whitelist: true,
+      forbidNonWhitelisted: true,
+    }),
+  );
 
   // ── Response envelope & error handling ──
   app.useGlobalInterceptors(new TransformInterceptor());

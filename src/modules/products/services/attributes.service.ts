@@ -16,13 +16,15 @@ export class AttributesService {
   async create(dto: CreateAttributeDto): Promise<Attribute> {
     const tenantId = TenantContext.getTenantId();
     if (!tenantId) {
-      throw new Error('Tenant context is missing. Cannot create attribute without a tenant.');
+      throw new Error(
+        'Tenant context is missing. Cannot create attribute without a tenant.',
+      );
     }
 
     // Tenant assignemnt handles multitenancy security seamlessly (ALS pattern)
     const attribute = this.attributeRepository.create({
       ...dto,
-      tenant: tenantId, 
+      tenant: tenantId,
     });
 
     await this.attributeRepository.getEntityManager().flush();
@@ -37,9 +39,14 @@ export class AttributesService {
 
   async findOne(id: string): Promise<Attribute> {
     const tenantId = TenantContext.getTenantId();
-    const attribute = await this.attributeRepository.findOne({ id, tenant: { id: tenantId } });
+    const attribute = await this.attributeRepository.findOne({
+      id,
+      tenant: { id: tenantId },
+    });
     if (!attribute) {
-      throw new NotFoundException(`Attribute with ID ${id} not found in current tenant`);
+      throw new NotFoundException(
+        `Attribute with ID ${id} not found in current tenant`,
+      );
     }
     return attribute;
   }

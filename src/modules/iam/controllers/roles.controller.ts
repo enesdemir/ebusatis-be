@@ -1,5 +1,14 @@
-
-import { Controller, Get, Post, Put, Delete, Body, Param, UseGuards, Request } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Put,
+  Delete,
+  Body,
+  Param,
+  UseGuards,
+  Request,
+} from '@nestjs/common';
 import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { RolesService } from '../services/roles.service';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
@@ -18,24 +27,27 @@ export class RolesController {
     // User context says "Standard NestJS".
     // I will assume req.user is populated by a global guard or similar.
     // If not, I might need to add AuthGuard.
-    const tenantId = req.user?.tenantId; 
-    if(!tenantId) throw new Error("Tenant context missing");
+    const tenantId = req.user?.tenantId;
+    if (!tenantId) throw new Error('Tenant context missing');
 
     return this.rolesService.findAll(tenantId);
   }
 
   @Get(':id')
   async findOne(@Request() req, @Param('id') id: string) {
-    const tenantId = req.user?.tenantId; 
-    if(!tenantId) throw new Error("Tenant context missing");
+    const tenantId = req.user?.tenantId;
+    if (!tenantId) throw new Error('Tenant context missing');
 
     return this.rolesService.findOne(id, tenantId);
   }
 
   @Post()
-  async create(@Request() req, @Body() createRoleDto: { name: string; permissions: string[] }) {
+  async create(
+    @Request() req,
+    @Body() createRoleDto: { name: string; permissions: string[] },
+  ) {
     const tenantId = req.user?.tenantId;
-    if(!tenantId) throw new Error("Tenant context missing");
+    if (!tenantId) throw new Error('Tenant context missing');
 
     return this.rolesService.create(tenantId, createRoleDto);
   }
@@ -47,7 +59,7 @@ export class RolesController {
     @Body() updateRoleDto: { name: string; permissions: string[] },
   ) {
     const tenantId = req.user?.tenantId;
-    if(!tenantId) throw new Error("Tenant context missing");
+    if (!tenantId) throw new Error('Tenant context missing');
 
     return this.rolesService.update(id, tenantId, updateRoleDto);
   }
@@ -55,7 +67,7 @@ export class RolesController {
   @Delete(':id')
   async remove(@Request() req, @Param('id') id: string) {
     const tenantId = req.user?.tenantId;
-    if(!tenantId) throw new Error("Tenant context missing");
+    if (!tenantId) throw new Error('Tenant context missing');
 
     return this.rolesService.remove(id, tenantId);
   }

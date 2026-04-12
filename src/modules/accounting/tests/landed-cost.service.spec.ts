@@ -6,7 +6,10 @@ import { LandedCostCalculation } from '../entities/landed-cost-calculation.entit
 import { PurchaseOrder } from '../../orders/entities/purchase-order.entity';
 import { PurchaseOrderLine } from '../../orders/entities/purchase-order-line.entity';
 import { Shipment } from '../../logistics/entities/shipment.entity';
-import { ShipmentLeg, ShipmentLegType } from '../../logistics/entities/shipment-leg.entity';
+import {
+  ShipmentLeg,
+  ShipmentLegType,
+} from '../../logistics/entities/shipment-leg.entity';
 import { CustomsDeclaration } from '../../logistics/entities/customs-declaration.entity';
 import { Currency } from '../../definitions/entities/currency.entity';
 import {
@@ -71,12 +74,21 @@ describe('LandedCostService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         LandedCostService,
-        { provide: getRepositoryToken(LandedCostCalculation), useValue: calcRepo },
+        {
+          provide: getRepositoryToken(LandedCostCalculation),
+          useValue: calcRepo,
+        },
         { provide: getRepositoryToken(PurchaseOrder), useValue: poRepo },
-        { provide: getRepositoryToken(PurchaseOrderLine), useValue: poLineRepo },
+        {
+          provide: getRepositoryToken(PurchaseOrderLine),
+          useValue: poLineRepo,
+        },
         { provide: getRepositoryToken(Shipment), useValue: shipmentRepo },
         { provide: getRepositoryToken(ShipmentLeg), useValue: legRepo },
-        { provide: getRepositoryToken(CustomsDeclaration), useValue: customsRepo },
+        {
+          provide: getRepositoryToken(CustomsDeclaration),
+          useValue: customsRepo,
+        },
         { provide: getRepositoryToken(Currency), useValue: currencyRepo },
         { provide: EntityManager, useValue: em },
       ],
@@ -88,10 +100,7 @@ describe('LandedCostService', () => {
   // ── findAll ──
   describe('findAll', () => {
     it('should apply filters and return paginated result', async () => {
-      calcRepo.findAndCount.mockResolvedValue([
-        [{ id: 'lc-1' }],
-        1,
-      ]);
+      calcRepo.findAndCount.mockResolvedValue([[{ id: 'lc-1' }], 1]);
       const result = await service.findAll({
         page: 1,
         limit: 20,
@@ -131,12 +140,16 @@ describe('LandedCostService', () => {
 
     it('should throw TenantContextMissingException without tenant context', async () => {
       (TenantContext.getTenantId as jest.Mock).mockReturnValue(undefined);
-      await expect(service.calculate(dto)).rejects.toThrow(TenantContextMissingException);
+      await expect(service.calculate(dto)).rejects.toThrow(
+        TenantContextMissingException,
+      );
     });
 
     it('should throw EntityNotFoundException when purchase order is missing', async () => {
       poRepo.findOne.mockResolvedValue(null);
-      await expect(service.calculate(dto)).rejects.toThrow(EntityNotFoundException);
+      await expect(service.calculate(dto)).rejects.toThrow(
+        EntityNotFoundException,
+      );
     });
 
     it('should throw ShipmentNotFoundException when shipmentId does not resolve', async () => {
@@ -146,11 +159,20 @@ describe('LandedCostService', () => {
         currency: usdCurrency,
       });
       poLineRepo.find.mockResolvedValue([
-        { id: 'pol-1', quantity: 1, unitPrice: 1000, variant: { id: 'v' }, order: { id: 'po-1' } },
+        {
+          id: 'pol-1',
+          quantity: 1,
+          unitPrice: 1000,
+          variant: { id: 'v' },
+          order: { id: 'po-1' },
+        },
       ]);
       shipmentRepo.findOne.mockResolvedValue(null);
       await expect(
-        service.calculate({ purchaseOrderId: 'po-1', shipmentId: 'missing' } as any),
+        service.calculate({
+          purchaseOrderId: 'po-1',
+          shipmentId: 'missing',
+        } as any),
       ).rejects.toThrow(ShipmentNotFoundException);
     });
 
@@ -217,11 +239,26 @@ describe('LandedCostService', () => {
       ]);
       legRepo.find.mockResolvedValue([
         // International freight (sea) — 8000 USD
-        { legType: ShipmentLegType.SEA, freightCost: 8000, storageCost: 0, otherCosts: 0 },
+        {
+          legType: ShipmentLegType.SEA,
+          freightCost: 8000,
+          storageCost: 0,
+          otherCosts: 0,
+        },
         // Inland leg (port → warehouse) — 1500 USD inland
-        { legType: ShipmentLegType.PORT_TO_WAREHOUSE, freightCost: 1500, storageCost: 0, otherCosts: 0 },
+        {
+          legType: ShipmentLegType.PORT_TO_WAREHOUSE,
+          freightCost: 1500,
+          storageCost: 0,
+          otherCosts: 0,
+        },
         // Storage at intermediate warehouse — 200 USD
-        { legType: ShipmentLegType.TRANSIT_STORAGE, freightCost: 0, storageCost: 200, otherCosts: 0 },
+        {
+          legType: ShipmentLegType.TRANSIT_STORAGE,
+          freightCost: 0,
+          storageCost: 200,
+          otherCosts: 0,
+        },
       ]);
       customsRepo.find.mockResolvedValue([
         {
@@ -234,7 +271,10 @@ describe('LandedCostService', () => {
       const created = { id: 'lc-1' };
       calcRepo.create.mockReturnValue(created);
 
-      await service.calculate({ purchaseOrderId: 'po-1', shipmentId: 'sh-1' } as any);
+      await service.calculate({
+        purchaseOrderId: 'po-1',
+        shipmentId: 'sh-1',
+      } as any);
 
       const call = calcRepo.create.mock.calls[0][0] as any;
       expect(call.productCost).toBe(50000);
@@ -279,13 +319,21 @@ describe('LandedCostService', () => {
         },
       ]);
       legRepo.find.mockResolvedValue([
-        { legType: ShipmentLegType.SEA, freightCost: 1000, storageCost: 0, otherCosts: 0 },
+        {
+          legType: ShipmentLegType.SEA,
+          freightCost: 1000,
+          storageCost: 0,
+          otherCosts: 0,
+        },
       ]);
       customsRepo.find.mockResolvedValue([]);
       const created = { id: 'lc-1' };
       calcRepo.create.mockReturnValue(created);
 
-      await service.calculate({ purchaseOrderId: 'po-1', shipmentId: 'sh-1' } as any);
+      await service.calculate({
+        purchaseOrderId: 'po-1',
+        shipmentId: 'sh-1',
+      } as any);
 
       const call = calcRepo.create.mock.calls[0][0] as any;
       // Total landed = 10000 + 1000 = 11000
@@ -314,7 +362,10 @@ describe('LandedCostService', () => {
       poLineRepo.find.mockResolvedValue([line]);
       calcRepo.create.mockReturnValue({ id: 'lc-1' });
 
-      await service.calculate({ purchaseOrderId: 'po-1', applyToLines: true } as any);
+      await service.calculate({
+        purchaseOrderId: 'po-1',
+        applyToLines: true,
+      } as any);
 
       expect(line.landedUnitCost).toBe(100);
       // Two flushes expected: persistAndFlush(calc) + flush() inside applyToLines.
@@ -340,7 +391,10 @@ describe('LandedCostService', () => {
       poLineRepo.find.mockResolvedValue([line]);
       calcRepo.create.mockReturnValue({ id: 'lc-1' });
 
-      await service.calculate({ purchaseOrderId: 'po-1', applyToLines: false } as any);
+      await service.calculate({
+        purchaseOrderId: 'po-1',
+        applyToLines: false,
+      } as any);
 
       expect(line.landedUnitCost).toBeUndefined();
     });
@@ -366,7 +420,9 @@ describe('LandedCostService', () => {
 
       await service.calculate({ purchaseOrderId: 'po-1' } as any);
 
-      expect(currencyRepo.findOneOrFail).toHaveBeenCalledWith({ isDefault: true });
+      expect(currencyRepo.findOneOrFail).toHaveBeenCalledWith({
+        isDefault: true,
+      });
     });
   });
 });

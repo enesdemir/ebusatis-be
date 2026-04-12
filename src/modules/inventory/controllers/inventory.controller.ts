@@ -1,4 +1,13 @@
-import { Controller, UseGuards, Get, Post, Body, Param, Query, Req } from '@nestjs/common';
+import {
+  Controller,
+  UseGuards,
+  Get,
+  Post,
+  Body,
+  Param,
+  Query,
+  Req,
+} from '@nestjs/common';
 import { InventoryService } from '../services/inventory.service';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { TenantGuard } from '../../../common/guards/tenant.guard';
@@ -25,18 +34,49 @@ export class InventoryController {
   }
 
   @Post('cut')
-  async cutRoll(@Body() body: { rollId: string; amount: number; referenceId?: string; note?: string }, @Req() req: any) {
-    return this.inventoryService.cutRoll(body.rollId, body.amount, body.referenceId, body.note, req.user?.sub);
+  async cutRoll(
+    @Body()
+    body: {
+      rollId: string;
+      amount: number;
+      referenceId?: string;
+      note?: string;
+    },
+    @Req() req: any,
+  ) {
+    return this.inventoryService.cutRoll(
+      body.rollId,
+      body.amount,
+      body.referenceId,
+      body.note,
+      req.user?.sub,
+    );
   }
 
   @Post('waste')
-  async markWaste(@Body() body: { rollId: string; amount: number; note?: string }, @Req() req: any) {
-    return this.inventoryService.markWaste(body.rollId, body.amount, body.note, req.user?.sub);
+  async markWaste(
+    @Body() body: { rollId: string; amount: number; note?: string },
+    @Req() req: any,
+  ) {
+    return this.inventoryService.markWaste(
+      body.rollId,
+      body.amount,
+      body.note,
+      req.user?.sub,
+    );
   }
 
   @Post('adjust')
-  async adjustStock(@Body() body: { rollId: string; newQuantity: number; note?: string }, @Req() req: any) {
-    return this.inventoryService.adjustStock(body.rollId, body.newQuantity, body.note, req.user?.sub);
+  async adjustStock(
+    @Body() body: { rollId: string; newQuantity: number; note?: string },
+    @Req() req: any,
+  ) {
+    return this.inventoryService.adjustStock(
+      body.rollId,
+      body.newQuantity,
+      body.note,
+      req.user?.sub,
+    );
   }
 
   @Get('movements/:rollId')

@@ -9,9 +9,7 @@ import { AdminDashboardService } from '../services/admin-dashboard.service';
 @UseGuards(JwtAuthGuard, SuperAdminGuard)
 @Controller('admin/dashboard')
 export class AdminDashboardController {
-  constructor(
-    private readonly dashboardService: AdminDashboardService,
-  ) {}
+  constructor(private readonly dashboardService: AdminDashboardService) {}
 
   @Get('stats')
   @ApiOperation({ summary: 'Platform-wide KPI statistics' })

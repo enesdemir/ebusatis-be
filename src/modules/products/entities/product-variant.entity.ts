@@ -1,4 +1,12 @@
-import { Entity, Property, ManyToOne, Collection, OneToMany, Enum, Index } from '@mikro-orm/core';
+import {
+  Entity,
+  Property,
+  ManyToOne,
+  Collection,
+  OneToMany,
+  Enum,
+  Index,
+} from '@mikro-orm/core';
 import { BaseTenantEntity } from '../../../common/entities/base-tenant.entity';
 import { Product } from './product.entity';
 import { ProductVariantAttributeValue } from './product-variant-attribute-value.entity';
@@ -86,7 +94,10 @@ export class ProductVariant extends BaseTenantEntity {
 
   // ─── EAV ──────────────────────────────────────────────────
 
-  @OneToMany(() => ProductVariantAttributeValue, attrValue => attrValue.variant)
+  @OneToMany(
+    () => ProductVariantAttributeValue,
+    (attrValue) => attrValue.variant,
+  )
   attributeValues = new Collection<ProductVariantAttributeValue>(this);
 
   constructor(name: string, sku: string, product: Product) {

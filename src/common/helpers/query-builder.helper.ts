@@ -1,4 +1,9 @@
-import { EntityManager, FilterQuery, FindOptions, QueryOrder } from '@mikro-orm/postgresql';
+import {
+  EntityManager,
+  FilterQuery,
+  FindOptions,
+  QueryOrder,
+} from '@mikro-orm/postgresql';
 import { PaginatedQueryDto } from '../dto/paginated-query.dto';
 
 /**
@@ -67,7 +72,8 @@ export class QueryBuilderHelper {
 
     // Sıralama
     const sortBy = query.sortBy || options?.defaultSortBy || 'createdAt';
-    const sortOrder = query.sortOrder === 'ASC' ? QueryOrder.ASC : QueryOrder.DESC;
+    const sortOrder =
+      query.sortOrder === 'ASC' ? QueryOrder.ASC : QueryOrder.DESC;
 
     // FindOptions
     const findOptions: FindOptions<T> = {
@@ -84,7 +90,11 @@ export class QueryBuilderHelper {
       findOptions.filters = options.filters;
     }
 
-    const [data, total] = await em.findAndCount(entityClass, where, findOptions);
+    const [data, total] = await em.findAndCount(
+      entityClass,
+      where,
+      findOptions,
+    );
 
     return {
       data,

@@ -1,4 +1,12 @@
-import { IsString, IsEnum, IsOptional, IsNumber, IsBoolean, Min, Max } from 'class-validator';
+import {
+  IsString,
+  IsEnum,
+  IsOptional,
+  IsNumber,
+  IsBoolean,
+  Min,
+  Max,
+} from 'class-validator';
 import { CurrencyPosition } from '../entities/currency.entity';
 
 export class CreateCurrencyDto {

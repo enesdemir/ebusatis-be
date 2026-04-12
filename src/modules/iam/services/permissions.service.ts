@@ -1,4 +1,8 @@
-import { Injectable, ConflictException, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  ConflictException,
+  NotFoundException,
+} from '@nestjs/common';
 import { EntityRepository } from '@mikro-orm/core';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { Permission } from '../entities/permission.entity';
@@ -30,7 +34,9 @@ export class PermissionsService {
    */
   async findAll(scope?: string): Promise<Permission[]> {
     const where = scope ? { assignableScope: scope } : {};
-    return this.permissionRepository.find(where, { orderBy: { category: 'ASC', slug: 'ASC' } });
+    return this.permissionRepository.find(where, {
+      orderBy: { category: 'ASC', slug: 'ASC' },
+    });
   }
 
   /**
@@ -41,7 +47,7 @@ export class PermissionsService {
       fields: ['category'],
       orderBy: { category: 'ASC' },
     });
-    const categories = [...new Set(permissions.map(p => p.category))];
+    const categories = [...new Set(permissions.map((p) => p.category))];
     return categories;
   }
 
@@ -49,9 +55,13 @@ export class PermissionsService {
    * Creates a new permission definition.
    */
   async create(input: CreatePermissionInput): Promise<Permission> {
-    const existing = await this.permissionRepository.findOne({ slug: input.slug });
+    const existing = await this.permissionRepository.findOne({
+      slug: input.slug,
+    });
     if (existing) {
-      throw new ConflictException(`Permission with slug '${input.slug}' already exists.`);
+      throw new ConflictException(
+        `Permission with slug '${input.slug}' already exists.`,
+      );
     }
     const permission = new Permission(
       input.slug,
@@ -93,6 +103,8 @@ export class PermissionsService {
     if (!permission) {
       throw new NotFoundException(`Permission with ID '${id}' not found.`);
     }
-    await this.permissionRepository.getEntityManager().removeAndFlush(permission);
+    await this.permissionRepository
+      .getEntityManager()
+      .removeAndFlush(permission);
   }
 }

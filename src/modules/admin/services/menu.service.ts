@@ -28,19 +28,25 @@ export class MenuService {
    * Returns the full menu tree filtered by scope.
    * The tree is built in-memory from a flat list for performance.
    */
-  async getTree(scope: 'PLATFORM' | 'TENANT' | 'ALL', userPermissions?: string[]): Promise<MenuNodeDto[]> {
+  async getTree(
+    scope: 'PLATFORM' | 'TENANT' | 'ALL',
+    userPermissions?: string[],
+  ): Promise<MenuNodeDto[]> {
     const allNodes = await this.menuRepo.findAll({
       orderBy: { sortOrder: 'ASC' },
       populate: ['parent'],
     });
 
-    const filtered = allNodes.filter(node => {
+    const filtered = allNodes.filter((node) => {
       if (!node.isActive) return false;
       if (scope !== 'ALL') {
         if (node.scope !== MenuScope.BOTH && node.scope !== scope) return false;
       }
       if (node.requiredPermission && userPermissions) {
-        return userPermissions.includes(node.requiredPermission) || userPermissions.includes('*');
+        return (
+          userPermissions.includes(node.requiredPermission) ||
+          userPermissions.includes('*')
+        );
       }
       return true;
     });
@@ -107,7 +113,11 @@ export class MenuService {
     hasDivider?: boolean;
     parentId?: string;
   }): Promise<MenuNode> {
-    const node = new MenuNode(data.code, data.label, data.scope ?? MenuScope.TENANT);
+    const node = new MenuNode(
+      data.code,
+      data.label,
+      data.scope ?? MenuScope.TENANT,
+    );
     node.icon = data.icon;
     node.path = data.path;
     node.sortOrder = data.sortOrder ?? 0;
@@ -125,17 +135,20 @@ export class MenuService {
   /**
    * Updates an existing menu node.
    */
-  async update(id: string, data: Partial<{
-    label: string;
-    icon: string;
-    path: string;
-    sortOrder: number;
-    scope: MenuScope;
-    requiredPermission: string;
-    hasDivider: boolean;
-    isActive: boolean;
-    parentId: string;
-  }>): Promise<MenuNode> {
+  async update(
+    id: string,
+    data: Partial<{
+      label: string;
+      icon: string;
+      path: string;
+      sortOrder: number;
+      scope: MenuScope;
+      requiredPermission: string;
+      hasDivider: boolean;
+      isActive: boolean;
+      parentId: string;
+    }>,
+  ): Promise<MenuNode> {
     const node = await this.menuRepo.findOne({ id });
     if (!node) throw new NotFoundException('Menu node not found');
     if (data.label !== undefined) node.label = data.label;
@@ -143,7 +156,8 @@ export class MenuService {
     if (data.path !== undefined) node.path = data.path;
     if (data.sortOrder !== undefined) node.sortOrder = data.sortOrder;
     if (data.scope !== undefined) node.scope = data.scope;
-    if (data.requiredPermission !== undefined) node.requiredPermission = data.requiredPermission;
+    if (data.requiredPermission !== undefined)
+      node.requiredPermission = data.requiredPermission;
     if (data.hasDivider !== undefined) node.hasDivider = data.hasDivider;
     if (data.isActive !== undefined) node.isActive = data.isActive;
     if (data.parentId !== undefined) {

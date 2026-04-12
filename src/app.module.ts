@@ -33,10 +33,12 @@ import { NotificationsModule } from './modules/notifications/notifications.modul
     MikroOrmModule.forRoot(config),
     // RequestContext artık main.ts'de Express seviyesinde oluşturuluyor (Guards dahil her yerde çalışsın diye)
     // Rate Limiting: 60 requests per 60 seconds (per IP)
-    ThrottlerModule.forRoot([{
-      ttl: parseInt(process.env.THROTTLE_TTL || '60000', 10),
-      limit: parseInt(process.env.THROTTLE_LIMIT || '60', 10),
-    }]),
+    ThrottlerModule.forRoot([
+      {
+        ttl: parseInt(process.env.THROTTLE_TTL || '60000', 10),
+        limit: parseInt(process.env.THROTTLE_LIMIT || '60', 10),
+      },
+    ]),
     AuthModule,
     IamModule,
     UsersModule,

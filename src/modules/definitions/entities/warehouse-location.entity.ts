@@ -1,4 +1,12 @@
-import { Entity, Property, Enum, ManyToOne, OneToMany, Collection, Unique } from '@mikro-orm/core';
+import {
+  Entity,
+  Property,
+  Enum,
+  ManyToOne,
+  OneToMany,
+  Collection,
+  Unique,
+} from '@mikro-orm/core';
 import { BaseTenantEntity } from '../../../common/entities/base-tenant.entity';
 import { Warehouse } from './warehouse.entity';
 
@@ -34,7 +42,7 @@ export class WarehouseLocation extends BaseTenantEntity {
   @ManyToOne(() => WarehouseLocation, { nullable: true })
   parent?: WarehouseLocation;
 
-  @OneToMany(() => WarehouseLocation, loc => loc.parent)
+  @OneToMany(() => WarehouseLocation, (loc) => loc.parent)
   children = new Collection<WarehouseLocation>(this);
 
   @Property({ type: 'json', nullable: true })

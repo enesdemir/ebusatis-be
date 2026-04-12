@@ -34,7 +34,8 @@ export class SalesReportService {
       .join('partners as p', 'p.id', 'o.partner_id')
       .whereNull('o.deleted_at')
       .select(
-        'p.id as partnerId', 'p.name as partnerName',
+        'p.id as partnerId',
+        'p.name as partnerName',
         knex.raw('count(o.id)::int as "orderCount"'),
         knex.raw('sum(o.grand_total)::numeric(14,2) as "totalRevenue"'),
       )
@@ -42,7 +43,8 @@ export class SalesReportService {
       .orderByRaw('sum(o.grand_total) DESC')
       .limit(10);
 
-    if (from) customerQb = customerQb.where('o.order_date', '>=', new Date(from));
+    if (from)
+      customerQb = customerQb.where('o.order_date', '>=', new Date(from));
     if (to) customerQb = customerQb.where('o.order_date', '<=', new Date(to));
 
     const topCustomers = await customerQb;
@@ -53,7 +55,11 @@ export class SalesReportService {
   /**
    * En Çok Satan Varyantlar
    */
-  async topProducts(from?: string, to?: string, limit: number = 10): Promise<any[]> {
+  async topProducts(
+    from?: string,
+    to?: string,
+    limit: number = 10,
+  ): Promise<any[]> {
     const knex = this.em.getKnex();
     let qb = knex('sales_order_lines as l')
       .join('sales_orders as o', 'o.id', 'l.order_id')
@@ -62,7 +68,9 @@ export class SalesReportService {
       .whereNull('o.deleted_at')
       .whereNull('l.deleted_at')
       .select(
-        'v.id as variantId', 'v.name as variantName', 'v.sku',
+        'v.id as variantId',
+        'v.name as variantName',
+        'v.sku',
         'p.name as productName',
         knex.raw('sum(l.requested_quantity)::numeric(14,2) as "totalQuantity"'),
         knex.raw('sum(l.line_total)::numeric(14,2) as "totalRevenue"'),
@@ -90,11 +98,17 @@ export class SalesReportService {
       .whereNull('o.deleted_at')
       .whereNull('l.deleted_at')
       .select(
-        'v.id as variantId', 'v.name as variantName', 'v.sku',
+        'v.id as variantId',
+        'v.name as variantName',
+        'v.sku',
         'p.name as productName',
         knex.raw('sum(l.line_total)::numeric(14,2) as "revenue"'),
-        knex.raw('sum(l.requested_quantity * coalesce(v.cost_price, 0))::numeric(14,2) as "cost"'),
-        knex.raw('(sum(l.line_total) - sum(l.requested_quantity * coalesce(v.cost_price, 0)))::numeric(14,2) as "profit"'),
+        knex.raw(
+          'sum(l.requested_quantity * coalesce(v.cost_price, 0))::numeric(14,2) as "cost"',
+        ),
+        knex.raw(
+          '(sum(l.line_total) - sum(l.requested_quantity * coalesce(v.cost_price, 0)))::numeric(14,2) as "profit"',
+        ),
         knex.raw(`
           case when sum(l.line_total) > 0
           then ((sum(l.line_total) - sum(l.requested_quantity * coalesce(v.cost_price, 0))) / sum(l.line_total) * 100)::numeric(5,2)

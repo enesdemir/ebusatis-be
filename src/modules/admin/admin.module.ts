@@ -20,7 +20,13 @@ import { MenuNode } from './entities/menu-node.entity';
 
 @Module({
   imports: [
-    MikroOrmModule.forFeature([AuditLog, PlatformConfig, Tenant, User, MenuNode]),
+    MikroOrmModule.forFeature([
+      AuditLog,
+      PlatformConfig,
+      Tenant,
+      User,
+      MenuNode,
+    ]),
   ],
   controllers: [
     AdminDashboardController,
@@ -41,4 +47,3 @@ import { MenuNode } from './entities/menu-node.entity';
   exports: [AuditService],
 })
 export class AdminModule {}
-

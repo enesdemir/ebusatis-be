@@ -1,4 +1,10 @@
-import { Entity, Property, ManyToOne, ManyToMany, Collection } from '@mikro-orm/core';
+import {
+  Entity,
+  Property,
+  ManyToOne,
+  ManyToMany,
+  Collection,
+} from '@mikro-orm/core';
 import { BaseEntity } from '../../../common/entities/base.entity';
 import { Tenant } from '../../tenants/entities/tenant.entity';
 import { User } from '../../users/entities/user.entity';
@@ -18,7 +24,7 @@ export class Role extends BaseEntity {
   @ManyToMany(() => Permission, 'roles', { owner: true })
   permissions = new Collection<Permission>(this);
 
-  @ManyToMany(() => User, user => user.roles)
+  @ManyToMany(() => User, (user) => user.roles)
   users = new Collection<User>(this);
 
   constructor(name: string) {

@@ -40,7 +40,13 @@ describe('ProductionService', () => {
   let milestoneRepo: ReturnType<typeof buildRepoMock>;
   let qcRepo: ReturnType<typeof buildRepoMock>;
   let mediaRepo: ReturnType<typeof buildRepoMock>;
-  let em: { findOneOrFail: jest.Mock; persist: jest.Mock; persistAndFlush: jest.Mock; flush: jest.Mock; assign: jest.Mock };
+  let em: {
+    findOneOrFail: jest.Mock;
+    persist: jest.Mock;
+    persistAndFlush: jest.Mock;
+    flush: jest.Mock;
+    assign: jest.Mock;
+  };
 
   beforeEach(async () => {
     jest.clearAllMocks();
@@ -55,14 +61,22 @@ describe('ProductionService', () => {
       persist: jest.fn(),
       persistAndFlush: jest.fn().mockResolvedValue(undefined),
       flush: jest.fn().mockResolvedValue(undefined),
-      assign: jest.fn((target: any, source: any) => Object.assign(target, source)),
+      assign: jest.fn((target: any, source: any) =>
+        Object.assign(target, source),
+      ),
     };
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         ProductionService,
-        { provide: getRepositoryToken(SupplierProductionOrder), useValue: orderRepo },
-        { provide: getRepositoryToken(ProductionMilestone), useValue: milestoneRepo },
+        {
+          provide: getRepositoryToken(SupplierProductionOrder),
+          useValue: orderRepo,
+        },
+        {
+          provide: getRepositoryToken(ProductionMilestone),
+          useValue: milestoneRepo,
+        },
         { provide: getRepositoryToken(QualityCheck), useValue: qcRepo },
         { provide: getRepositoryToken(ProductionMedia), useValue: mediaRepo },
         { provide: EntityManager, useValue: em },
@@ -131,7 +145,9 @@ describe('ProductionService', () => {
 
     it('should throw TenantContextMissingException without tenant context', async () => {
       (TenantContext.getTenantId as jest.Mock).mockReturnValue(undefined);
-      await expect(service.createOrder(dto)).rejects.toThrow(TenantContextMissingException);
+      await expect(service.createOrder(dto)).rejects.toThrow(
+        TenantContextMissingException,
+      );
     });
 
     it('should create order and seed default milestones from template', async () => {
@@ -171,7 +187,10 @@ describe('ProductionService', () => {
       };
       orderRepo.findOne.mockResolvedValue(order);
 
-      await service.updateOrderStatus('spo-1', SupplierProductionStatus.IN_DYEHOUSE);
+      await service.updateOrderStatus(
+        'spo-1',
+        SupplierProductionStatus.IN_DYEHOUSE,
+      );
 
       expect(order.status).toBe(SupplierProductionStatus.IN_DYEHOUSE);
       expect(order.actualStartDate).toBeInstanceOf(Date);
@@ -185,7 +204,10 @@ describe('ProductionService', () => {
       };
       orderRepo.findOne.mockResolvedValue(order);
 
-      await service.updateOrderStatus('spo-1', SupplierProductionStatus.READY_TO_SHIP);
+      await service.updateOrderStatus(
+        'spo-1',
+        SupplierProductionStatus.READY_TO_SHIP,
+      );
 
       expect(order.actualCompletionDate).toBeInstanceOf(Date);
     });
@@ -199,7 +221,10 @@ describe('ProductionService', () => {
       };
       orderRepo.findOne.mockResolvedValue(order);
 
-      await service.updateOrderStatus('spo-1', SupplierProductionStatus.IN_DYEHOUSE);
+      await service.updateOrderStatus(
+        'spo-1',
+        SupplierProductionStatus.IN_DYEHOUSE,
+      );
       expect(order.actualStartDate).toBe(existing);
     });
   });
@@ -208,16 +233,18 @@ describe('ProductionService', () => {
   describe('updateMilestone', () => {
     it('should throw ProductionMilestoneNotFoundException when missing', async () => {
       milestoneRepo.findOne.mockResolvedValue(null);
-      await expect(service.updateMilestone('missing', {} as any)).rejects.toThrow(
-        ProductionMilestoneNotFoundException,
-      );
+      await expect(
+        service.updateMilestone('missing', {} as any),
+      ).rejects.toThrow(ProductionMilestoneNotFoundException);
     });
 
     it('should set startedAt when transitioning to IN_PROGRESS', async () => {
       const ms: any = { id: 'ms-1', startedAt: undefined };
       milestoneRepo.findOne.mockResolvedValue(ms);
 
-      await service.updateMilestone('ms-1', { status: MilestoneStatus.IN_PROGRESS } as any);
+      await service.updateMilestone('ms-1', {
+        status: MilestoneStatus.IN_PROGRESS,
+      } as any);
 
       expect(ms.startedAt).toBeInstanceOf(Date);
       expect(ms.status).toBe(MilestoneStatus.IN_PROGRESS);
@@ -227,7 +254,9 @@ describe('ProductionService', () => {
       const ms: any = { id: 'ms-1', completedAt: undefined };
       milestoneRepo.findOne.mockResolvedValue(ms);
 
-      await service.updateMilestone('ms-1', { status: MilestoneStatus.COMPLETED } as any);
+      await service.updateMilestone('ms-1', {
+        status: MilestoneStatus.COMPLETED,
+      } as any);
 
       expect(ms.completedAt).toBeInstanceOf(Date);
     });
@@ -274,7 +303,9 @@ describe('ProductionService', () => {
 
     it('should throw without tenant context', async () => {
       (TenantContext.getTenantId as jest.Mock).mockReturnValue(undefined);
-      await expect(service.createQC(dto)).rejects.toThrow(TenantContextMissingException);
+      await expect(service.createQC(dto)).rejects.toThrow(
+        TenantContextMissingException,
+      );
     });
 
     it('should default qcType to SUPPLIER_PRE_SHIPMENT', async () => {

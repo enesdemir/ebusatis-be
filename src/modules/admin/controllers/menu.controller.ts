@@ -1,4 +1,15 @@
-import { Controller, Get, Post, Put, Delete, Param, Body, Query, UseGuards, Request } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Put,
+  Delete,
+  Param,
+  Body,
+  Query,
+  UseGuards,
+  Request,
+} from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { MenuService } from '../services/menu.service';
@@ -47,17 +58,20 @@ export class MenuController {
    */
   @Post()
   @ApiOperation({ summary: 'Create a new menu node' })
-  async create(@Body() body: {
-    code: string;
-    label: string;
-    icon?: string;
-    path?: string;
-    sortOrder?: number;
-    scope?: MenuScope;
-    requiredPermission?: string;
-    hasDivider?: boolean;
-    parentId?: string;
-  }) {
+  async create(
+    @Body()
+    body: {
+      code: string;
+      label: string;
+      icon?: string;
+      path?: string;
+      sortOrder?: number;
+      scope?: MenuScope;
+      requiredPermission?: string;
+      hasDivider?: boolean;
+      parentId?: string;
+    },
+  ) {
     return this.menuService.create(body);
   }
 
@@ -68,7 +82,8 @@ export class MenuController {
   @ApiOperation({ summary: 'Update a menu node' })
   async update(
     @Param('id') id: string,
-    @Body() body: Partial<{
+    @Body()
+    body: Partial<{
       label: string;
       icon: string;
       path: string;

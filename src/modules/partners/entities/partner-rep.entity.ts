@@ -4,10 +4,10 @@ import { Partner } from './partner.entity';
 import { User } from '../../users/entities/user.entity';
 
 export enum RepRole {
-  METRAJ_REP = 'METRAJ_REP',       // Metraj temsilcisi
-  KESIM_REP = 'KESIM_REP',         // Kesim temsilcisi
+  METRAJ_REP = 'METRAJ_REP', // Metraj temsilcisi
+  KESIM_REP = 'KESIM_REP', // Kesim temsilcisi
   HAZIR_URUN_REP = 'HAZIR_URUN_REP', // Hazır ürün temsilcisi
-  GENERAL = 'GENERAL',             // Genel temsilci
+  GENERAL = 'GENERAL', // Genel temsilci
 }
 
 /**

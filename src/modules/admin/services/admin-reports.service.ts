@@ -1,7 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { EntityRepository, EntityManager } from '@mikro-orm/postgresql';
-import { Tenant, SubscriptionStatus, TenantType } from '../../tenants/entities/tenant.entity';
+import {
+  Tenant,
+  SubscriptionStatus,
+  TenantType,
+} from '../../tenants/entities/tenant.entity';
 import { User } from '../../users/entities/user.entity';
 import { AuditLog, AuditAction } from '../entities/audit-log.entity';
 
@@ -21,15 +25,24 @@ export class AdminReportsService {
    * Tenant statistics: breakdown by status, type, growth trend.
    */
   async getTenantStats() {
-    const allTenants = await this.tenantRepository.findAll({ populate: ['users'] });
+    const allTenants = await this.tenantRepository.findAll({
+      populate: ['users'],
+    });
     const byStatus = {
-      active: allTenants.filter(t => t.subscriptionStatus === SubscriptionStatus.ACTIVE).length,
-      trial: allTenants.filter(t => t.subscriptionStatus === SubscriptionStatus.TRIAL).length,
-      suspended: allTenants.filter(t => t.subscriptionStatus === SubscriptionStatus.SUSPENDED).length,
+      active: allTenants.filter(
+        (t) => t.subscriptionStatus === SubscriptionStatus.ACTIVE,
+      ).length,
+      trial: allTenants.filter(
+        (t) => t.subscriptionStatus === SubscriptionStatus.TRIAL,
+      ).length,
+      suspended: allTenants.filter(
+        (t) => t.subscriptionStatus === SubscriptionStatus.SUSPENDED,
+      ).length,
     };
     const byType = {
-      saas: allTenants.filter(t => t.type === TenantType.SAAS).length,
-      onPrem: allTenants.filter(t => t.type === TenantType.ON_PREM_LICENSE).length,
+      saas: allTenants.filter((t) => t.type === TenantType.SAAS).length,
+      onPrem: allTenants.filter((t) => t.type === TenantType.ON_PREM_LICENSE)
+        .length,
     };
     // Monthly growth for last 6 months
     const monthlyGrowth: { month: string; count: number }[] = [];
@@ -37,7 +50,14 @@ export class AdminReportsService {
       const date = new Date();
       date.setMonth(date.getMonth() - i);
       const startOfMonth = new Date(date.getFullYear(), date.getMonth(), 1);
-      const endOfMonth = new Date(date.getFullYear(), date.getMonth() + 1, 0, 23, 59, 59);
+      const endOfMonth = new Date(
+        date.getFullYear(),
+        date.getMonth() + 1,
+        0,
+        23,
+        59,
+        59,
+      );
       const count = await this.tenantRepository.count({
         createdAt: { $gte: startOfMonth, $lte: endOfMonth },
       } as any);
@@ -48,7 +68,7 @@ export class AdminReportsService {
     }
     // Top tenants by user count
     const topTenants = allTenants
-      .map(t => ({
+      .map((t) => ({
         id: t.id,
         name: t.name,
         domain: t.domain,
@@ -98,7 +118,9 @@ export class AdminReportsService {
         heapTotal: formatBytes(memoryUsage.heapTotal),
         heapUsed: formatBytes(memoryUsage.heapUsed),
         external: formatBytes(memoryUsage.external),
-        heapUsedPercent: Math.round((memoryUsage.heapUsed / memoryUsage.heapTotal) * 100),
+        heapUsedPercent: Math.round(
+          (memoryUsage.heapUsed / memoryUsage.heapTotal) * 100,
+        ),
       },
       database: {
         totalTenants,
@@ -122,8 +144,19 @@ export class AdminReportsService {
     for (let i = days - 1; i >= 0; i--) {
       const date = new Date();
       date.setDate(date.getDate() - i);
-      const dayStart = new Date(date.getFullYear(), date.getMonth(), date.getDate());
-      const dayEnd = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 23, 59, 59);
+      const dayStart = new Date(
+        date.getFullYear(),
+        date.getMonth(),
+        date.getDate(),
+      );
+      const dayEnd = new Date(
+        date.getFullYear(),
+        date.getMonth(),
+        date.getDate(),
+        23,
+        59,
+        59,
+      );
       const count = await this.auditLogRepository.count({
         action: AuditAction.LOGIN,
         createdAt: { $gte: dayStart, $lte: dayEnd },
@@ -143,9 +176,13 @@ export class AdminReportsService {
       actionBreakdown[log.action] = (actionBreakdown[log.action] || 0) + 1;
     }
     // Active unique users in the period
-    const uniqueActors = new Set(allLogs.map(l => l.actorId));
+    const uniqueActors = new Set(allLogs.map((l) => l.actorId));
     return {
-      period: { days, from: startDate.toISOString(), to: new Date().toISOString() },
+      period: {
+        days,
+        from: startDate.toISOString(),
+        to: new Date().toISOString(),
+      },
       dailyLogins,
       actionBreakdown,
       uniqueActiveUsers: uniqueActors.size,

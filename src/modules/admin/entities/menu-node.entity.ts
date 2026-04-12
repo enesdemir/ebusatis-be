@@ -1,4 +1,11 @@
-import { Entity, Property, ManyToOne, OneToMany, Collection, Enum } from '@mikro-orm/core';
+import {
+  Entity,
+  Property,
+  ManyToOne,
+  OneToMany,
+  Collection,
+  Enum,
+} from '@mikro-orm/core';
 import { BaseEntity } from '../../../common/entities/base.entity';
 
 /** Which audience the menu node is visible to */
@@ -51,10 +58,14 @@ export class MenuNode extends BaseEntity {
   parent?: MenuNode;
 
   /** Children nodes */
-  @OneToMany(() => MenuNode, node => node.parent)
+  @OneToMany(() => MenuNode, (node) => node.parent)
   children = new Collection<MenuNode>(this);
 
-  constructor(code: string, label: string, scope: MenuScope = MenuScope.TENANT) {
+  constructor(
+    code: string,
+    label: string,
+    scope: MenuScope = MenuScope.TENANT,
+  ) {
     super();
     this.code = code;
     this.label = label;

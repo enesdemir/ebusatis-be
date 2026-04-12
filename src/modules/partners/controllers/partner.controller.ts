@@ -1,6 +1,26 @@
-import { Controller, UseGuards, Get, Post, Patch, Delete, Body, Param, Query, HttpCode, HttpStatus, Req } from '@nestjs/common';
+import {
+  Controller,
+  UseGuards,
+  Get,
+  Post,
+  Patch,
+  Delete,
+  Body,
+  Param,
+  Query,
+  HttpCode,
+  HttpStatus,
+  Req,
+} from '@nestjs/common';
 import { PartnerService } from '../services/partner.service';
-import { CreatePartnerDto, UpdatePartnerDto, CreateAddressDto, CreateContactDto, CreateCounterpartyDto, CreateInteractionDto } from '../dto/create-partner.dto';
+import {
+  CreatePartnerDto,
+  UpdatePartnerDto,
+  CreateAddressDto,
+  CreateContactDto,
+  CreateCounterpartyDto,
+  CreateInteractionDto,
+} from '../dto/create-partner.dto';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { TenantGuard } from '../../../common/guards/tenant.guard';
 import { PaginatedQueryDto } from '../../../common/dto/paginated-query.dto';
@@ -46,12 +66,18 @@ export class PartnerController {
   }
 
   @Post(':id/addresses')
-  async createAddress(@Param('id') partnerId: string, @Body() dto: Omit<CreateAddressDto, 'partnerId'>) {
+  async createAddress(
+    @Param('id') partnerId: string,
+    @Body() dto: Omit<CreateAddressDto, 'partnerId'>,
+  ) {
     return this.partnerService.createAddress({ ...dto, partnerId });
   }
 
   @Patch(':id/addresses/:addressId')
-  async updateAddress(@Param('addressId') addressId: string, @Body() dto: Partial<CreateAddressDto>) {
+  async updateAddress(
+    @Param('addressId') addressId: string,
+    @Body() dto: Partial<CreateAddressDto>,
+  ) {
     return this.partnerService.updateAddress(addressId, dto);
   }
 
@@ -69,12 +95,18 @@ export class PartnerController {
   }
 
   @Post(':id/contacts')
-  async createContact(@Param('id') partnerId: string, @Body() dto: Omit<CreateContactDto, 'partnerId'>) {
+  async createContact(
+    @Param('id') partnerId: string,
+    @Body() dto: Omit<CreateContactDto, 'partnerId'>,
+  ) {
     return this.partnerService.createContact({ ...dto, partnerId });
   }
 
   @Patch(':id/contacts/:contactId')
-  async updateContact(@Param('contactId') contactId: string, @Body() dto: Partial<CreateContactDto>) {
+  async updateContact(
+    @Param('contactId') contactId: string,
+    @Body() dto: Partial<CreateContactDto>,
+  ) {
     return this.partnerService.updateContact(contactId, dto);
   }
 
@@ -92,12 +124,18 @@ export class PartnerController {
   }
 
   @Post(':id/counterparties')
-  async createCounterparty(@Param('id') partnerId: string, @Body() dto: Omit<CreateCounterpartyDto, 'partnerId'>) {
+  async createCounterparty(
+    @Param('id') partnerId: string,
+    @Body() dto: Omit<CreateCounterpartyDto, 'partnerId'>,
+  ) {
     return this.partnerService.createCounterparty({ ...dto, partnerId });
   }
 
   @Patch(':id/counterparties/:cpId')
-  async updateCounterparty(@Param('cpId') cpId: string, @Body() dto: Partial<CreateCounterpartyDto>) {
+  async updateCounterparty(
+    @Param('cpId') cpId: string,
+    @Body() dto: Partial<CreateCounterpartyDto>,
+  ) {
     return this.partnerService.updateCounterparty(cpId, dto);
   }
 

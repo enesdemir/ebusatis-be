@@ -25,14 +25,18 @@ export class ProductAttributeValue extends BaseEntity {
     this.product = product;
     this.attribute = attribute;
   }
-  
+
   // EAV modelinde veriyi doğrudan çekebilmek için helper
   getValue(): string | number | boolean | undefined {
     switch (this.attribute?.type) {
-      case AttributeType.STRING: return this.valueString;
-      case AttributeType.NUMBER: return this.valueNumber;
-      case AttributeType.BOOLEAN: return this.valueBoolean;
-      default: return undefined;
+      case AttributeType.STRING:
+        return this.valueString;
+      case AttributeType.NUMBER:
+        return this.valueNumber;
+      case AttributeType.BOOLEAN:
+        return this.valueBoolean;
+      default:
+        return undefined;
     }
   }
 }

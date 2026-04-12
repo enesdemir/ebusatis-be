@@ -1,6 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { EntityManager } from '@mikro-orm/postgresql';
-import { InventoryItem, InventoryItemStatus } from '../../inventory/entities/inventory-item.entity';
+import {
+  InventoryItem,
+  InventoryItemStatus,
+} from '../../inventory/entities/inventory-item.entity';
 import { InventoryTransaction } from '../../inventory/entities/inventory-transaction.entity';
 
 /**
@@ -22,7 +25,10 @@ export class InventoryReportService {
       .join('product_variants as v', 'v.id', 'i.variant_id')
       .join('products as p', 'p.id', 'v.product_id')
       .whereNull('i.deleted_at')
-      .whereIn('i.status', [InventoryItemStatus.IN_STOCK, InventoryItemStatus.RESERVED])
+      .whereIn('i.status', [
+        InventoryItemStatus.IN_STOCK,
+        InventoryItemStatus.RESERVED,
+      ])
       .select(
         'v.id as variantId',
         'v.name as variantName',
@@ -32,7 +38,9 @@ export class InventoryReportService {
         knex.raw('count(i.id)::int as "rollCount"'),
         knex.raw('sum(i.current_quantity)::numeric(14,2) as "totalQuantity"'),
         knex.raw('sum(i.reserved_quantity)::numeric(14,2) as "totalReserved"'),
-        knex.raw('(sum(i.current_quantity) - sum(i.reserved_quantity))::numeric(14,2) as "availableQuantity"'),
+        knex.raw(
+          '(sum(i.current_quantity) - sum(i.reserved_quantity))::numeric(14,2) as "availableQuantity"',
+        ),
       )
       .groupBy('v.id', 'v.name', 'v.sku', 'p.name', 'p.code')
       .orderBy('p.name');
@@ -47,7 +55,11 @@ export class InventoryReportService {
   /**
    * Stok Hareket Raporu: Belirli tarih aralığındaki giriş/çıkış/fire
    */
-  async movementReport(from?: string, to?: string, variantId?: string): Promise<any[]> {
+  async movementReport(
+    from?: string,
+    to?: string,
+    variantId?: string,
+  ): Promise<any[]> {
     const knex = this.em.getKnex();
     let qb = knex('inventory_transactions as t')
       .join('inventory_items as i', 'i.id', 't.item_id')
@@ -56,7 +68,9 @@ export class InventoryReportService {
       .select(
         't.type',
         knex.raw('count(t.id)::int as "transactionCount"'),
-        knex.raw('sum(abs(t.quantity_change))::numeric(14,2) as "totalQuantity"'),
+        knex.raw(
+          'sum(abs(t.quantity_change))::numeric(14,2) as "totalQuantity"',
+        ),
       )
       .groupBy('t.type')
       .orderBy('t.type');
@@ -80,12 +94,20 @@ export class InventoryReportService {
       .join('product_variants as v', 'v.id', 'i.variant_id')
       .join('products as p', 'p.id', 'v.product_id')
       .whereNull('i.deleted_at')
-      .whereIn('i.status', [InventoryItemStatus.IN_STOCK, InventoryItemStatus.RESERVED])
+      .whereIn('i.status', [
+        InventoryItemStatus.IN_STOCK,
+        InventoryItemStatus.RESERVED,
+      ])
       .where('i.received_at', '<=', cutoffDate)
       .select(
-        'i.id', 'i.barcode', 'i.batch_code as batchCode',
-        'i.current_quantity as currentQuantity', 'i.received_at as receivedAt',
-        'v.name as variantName', 'v.sku', 'p.name as productName',
+        'i.id',
+        'i.barcode',
+        'i.batch_code as batchCode',
+        'i.current_quantity as currentQuantity',
+        'i.received_at as receivedAt',
+        'v.name as variantName',
+        'v.sku',
+        'p.name as productName',
         knex.raw(`(current_date - i.received_at::date) as "daysInStock"`),
       )
       .orderByRaw('i.received_at ASC');

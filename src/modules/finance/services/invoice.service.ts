@@ -1,9 +1,20 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { EntityManager, FilterQuery } from '@mikro-orm/postgresql';
-import { Invoice, InvoiceType, InvoiceStatus } from '../entities/invoice.entity';
+import {
+  Invoice,
+  InvoiceType,
+  InvoiceStatus,
+} from '../entities/invoice.entity';
 import { InvoiceLine } from '../entities/invoice-line.entity';
 import { TenantContext } from '../../../common/context/tenant.context';
-import { QueryBuilderHelper, PaginatedResponse } from '../../../common/helpers/query-builder.helper';
+import {
+  QueryBuilderHelper,
+  PaginatedResponse,
+} from '../../../common/helpers/query-builder.helper';
 import { PaginatedQueryDto } from '../../../common/dto/paginated-query.dto';
 import { Tenant } from '../../tenants/entities/tenant.entity';
 
@@ -11,7 +22,9 @@ import { Tenant } from '../../tenants/entities/tenant.entity';
 export class InvoiceService {
   constructor(private readonly em: EntityManager) {}
 
-  async findAll(query: PaginatedQueryDto & { type?: InvoiceType; status?: InvoiceStatus }): Promise<PaginatedResponse<Invoice>> {
+  async findAll(
+    query: PaginatedQueryDto & { type?: InvoiceType; status?: InvoiceStatus },
+  ): Promise<PaginatedResponse<Invoice>> {
     const where: FilterQuery<Invoice> = {};
     if (query.type) where.type = query.type;
     if (query.status) where.status = query.status;
@@ -24,9 +37,22 @@ export class InvoiceService {
   }
 
   async findOne(id: string): Promise<Invoice> {
-    const inv = await this.em.findOne(Invoice, { id }, {
-      populate: ['partner', 'counterparty', 'currency', 'paymentMethod', 'createdBy', 'lines', 'lines.variant', 'lines.taxRate'] as any,
-    });
+    const inv = await this.em.findOne(
+      Invoice,
+      { id },
+      {
+        populate: [
+          'partner',
+          'counterparty',
+          'currency',
+          'paymentMethod',
+          'createdBy',
+          'lines',
+          'lines.variant',
+          'lines.taxRate',
+        ] as any,
+      },
+    );
     if (!inv) throw new NotFoundException(`Fatura bulunamadı: ${id}`);
     return inv;
   }
@@ -37,7 +63,10 @@ export class InvoiceService {
     const tenant = await this.em.findOneOrFail(Tenant, { id: tenantId });
 
     const prefix = data.type === InvoiceType.PURCHASE ? 'PINV' : 'INV';
-    const count = await this.em.count(Invoice, { tenant: tenantId, type: data.type } as any);
+    const count = await this.em.count(Invoice, {
+      tenant: tenantId,
+      type: data.type,
+    } as any);
     const invoiceNumber = `${prefix}-${new Date().getFullYear()}-${String(count + 1).padStart(4, '0')}`;
 
     const invoice = this.em.create(Invoice, {
@@ -45,12 +74,18 @@ export class InvoiceService {
       invoiceNumber,
       type: data.type,
       partner: this.em.getReference('Partner', data.partnerId),
-      counterparty: data.counterpartyId ? this.em.getReference('Counterparty', data.counterpartyId) : undefined,
-      currency: data.currencyId ? this.em.getReference('Currency', data.currencyId) : undefined,
+      counterparty: data.counterpartyId
+        ? this.em.getReference('Counterparty', data.counterpartyId)
+        : undefined,
+      currency: data.currencyId
+        ? this.em.getReference('Currency', data.currencyId)
+        : undefined,
       exchangeRate: data.exchangeRate,
       issueDate: data.issueDate ? new Date(data.issueDate) : new Date(),
       dueDate: data.dueDate ? new Date(data.dueDate) : undefined,
-      paymentMethod: data.paymentMethodId ? this.em.getReference('PaymentMethod', data.paymentMethodId) : undefined,
+      paymentMethod: data.paymentMethodId
+        ? this.em.getReference('PaymentMethod', data.paymentMethodId)
+        : undefined,
       note: data.note,
       sourceOrderId: data.sourceOrderId,
       createdBy: this.em.getReference('User', userId),
@@ -58,18 +93,27 @@ export class InvoiceService {
     this.em.persist(invoice);
 
     let subtotal = 0;
-    let taxTotal = 0;
+    const taxTotal = 0;
     if (data.lines?.length) {
       for (const ld of data.lines) {
-        const lineTotal = ld.quantity * ld.unitPrice * (1 - (ld.discount || 0) / 100);
+        const lineTotal =
+          ld.quantity * ld.unitPrice * (1 - (ld.discount || 0) / 100);
         subtotal += lineTotal;
         const line = this.em.create(InvoiceLine, {
-          tenant, invoice,
+          tenant,
+          invoice,
           description: ld.description || '',
-          variant: ld.variantId ? this.em.getReference('ProductVariant', ld.variantId) : undefined,
-          quantity: ld.quantity, unitPrice: ld.unitPrice, discount: ld.discount || 0,
-          taxRate: ld.taxRateId ? this.em.getReference('TaxRate', ld.taxRateId) : undefined,
-          lineTotal, sourceOrderLineId: ld.sourceOrderLineId,
+          variant: ld.variantId
+            ? this.em.getReference('ProductVariant', ld.variantId)
+            : undefined,
+          quantity: ld.quantity,
+          unitPrice: ld.unitPrice,
+          discount: ld.discount || 0,
+          taxRate: ld.taxRateId
+            ? this.em.getReference('TaxRate', ld.taxRateId)
+            : undefined,
+          lineTotal,
+          sourceOrderLineId: ld.sourceOrderLineId,
         } as any);
         this.em.persist(line);
       }

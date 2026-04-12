@@ -71,7 +71,9 @@ describe('SalesOrderService', () => {
         data: [createMockOrder()],
         meta: { total: 1, page: 1, limit: 20, totalPages: 1 },
       };
-      (QueryBuilderHelper.paginate as jest.Mock).mockResolvedValue(paginatedResult);
+      (QueryBuilderHelper.paginate as jest.Mock).mockResolvedValue(
+        paginatedResult,
+      );
 
       const result = await service.findAll({ page: 1, limit: 20 });
 
@@ -88,8 +90,13 @@ describe('SalesOrderService', () => {
     });
 
     it('should filter by partnerId when provided', async () => {
-      const paginatedResult = { data: [], meta: { total: 0, page: 1, limit: 20, totalPages: 0 } };
-      (QueryBuilderHelper.paginate as jest.Mock).mockResolvedValue(paginatedResult);
+      const paginatedResult = {
+        data: [],
+        meta: { total: 0, page: 1, limit: 20, totalPages: 0 },
+      };
+      (QueryBuilderHelper.paginate as jest.Mock).mockResolvedValue(
+        paginatedResult,
+      );
 
       await service.findAll({ page: 1, limit: 20, partnerId: 'partner-1' });
 
@@ -128,7 +135,9 @@ describe('SalesOrderService', () => {
     it('should throw NotFoundException when order does not exist', async () => {
       mockEm.findOne.mockResolvedValue(null);
 
-      await expect(service.findOne('nonexistent')).rejects.toThrow(NotFoundException);
+      await expect(service.findOne('nonexistent')).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 
@@ -141,9 +150,13 @@ describe('SalesOrderService', () => {
       (TenantContext.getTenantId as jest.Mock).mockReturnValue('tenant-1');
       mockEm.findOneOrFail.mockResolvedValue(mockTenant);
       mockEm.count.mockResolvedValue(5); // 5 existing orders
-      mockEm.getReference.mockImplementation((entity: string, id: string) => ({ id }));
+      mockEm.getReference.mockImplementation((entity: string, id: string) => ({
+        id,
+      }));
 
-      const createdOrder = createMockOrder({ orderNumber: `SO-${new Date().getFullYear()}-0006` });
+      const createdOrder = createMockOrder({
+        orderNumber: `SO-${new Date().getFullYear()}-0006`,
+      });
       mockEm.create.mockReturnValue(createdOrder);
       mockEm.persist.mockImplementation(() => {});
       mockEm.flush.mockResolvedValue(undefined);
@@ -165,14 +178,18 @@ describe('SalesOrderService', () => {
     it('should throw BadRequestException when tenant context is missing', async () => {
       (TenantContext.getTenantId as jest.Mock).mockReturnValue(undefined);
 
-      await expect(service.create({ partnerId: 'p1' }, 'user-1')).rejects.toThrow(BadRequestException);
+      await expect(
+        service.create({ partnerId: 'p1' }, 'user-1'),
+      ).rejects.toThrow(BadRequestException);
     });
 
     it('should generate correct order number format (SO-YYYY-NNNN)', async () => {
       (TenantContext.getTenantId as jest.Mock).mockReturnValue('tenant-1');
       mockEm.findOneOrFail.mockResolvedValue(mockTenant);
       mockEm.count.mockResolvedValue(0); // first order
-      mockEm.getReference.mockImplementation((entity: string, id: string) => ({ id }));
+      mockEm.getReference.mockImplementation((entity: string, id: string) => ({
+        id,
+      }));
 
       const year = new Date().getFullYear();
       const createdOrder = createMockOrder({ orderNumber: `SO-${year}-0001` });
@@ -180,7 +197,10 @@ describe('SalesOrderService', () => {
       mockEm.persist.mockImplementation(() => {});
       mockEm.flush.mockResolvedValue(undefined);
 
-      const result = await service.create({ partnerId: 'p1', lines: [] }, 'user-1');
+      const result = await service.create(
+        { partnerId: 'p1', lines: [] },
+        'user-1',
+      );
 
       // Verify order number was generated with correct format
       expect(mockEm.create).toHaveBeenCalledWith(
@@ -195,22 +215,27 @@ describe('SalesOrderService', () => {
       (TenantContext.getTenantId as jest.Mock).mockReturnValue('tenant-1');
       mockEm.findOneOrFail.mockResolvedValue(mockTenant);
       mockEm.count.mockResolvedValue(0);
-      mockEm.getReference.mockImplementation((entity: string, id: string) => ({ id }));
+      mockEm.getReference.mockImplementation((entity: string, id: string) => ({
+        id,
+      }));
 
       const orderObj: any = createMockOrder();
       const lineObj = { id: 'line-1', lineNumber: 1, lineTotal: 900 };
 
       // First create call returns order, second returns line
-      mockEm.create
-        .mockReturnValueOnce(orderObj)
-        .mockReturnValueOnce(lineObj);
+      mockEm.create.mockReturnValueOnce(orderObj).mockReturnValueOnce(lineObj);
       mockEm.persist.mockImplementation(() => {});
       mockEm.flush.mockResolvedValue(undefined);
 
       const data = {
         partnerId: 'p1',
         lines: [
-          { variantId: 'v1', requestedQuantity: 10, unitPrice: 100, discount: 10 },
+          {
+            variantId: 'v1',
+            requestedQuantity: 10,
+            unitPrice: 100,
+            discount: 10,
+          },
         ],
       };
 
@@ -231,7 +256,9 @@ describe('SalesOrderService', () => {
     it('should update order fields and flush', async () => {
       const order = createMockOrder();
       mockEm.findOne.mockResolvedValue(order);
-      mockEm.assign.mockImplementation((entity, data) => Object.assign(entity, data));
+      mockEm.assign.mockImplementation((entity, data) =>
+        Object.assign(entity, data),
+      );
       mockEm.flush.mockResolvedValue(undefined);
 
       const result = await service.update('order-1', { note: 'Updated note' });
@@ -260,7 +287,9 @@ describe('SalesOrderService', () => {
     it('should throw NotFoundException when removing non-existent order', async () => {
       mockEm.findOne.mockResolvedValue(null);
 
-      await expect(service.remove('nonexistent')).rejects.toThrow(NotFoundException);
+      await expect(service.remove('nonexistent')).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 
@@ -274,8 +303,16 @@ describe('SalesOrderService', () => {
       mockEm.findOneOrFail
         .mockResolvedValueOnce(mockTenant) // tenant
         .mockResolvedValueOnce({ id: 'line-1' }) // orderLine
-        .mockResolvedValueOnce({ id: 'roll-1', currentQuantity: 100, reservedQuantity: 0 }); // roll
-      const allocation = { id: 'alloc-1', allocatedQuantity: 20, status: 'RESERVED' };
+        .mockResolvedValueOnce({
+          id: 'roll-1',
+          currentQuantity: 100,
+          reservedQuantity: 0,
+        }); // roll
+      const allocation = {
+        id: 'alloc-1',
+        allocatedQuantity: 20,
+        status: 'RESERVED',
+      };
       mockEm.create.mockReturnValue(allocation);
       mockEm.persist.mockImplementation(() => {});
       mockEm.flush.mockResolvedValue(undefined);
@@ -292,9 +329,15 @@ describe('SalesOrderService', () => {
       mockEm.findOneOrFail
         .mockResolvedValueOnce(mockTenant)
         .mockResolvedValueOnce({ id: 'line-1' })
-        .mockResolvedValueOnce({ id: 'roll-1', currentQuantity: 10, reservedQuantity: 5 });
+        .mockResolvedValueOnce({
+          id: 'roll-1',
+          currentQuantity: 10,
+          reservedQuantity: 5,
+        });
 
-      await expect(service.allocateRoll('line-1', 'roll-1', 10)).rejects.toThrow(BadRequestException);
+      await expect(
+        service.allocateRoll('line-1', 'roll-1', 10),
+      ).rejects.toThrow(BadRequestException);
     });
   });
 });

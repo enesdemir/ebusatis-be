@@ -1,4 +1,11 @@
-import { IsString, IsNotEmpty, IsUUID, IsOptional, IsEnum, IsBoolean } from 'class-validator';
+import {
+  IsString,
+  IsNotEmpty,
+  IsUUID,
+  IsOptional,
+  IsEnum,
+  IsBoolean,
+} from 'class-validator';
 import { MediaType } from '../entities/production-media.entity';
 
 /**

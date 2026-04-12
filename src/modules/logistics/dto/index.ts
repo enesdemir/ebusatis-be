@@ -3,7 +3,10 @@ export { UpdateShipmentDto } from './update-shipment.dto';
 export { UpdateShipmentStatusDto } from './update-shipment-status.dto';
 export { ShipmentQueryDto } from './shipment-query.dto';
 export { AddContainerEventDto } from './add-container-event.dto';
-export { CreateCustomsDeclarationDto, CustomsDocumentDto } from './create-customs-declaration.dto';
+export {
+  CreateCustomsDeclarationDto,
+  CustomsDocumentDto,
+} from './create-customs-declaration.dto';
 export { CustomsDeclarationQueryDto } from './customs-declaration-query.dto';
 export { CreateFreightQuoteDto } from './create-freight-quote.dto';
 export { FreightQuoteQueryDto } from './freight-quote-query.dto';

@@ -1,8 +1,18 @@
-import { Controller, UseGuards, Post, Patch, Body, Param } from '@nestjs/common';
+import {
+  Controller,
+  UseGuards,
+  Post,
+  Patch,
+  Body,
+  Param,
+} from '@nestjs/common';
 import { BaseDefinitionController } from '../../../common/controllers/base-definition.controller';
 import { Currency } from '../entities/currency.entity';
 import { CurrencyService } from '../services/currency.service';
-import { CreateCurrencyDto, UpdateCurrencyDto } from '../dto/create-currency.dto';
+import {
+  CreateCurrencyDto,
+  UpdateCurrencyDto,
+} from '../dto/create-currency.dto';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { TenantGuard } from '../../../common/guards/tenant.guard';
 

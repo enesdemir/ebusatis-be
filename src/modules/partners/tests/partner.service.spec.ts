@@ -6,13 +6,13 @@ import { PartnerService } from '../services/partner.service';
 const mockEm = {
   find: jest.fn(),
   findOne: jest.fn(),
-  findAndCount: jest.fn().mockResolvedValue([[{ id: "1", name: "Test" }], 1]),
+  findAndCount: jest.fn().mockResolvedValue([[{ id: '1', name: 'Test' }], 1]),
   count: jest.fn(),
   create: jest.fn(),
   persist: jest.fn(),
   persistAndFlush: jest.fn(),
   flush: jest.fn(),
-  findOneOrFail: jest.fn().mockResolvedValue({ id: "test-tenant-id" }),
+  findOneOrFail: jest.fn().mockResolvedValue({ id: 'test-tenant-id' }),
   assign: jest.fn((target: any, source: any) => Object.assign(target, source)),
   getReference: jest.fn(),
   fork: jest.fn().mockReturnThis(),
@@ -38,10 +38,7 @@ describe('PartnerService', () => {
   beforeEach(async () => {
     jest.clearAllMocks();
     const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        PartnerService,
-        { provide: EntityManager, useValue: mockEm },
-      ],
+      providers: [PartnerService, { provide: EntityManager, useValue: mockEm }],
     }).compile();
     service = module.get(PartnerService);
   });
@@ -55,7 +52,9 @@ describe('PartnerService', () => {
         orderBy: jest.fn().mockReturnThis(),
         limit: jest.fn().mockReturnThis(),
         offset: jest.fn().mockReturnThis(),
-        getResultAndCount: jest.fn().mockResolvedValue([[{ id: '1', name: 'ABC' }], 1]),
+        getResultAndCount: jest
+          .fn()
+          .mockResolvedValue([[{ id: '1', name: 'ABC' }], 1]),
       });
       const result = await service.findAll({ page: 1, limit: 20 });
       expect(result.data).toHaveLength(1);
@@ -81,7 +80,10 @@ describe('PartnerService', () => {
       const created = { id: '1', name: 'New Partner', types: ['CUSTOMER'] };
       mockEm.create.mockReturnValue(created);
       mockEm.persistAndFlush.mockResolvedValue(undefined);
-      const result = await service.create({ name: 'New Partner', types: ['CUSTOMER'] } as any);
+      const result = await service.create({
+        name: 'New Partner',
+        types: ['CUSTOMER'],
+      } as any);
       expect(result.name).toBe('New Partner');
       expect(mockEm.persistAndFlush).toHaveBeenCalled();
     });

@@ -30,9 +30,15 @@ import { v4 } from 'uuid';
  * seed edilir — tum tenantlar tarafindan paylasilan platform verisi.
  */
 @Entity({ tableName: 'classification_nodes' })
-@Unique({ properties: ['tenant', 'classificationType', 'code'], name: 'uq_classification_tenant_type_code' })
+@Unique({
+  properties: ['tenant', 'classificationType', 'code'],
+  name: 'uq_classification_tenant_type_code',
+})
 @Index({ properties: ['classificationType'], name: 'idx_classification_type' })
-@Index({ properties: ['tenant', 'classificationType'], name: 'idx_classification_tenant_type' })
+@Index({
+  properties: ['tenant', 'classificationType'],
+  name: 'idx_classification_tenant_type',
+})
 @Index({ properties: ['path'], name: 'idx_classification_path' })
 @Index({ properties: ['module'], name: 'idx_classification_module' })
 @Filter({
@@ -116,7 +122,12 @@ export class ClassificationNode extends BaseEntity {
   sortOrder: number = 0;
 
   // ── Helper ──
-  constructor(type: string, module: string, code: string, names: Record<string, string>) {
+  constructor(
+    type: string,
+    module: string,
+    code: string,
+    names: Record<string, string>,
+  ) {
     super();
     this.classificationType = type;
     this.module = module;

@@ -98,7 +98,13 @@ export class LogisticsService {
     }
 
     const [items, total] = await this.shipmentRepo.findAndCount(where, {
-      populate: ['purchaseOrder', 'salesOrder', 'carrier', 'originWarehouse', 'destinationWarehouse'],
+      populate: [
+        'purchaseOrder',
+        'salesOrder',
+        'carrier',
+        'originWarehouse',
+        'destinationWarehouse',
+      ],
       orderBy: { createdAt: 'DESC' },
       limit,
       offset: (page - 1) * limit,
@@ -143,10 +149,14 @@ export class LogisticsService {
     if (!tenantId) throw new TenantContextMissingException();
 
     if (dto.direction === ShipmentDirection.INBOUND && !dto.purchaseOrderId) {
-      throw new ShipmentOrderReferenceRequiredException(ShipmentDirection.INBOUND);
+      throw new ShipmentOrderReferenceRequiredException(
+        ShipmentDirection.INBOUND,
+      );
     }
     if (dto.direction === ShipmentDirection.OUTBOUND && !dto.salesOrderId) {
-      throw new ShipmentOrderReferenceRequiredException(ShipmentDirection.OUTBOUND);
+      throw new ShipmentOrderReferenceRequiredException(
+        ShipmentDirection.OUTBOUND,
+      );
     }
 
     const tenant = await this.em.findOneOrFail(Tenant, { id: tenantId });
@@ -177,8 +187,12 @@ export class LogisticsService {
       driverName: dto.driverName,
       driverPhone: dto.driverPhone,
       driverIdNumber: dto.driverIdNumber,
-      estimatedDeparture: dto.estimatedDeparture ? new Date(dto.estimatedDeparture) : undefined,
-      estimatedArrival: dto.estimatedArrival ? new Date(dto.estimatedArrival) : undefined,
+      estimatedDeparture: dto.estimatedDeparture
+        ? new Date(dto.estimatedDeparture)
+        : undefined,
+      estimatedArrival: dto.estimatedArrival
+        ? new Date(dto.estimatedArrival)
+        : undefined,
       costCurrency: dto.costCurrencyId as any,
       notes: dto.notes,
     });
@@ -202,7 +216,10 @@ export class LogisticsService {
    *  - IN_TRANSIT → sets `actualDeparture` if missing.
    *  - DELIVERED  → sets `actualArrival` if missing.
    */
-  async updateShipmentStatus(id: string, status: ShipmentStatus): Promise<Shipment> {
+  async updateShipmentStatus(
+    id: string,
+    status: ShipmentStatus,
+  ): Promise<Shipment> {
     const shipment = await this.findShipmentById(id);
     shipment.status = status;
 
@@ -218,7 +235,10 @@ export class LogisticsService {
 
   // ── Container events (timeline) ──
 
-  async addContainerEvent(shipmentId: string, dto: AddContainerEventDto): Promise<ContainerEvent> {
+  async addContainerEvent(
+    shipmentId: string,
+    dto: AddContainerEventDto,
+  ): Promise<ContainerEvent> {
     const shipment = await this.findShipmentById(shipmentId);
     const event = this.eventRepo.create({
       tenant: shipment.tenant,
@@ -266,12 +286,17 @@ export class LogisticsService {
   }
 
   async findCustomsById(id: string): Promise<CustomsDeclaration> {
-    const decl = await this.customsRepo.findOne({ id }, { populate: ['shipment', 'currency'] });
+    const decl = await this.customsRepo.findOne(
+      { id },
+      { populate: ['shipment', 'currency'] },
+    );
     if (!decl) throw new CustomsDeclarationNotFoundException(id);
     return decl;
   }
 
-  async createCustoms(dto: CreateCustomsDeclarationDto): Promise<CustomsDeclaration> {
+  async createCustoms(
+    dto: CreateCustomsDeclarationDto,
+  ): Promise<CustomsDeclaration> {
     const tenantId = TenantContext.getTenantId();
     if (!tenantId) throw new TenantContextMissingException();
     const tenant = await this.em.findOneOrFail(Tenant, { id: tenantId });
@@ -334,7 +359,10 @@ export class LogisticsService {
    * in the same transaction.
    */
   async selectQuote(id: string): Promise<FreightQuote> {
-    const quote = await this.quoteRepo.findOne({ id }, { populate: ['shipment'] });
+    const quote = await this.quoteRepo.findOne(
+      { id },
+      { populate: ['shipment'] },
+    );
     if (!quote) throw new FreightQuoteNotFoundException(id);
 
     if (quote.shipment) {
@@ -369,7 +397,9 @@ export class LogisticsService {
   async findLegById(id: string): Promise<ShipmentLeg> {
     const leg = await this.legRepo.findOne(
       { id },
-      { populate: ['shipment', 'intermediateWarehouse', 'carrier', 'currency'] },
+      {
+        populate: ['shipment', 'intermediateWarehouse', 'carrier', 'currency'],
+      },
     );
     if (!leg) throw new ShipmentLegNotFoundException(id);
     return leg;
@@ -380,7 +410,10 @@ export class LogisticsService {
    * service auto-assigns the next sequence number based on the
    * existing legs of the parent shipment.
    */
-  async addLeg(shipmentId: string, dto: CreateShipmentLegDto): Promise<ShipmentLeg> {
+  async addLeg(
+    shipmentId: string,
+    dto: CreateShipmentLegDto,
+  ): Promise<ShipmentLeg> {
     const shipment = await this.findShipmentById(shipmentId);
 
     let legNumber = dto.legNumber;
@@ -397,10 +430,18 @@ export class LogisticsService {
       originLocation: dto.originLocation,
       destinationLocation: dto.destinationLocation,
       intermediateWarehouse: dto.intermediateWarehouseId as any,
-      estimatedDeparture: dto.estimatedDeparture ? new Date(dto.estimatedDeparture) : undefined,
-      estimatedArrival: dto.estimatedArrival ? new Date(dto.estimatedArrival) : undefined,
-      actualDeparture: dto.actualDeparture ? new Date(dto.actualDeparture) : undefined,
-      actualArrival: dto.actualArrival ? new Date(dto.actualArrival) : undefined,
+      estimatedDeparture: dto.estimatedDeparture
+        ? new Date(dto.estimatedDeparture)
+        : undefined,
+      estimatedArrival: dto.estimatedArrival
+        ? new Date(dto.estimatedArrival)
+        : undefined,
+      actualDeparture: dto.actualDeparture
+        ? new Date(dto.actualDeparture)
+        : undefined,
+      actualArrival: dto.actualArrival
+        ? new Date(dto.actualArrival)
+        : undefined,
       carrier: dto.carrierId as any,
       freightCost: dto.freightCost ?? 0,
       storageCost: dto.storageCost ?? 0,
@@ -426,8 +467,10 @@ export class LogisticsService {
     if (dto.actualArrival !== undefined) {
       leg.actualArrival = new Date(dto.actualArrival);
     }
-    if (dto.originLocation !== undefined) leg.originLocation = dto.originLocation;
-    if (dto.destinationLocation !== undefined) leg.destinationLocation = dto.destinationLocation;
+    if (dto.originLocation !== undefined)
+      leg.originLocation = dto.originLocation;
+    if (dto.destinationLocation !== undefined)
+      leg.destinationLocation = dto.destinationLocation;
     if (dto.intermediateWarehouseId !== undefined) {
       leg.intermediateWarehouse = dto.intermediateWarehouseId as any;
     }
@@ -476,7 +519,9 @@ export class LogisticsService {
 
     let installmentNumber = dto.installmentNumber;
     if (installmentNumber === undefined) {
-      const existingCount = await this.carrierPaymentRepo.count({ leg: leg.id });
+      const existingCount = await this.carrierPaymentRepo.count({
+        leg: leg.id,
+      });
       installmentNumber = existingCount + 1;
     }
 

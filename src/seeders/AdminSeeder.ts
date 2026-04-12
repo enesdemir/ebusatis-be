@@ -17,7 +17,11 @@ export class AdminSeeder extends Seeder {
     }
 
     // 2. Create Super Admin Role
-    let adminRole: Role | null = await em.findOne(Role, { name: 'Super Admin', tenant: null }, { populate: ['permissions'] });
+    let adminRole: Role | null = await em.findOne(
+      Role,
+      { name: 'Super Admin', tenant: null },
+      { populate: ['permissions'] },
+    );
     if (!adminRole) {
       adminRole = new Role('Super Admin');
       adminRole.isSystemRole = true;
@@ -44,7 +48,7 @@ export class AdminSeeder extends Seeder {
         // Update scope if it changed
         perm.assignableScope = p.scope;
       }
-      
+
       // Only assign PLATFORM permissions to Super Admin for now
       if (p.scope === 'PLATFORM' && !adminRole.permissions.contains(perm)) {
         adminRole.permissions.add(perm);

@@ -1,4 +1,11 @@
-import { Entity, Property, ManyToOne, OneToMany, Collection, Unique } from '@mikro-orm/core';
+import {
+  Entity,
+  Property,
+  ManyToOne,
+  OneToMany,
+  Collection,
+  Unique,
+} from '@mikro-orm/core';
 import { BaseDefinitionEntity } from '../../../common/entities/base-definition.entity';
 
 /**
@@ -19,7 +26,7 @@ export class Category extends BaseDefinitionEntity {
   @ManyToOne(() => Category, { nullable: true })
   parent?: Category;
 
-  @OneToMany(() => Category, cat => cat.parent)
+  @OneToMany(() => Category, (cat) => cat.parent)
   children = new Collection<Category>(this);
 
   @Property({ nullable: true })

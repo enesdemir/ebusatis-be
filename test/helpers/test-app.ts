@@ -21,7 +21,9 @@ export class TestApp {
     }).compile();
 
     instance.app = instance.module.createNestApplication();
-    instance.app.useGlobalPipes(new ValidationPipe({ transform: true, whitelist: true }));
+    instance.app.useGlobalPipes(
+      new ValidationPipe({ transform: true, whitelist: true }),
+    );
     await instance.app.init();
 
     instance.orm = instance.module.get(MikroORM);

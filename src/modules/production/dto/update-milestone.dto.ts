@@ -1,4 +1,10 @@
-import { IsEnum, IsOptional, IsString, IsDateString, IsUUID } from 'class-validator';
+import {
+  IsEnum,
+  IsOptional,
+  IsString,
+  IsDateString,
+  IsUUID,
+} from 'class-validator';
 import { MilestoneStatus } from '../entities/production-milestone.entity';
 
 /**

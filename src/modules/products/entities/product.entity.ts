@@ -1,4 +1,13 @@
-import { Entity, Property, Enum, ManyToOne, ManyToMany, OneToMany, Collection, Index } from '@mikro-orm/core';
+import {
+  Entity,
+  Property,
+  Enum,
+  ManyToOne,
+  ManyToMany,
+  OneToMany,
+  Collection,
+  Index,
+} from '@mikro-orm/core';
 import { BaseTenantEntity } from '../../../common/entities/base-tenant.entity';
 import { ProductVariant } from './product-variant.entity';
 import { ProductAttributeValue } from './product-attribute-value.entity';
@@ -10,8 +19,8 @@ import { TaxRate } from '../../definitions/entities/tax-rate.entity';
 import { Tag } from '../../definitions/entities/tag.entity';
 
 export enum TrackingStrategy {
-  SERIAL = 'SERIAL',   // Top/rulo bazlı takip (barkodlu, lot'lu)
-  BULK = 'BULK',       // Dökme takip (toplam miktar)
+  SERIAL = 'SERIAL', // Top/rulo bazlı takip (barkodlu, lot'lu)
+  BULK = 'BULK', // Dökme takip (toplam miktar)
 }
 
 /**
@@ -79,10 +88,10 @@ export class Product extends BaseTenantEntity {
 
   // ─── Relationships ────────────────────────────────────────
 
-  @OneToMany(() => ProductVariant, variant => variant.product)
+  @OneToMany(() => ProductVariant, (variant) => variant.product)
   variants = new Collection<ProductVariant>(this);
 
-  @OneToMany(() => ProductAttributeValue, attrValue => attrValue.product)
+  @OneToMany(() => ProductAttributeValue, (attrValue) => attrValue.product)
   attributeValues = new Collection<ProductAttributeValue>(this);
 
   // Geriye uyumluluk: eski baseUnit alanını unit relation üzerinden çöz

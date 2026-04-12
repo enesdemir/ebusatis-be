@@ -41,7 +41,13 @@ export class TaxReport extends BaseTenantEntity {
   payableTax: number = 0;
 
   @Property({ type: 'json', nullable: true })
-  lines?: Array<{ invoiceId: string; invoiceNumber: string; taxBase: number; taxAmount: number; taxRate: number }>;
+  lines?: Array<{
+    invoiceId: string;
+    invoiceNumber: string;
+    taxBase: number;
+    taxAmount: number;
+    taxRate: number;
+  }>;
 
   @Property({ nullable: true })
   note?: string;

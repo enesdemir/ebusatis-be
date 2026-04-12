@@ -1,7 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { EntityRepository } from '@mikro-orm/postgresql';
-import { Tenant, SubscriptionStatus } from '../../tenants/entities/tenant.entity';
+import {
+  Tenant,
+  SubscriptionStatus,
+} from '../../tenants/entities/tenant.entity';
 import { User } from '../../users/entities/user.entity';
 import { AuditLog } from '../entities/audit-log.entity';
 
@@ -44,13 +47,13 @@ export class AdminDashboardService {
   async getStats(): Promise<DashboardStats> {
     const allTenants = await this.tenantRepository.findAll();
     const activeTenants = allTenants.filter(
-      t => t.subscriptionStatus === SubscriptionStatus.ACTIVE,
+      (t) => t.subscriptionStatus === SubscriptionStatus.ACTIVE,
     );
     const trialTenants = allTenants.filter(
-      t => t.subscriptionStatus === SubscriptionStatus.TRIAL,
+      (t) => t.subscriptionStatus === SubscriptionStatus.TRIAL,
     );
     const suspendedTenants = allTenants.filter(
-      t => t.subscriptionStatus === SubscriptionStatus.SUSPENDED,
+      (t) => t.subscriptionStatus === SubscriptionStatus.SUSPENDED,
     );
     const totalUsers = await this.userRepository.count({ isSuperAdmin: false });
     // Active users in last 7 days
@@ -86,7 +89,7 @@ export class AdminDashboardService {
       limit,
       populate: ['users'],
     });
-    return tenants.map(tenant => ({
+    return tenants.map((tenant) => ({
       id: tenant.id,
       name: tenant.name,
       domain: tenant.domain,

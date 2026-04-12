@@ -34,7 +34,8 @@ export const ClassificationTypes = {
   CITY: 'CITY',
 } as const;
 
-export type ClassificationType = typeof ClassificationTypes[keyof typeof ClassificationTypes];
+export type ClassificationType =
+  (typeof ClassificationTypes)[keyof typeof ClassificationTypes];
 
 /**
  * Her tipin ait oldugu modul.

@@ -36,7 +36,12 @@ export class StockValuation extends BaseTenantEntity {
   currency?: string;
 
   @Property({ type: 'json', nullable: true })
-  layers?: Array<{ date: string; quantity: number; unitCost: number; totalCost: number }>;
+  layers?: Array<{
+    date: string;
+    quantity: number;
+    unitCost: number;
+    totalCost: number;
+  }>;
 
   @Property({ nullable: true })
   note?: string;

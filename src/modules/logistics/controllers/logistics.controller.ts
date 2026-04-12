@@ -70,7 +70,10 @@ export class LogisticsController {
   }
 
   @Patch('shipments/:id/status')
-  updateShipmentStatus(@Param('id') id: string, @Body() dto: UpdateShipmentStatusDto) {
+  updateShipmentStatus(
+    @Param('id') id: string,
+    @Body() dto: UpdateShipmentStatusDto,
+  ) {
     return this.service.updateShipmentStatus(id, dto.status);
   }
 
@@ -82,7 +85,10 @@ export class LogisticsController {
   }
 
   @Post('shipments/:id/events')
-  addContainerEvent(@Param('id') id: string, @Body() dto: AddContainerEventDto) {
+  addContainerEvent(
+    @Param('id') id: string,
+    @Body() dto: AddContainerEventDto,
+  ) {
     return this.service.addContainerEvent(id, dto);
   }
 
@@ -162,7 +168,10 @@ export class LogisticsController {
   }
 
   @Post('legs/:id/carrier-payments')
-  addCarrierPayment(@Param('id') id: string, @Body() dto: CreateCarrierPaymentDto) {
+  addCarrierPayment(
+    @Param('id') id: string,
+    @Body() dto: CreateCarrierPaymentDto,
+  ) {
     return this.service.addCarrierPayment(id, dto);
   }
 
@@ -172,7 +181,10 @@ export class LogisticsController {
   }
 
   @Patch('carrier-payments/:id')
-  updateCarrierPayment(@Param('id') id: string, @Body() dto: UpdateCarrierPaymentDto) {
+  updateCarrierPayment(
+    @Param('id') id: string,
+    @Body() dto: UpdateCarrierPaymentDto,
+  ) {
     return this.service.updateCarrierPayment(id, dto);
   }
 

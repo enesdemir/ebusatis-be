@@ -1,4 +1,11 @@
-import { IsString, IsOptional, IsBoolean, IsNumber, IsObject, IsArray } from 'class-validator';
+import {
+  IsString,
+  IsOptional,
+  IsBoolean,
+  IsNumber,
+  IsObject,
+  IsArray,
+} from 'class-validator';
 
 export class CreateClassificationNodeDto {
   @IsString()
@@ -10,63 +17,82 @@ export class CreateClassificationNodeDto {
   @IsObject()
   names!: Record<string, string>;
 
-  @IsOptional() @IsObject()
+  @IsOptional()
+  @IsObject()
   descriptions?: Record<string, string>;
 
-  @IsOptional() @IsString()
+  @IsOptional()
+  @IsString()
   parentId?: string;
 
-  @IsOptional() @IsObject()
+  @IsOptional()
+  @IsObject()
   properties?: Record<string, any>;
 
-  @IsOptional() @IsArray()
+  @IsOptional()
+  @IsArray()
   tags?: string[];
 
-  @IsOptional() @IsString()
+  @IsOptional()
+  @IsString()
   icon?: string;
 
-  @IsOptional() @IsString()
+  @IsOptional()
+  @IsString()
   color?: string;
 
-  @IsOptional() @IsBoolean()
+  @IsOptional()
+  @IsBoolean()
   isRoot?: boolean;
 
-  @IsOptional() @IsBoolean()
+  @IsOptional()
+  @IsBoolean()
   isSystem?: boolean;
 
-  @IsOptional() @IsBoolean()
+  @IsOptional()
+  @IsBoolean()
   selectable?: boolean;
 
-  @IsOptional() @IsNumber()
+  @IsOptional()
+  @IsNumber()
   sortOrder?: number;
 }
 
 export class UpdateClassificationNodeDto {
-  @IsOptional() @IsObject()
+  @IsOptional()
+  @IsObject()
   names?: Record<string, string>;
 
-  @IsOptional() @IsObject()
+  @IsOptional()
+  @IsObject()
   descriptions?: Record<string, string>;
 
-  @IsOptional() @IsObject()
+  @IsOptional()
+  @IsObject()
   properties?: Record<string, any>;
 
-  @IsOptional() @IsArray()
+  @IsOptional()
+  @IsArray()
   tags?: string[];
 
-  @IsOptional() @IsString()
+  @IsOptional()
+  @IsString()
   icon?: string;
 
-  @IsOptional() @IsString()
+  @IsOptional()
+  @IsString()
   color?: string;
 
-  @IsOptional() @IsBoolean()
+  @IsOptional()
+  @IsBoolean()
   isActive?: boolean;
 
-  @IsOptional() @IsBoolean()
+  @IsOptional()
+  @IsBoolean()
   selectable?: boolean;
 
-  @IsOptional() @IsNumber()
+  @IsOptional()
+  @IsNumber()
   sortOrder?: number;
 }
 

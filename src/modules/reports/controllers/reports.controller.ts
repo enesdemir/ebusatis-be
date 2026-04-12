@@ -22,7 +22,11 @@ export class ReportsController {
   }
 
   @Get('inventory/movements')
-  movementReport(@Query('from') from?: string, @Query('to') to?: string, @Query('variantId') variantId?: string) {
+  movementReport(
+    @Query('from') from?: string,
+    @Query('to') to?: string,
+    @Query('variantId') variantId?: string,
+  ) {
     return this.inventoryReport.movementReport(from, to, variantId);
   }
 
@@ -39,7 +43,11 @@ export class ReportsController {
   }
 
   @Get('sales/top-products')
-  topProducts(@Query('from') from?: string, @Query('to') to?: string, @Query('limit') limit?: string) {
+  topProducts(
+    @Query('from') from?: string,
+    @Query('to') to?: string,
+    @Query('limit') limit?: string,
+  ) {
     return this.salesReport.topProducts(from, to, limit ? parseInt(limit) : 10);
   }
 

@@ -1,9 +1,22 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { EntityManager, FilterQuery } from '@mikro-orm/postgresql';
-import { InventoryItem, InventoryItemStatus } from '../entities/inventory-item.entity';
-import { InventoryTransaction, TransactionType } from '../entities/inventory-transaction.entity';
+import {
+  InventoryItem,
+  InventoryItemStatus,
+} from '../entities/inventory-item.entity';
+import {
+  InventoryTransaction,
+  TransactionType,
+} from '../entities/inventory-transaction.entity';
 import { TenantContext } from '../../../common/context/tenant.context';
-import { QueryBuilderHelper, PaginatedResponse } from '../../../common/helpers/query-builder.helper';
+import {
+  QueryBuilderHelper,
+  PaginatedResponse,
+} from '../../../common/helpers/query-builder.helper';
 import { PaginatedQueryDto } from '../../../common/dto/paginated-query.dto';
 import { Tenant } from '../../tenants/entities/tenant.entity';
 import { User } from '../../users/entities/user.entity';
@@ -23,14 +36,24 @@ export class InventoryService {
 
   // ─── Top Listeleme ────────────────────────────────────────
 
-  async findAll(query: RollListQuery): Promise<PaginatedResponse<InventoryItem>> {
+  async findAll(
+    query: RollListQuery,
+  ): Promise<PaginatedResponse<InventoryItem>> {
     const where: FilterQuery<InventoryItem> = {};
     if (query.variantId) where.variant = query.variantId;
     if (query.warehouseId) where.warehouse = query.warehouseId;
     if (query.status) where.status = query.status;
     if (query.batchCode) where.batchCode = { $ilike: `%${query.batchCode}%` };
-    if (query.minQuantity) where.currentQuantity = { ...(where.currentQuantity as any || {}), $gte: query.minQuantity };
-    if (query.maxQuantity) where.currentQuantity = { ...(where.currentQuantity as any || {}), $lte: query.maxQuantity };
+    if (query.minQuantity)
+      where.currentQuantity = {
+        ...((where.currentQuantity as any) || {}),
+        $gte: query.minQuantity,
+      };
+    if (query.maxQuantity)
+      where.currentQuantity = {
+        ...((where.currentQuantity as any) || {}),
+        $lte: query.maxQuantity,
+      };
 
     return QueryBuilderHelper.paginate(this.em, InventoryItem, query, {
       searchFields: ['barcode', 'batchCode'],
@@ -43,27 +66,42 @@ export class InventoryService {
   // ─── Top Detay ────────────────────────────────────────────
 
   async findOne(id: string): Promise<InventoryItem> {
-    const item = await this.em.findOne(InventoryItem, { id }, {
-      populate: ['variant', 'variant.product', 'warehouse', 'location', 'receivedFrom', 'transactions', 'transactions.createdBy'] as any,
-    });
+    const item = await this.em.findOne(
+      InventoryItem,
+      { id },
+      {
+        populate: [
+          'variant',
+          'variant.product',
+          'warehouse',
+          'location',
+          'receivedFrom',
+          'transactions',
+          'transactions.createdBy',
+        ] as any,
+      },
+    );
     if (!item) throw new NotFoundException(`Top bulunamadı: ${id}`);
     return item;
   }
 
   // ─── Top Girişi (Mal Kabul'den veya direkt) ───────────────
 
-  async createRoll(data: {
-    variantId: string;
-    barcode: string;
-    quantity: number;
-    batchCode?: string;
-    warehouseId?: string;
-    locationId?: string;
-    costPrice?: number;
-    costCurrencyId?: string;
-    receivedFromId?: string;
-    goodsReceiveId?: string;
-  }, userId?: string): Promise<InventoryItem> {
+  async createRoll(
+    data: {
+      variantId: string;
+      barcode: string;
+      quantity: number;
+      batchCode?: string;
+      warehouseId?: string;
+      locationId?: string;
+      costPrice?: number;
+      costCurrencyId?: string;
+      receivedFromId?: string;
+      goodsReceiveId?: string;
+    },
+    userId?: string,
+  ): Promise<InventoryItem> {
     const tenantId = TenantContext.getTenantId();
     if (!tenantId) throw new BadRequestException('Tenant context bulunamadı');
     const tenant = await this.em.findOneOrFail(Tenant, { id: tenantId });
@@ -75,11 +113,19 @@ export class InventoryService {
       initialQuantity: data.quantity,
       currentQuantity: data.quantity,
       batchCode: data.batchCode,
-      warehouse: data.warehouseId ? this.em.getReference('Warehouse', data.warehouseId) : undefined,
-      location: data.locationId ? this.em.getReference('WarehouseLocation', data.locationId) : undefined,
+      warehouse: data.warehouseId
+        ? this.em.getReference('Warehouse', data.warehouseId)
+        : undefined,
+      location: data.locationId
+        ? this.em.getReference('WarehouseLocation', data.locationId)
+        : undefined,
       costPrice: data.costPrice,
-      costCurrency: data.costCurrencyId ? this.em.getReference('Currency', data.costCurrencyId) : undefined,
-      receivedFrom: data.receivedFromId ? this.em.getReference('Partner', data.receivedFromId) : undefined,
+      costCurrency: data.costCurrencyId
+        ? this.em.getReference('Currency', data.costCurrencyId)
+        : undefined,
+      receivedFrom: data.receivedFromId
+        ? this.em.getReference('Partner', data.receivedFromId)
+        : undefined,
       goodsReceiveId: data.goodsReceiveId,
       receivedAt: new Date(),
       status: InventoryItemStatus.IN_STOCK,
@@ -94,7 +140,9 @@ export class InventoryService {
       quantityChange: data.quantity,
       previousQuantity: 0,
       newQuantity: data.quantity,
-      note: data.goodsReceiveId ? `Mal kabul: ${data.goodsReceiveId}` : 'Direkt giriş',
+      note: data.goodsReceiveId
+        ? `Mal kabul: ${data.goodsReceiveId}`
+        : 'Direkt giriş',
       createdBy: userId ? this.em.getReference('User', userId) : undefined,
     } as any);
     this.em.persist(tx);
@@ -105,12 +153,23 @@ export class InventoryService {
 
   // ─── Kesim (Cut) ──────────────────────────────────────────
 
-  async cutRoll(rollId: string, amount: number, referenceId?: string, note?: string, userId?: string): Promise<InventoryItem> {
+  async cutRoll(
+    rollId: string,
+    amount: number,
+    referenceId?: string,
+    note?: string,
+    userId?: string,
+  ): Promise<InventoryItem> {
     const item = await this.findOne(rollId);
-    const available = Number(item.currentQuantity) - Number(item.reservedQuantity);
+    const available =
+      Number(item.currentQuantity) - Number(item.reservedQuantity);
 
-    if (amount <= 0) throw new BadRequestException('Kesim miktarı pozitif olmalıdır');
-    if (amount > available) throw new BadRequestException(`Yetersiz stok. Mevcut: ${available}, İstenen: ${amount}`);
+    if (amount <= 0)
+      throw new BadRequestException('Kesim miktarı pozitif olmalıdır');
+    if (amount > available)
+      throw new BadRequestException(
+        `Yetersiz stok. Mevcut: ${available}, İstenen: ${amount}`,
+      );
 
     const prevQty = Number(item.currentQuantity);
     item.currentQuantity = prevQty - amount;
@@ -139,11 +198,18 @@ export class InventoryService {
 
   // ─── Fire (Waste/Scrap) ───────────────────────────────────
 
-  async markWaste(rollId: string, amount: number, note?: string, userId?: string): Promise<InventoryItem> {
+  async markWaste(
+    rollId: string,
+    amount: number,
+    note?: string,
+    userId?: string,
+  ): Promise<InventoryItem> {
     const item = await this.findOne(rollId);
 
     if (amount > Number(item.currentQuantity)) {
-      throw new BadRequestException(`Fire miktarı kalan stoktan fazla olamaz. Kalan: ${item.currentQuantity}`);
+      throw new BadRequestException(
+        `Fire miktarı kalan stoktan fazla olamaz. Kalan: ${item.currentQuantity}`,
+      );
     }
 
     const prevQty = Number(item.currentQuantity);
@@ -171,7 +237,12 @@ export class InventoryService {
 
   // ─── Sayım Düzeltme (Adjustment) ─────────────────────────
 
-  async adjustStock(rollId: string, newQuantity: number, note?: string, userId?: string): Promise<InventoryItem> {
+  async adjustStock(
+    rollId: string,
+    newQuantity: number,
+    note?: string,
+    userId?: string,
+  ): Promise<InventoryItem> {
     const item = await this.findOne(rollId);
     if (newQuantity < 0) throw new BadRequestException('Miktar negatif olamaz');
 
@@ -203,11 +274,10 @@ export class InventoryService {
   // ─── Hareket Tarihçesi ────────────────────────────────────
 
   async getMovements(rollId: string): Promise<InventoryTransaction[]> {
-    return this.em.find(
-      InventoryTransaction,
-      { item: rollId } as any,
-      { orderBy: { createdAt: 'DESC' }, populate: ['createdBy'] as any },
-    );
+    return this.em.find(InventoryTransaction, { item: rollId } as any, {
+      orderBy: { createdAt: 'DESC' },
+      populate: ['createdBy'] as any,
+    });
   }
 
   // ─── Stok Özeti (Varyant bazlı) ──────────────────────────
@@ -221,7 +291,12 @@ export class InventoryService {
         'sum(i.current_quantity) as "totalQuantity"',
         'sum(i.reserved_quantity) as "totalReserved"',
       ])
-      .where({ deletedAt: null, status: { $in: [InventoryItemStatus.IN_STOCK, InventoryItemStatus.RESERVED] } })
+      .where({
+        deletedAt: null,
+        status: {
+          $in: [InventoryItemStatus.IN_STOCK, InventoryItemStatus.RESERVED],
+        },
+      })
       .groupBy('i.variant_id')
       .execute();
     return result;

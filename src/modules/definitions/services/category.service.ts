@@ -17,7 +17,10 @@ export class CategoryService extends BaseDefinitionService<Category> {
     return this.em.find(
       Category,
       { parent: null, deletedAt: null },
-      { populate: ['children', 'children.children'], orderBy: { sortOrder: 'ASC' } },
+      {
+        populate: ['children', 'children.children'],
+        orderBy: { sortOrder: 'ASC' },
+      },
     );
   }
 }

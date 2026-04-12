@@ -30,8 +30,14 @@ export enum NotificationSeverity {
  * `targetGroup` FK to support the scheduled notification pipeline.
  */
 @Entity({ tableName: 'notifications' })
-@Index({ properties: ['recipient', 'isRead'], name: 'idx_notification_recipient_read' })
-@Index({ properties: ['tenant', 'createdAt'], name: 'idx_notification_tenant_date' })
+@Index({
+  properties: ['recipient', 'isRead'],
+  name: 'idx_notification_recipient_read',
+})
+@Index({
+  properties: ['tenant', 'createdAt'],
+  name: 'idx_notification_tenant_date',
+})
 export class Notification extends BaseEntity {
   @ManyToOne(() => Tenant)
   tenant!: Tenant;

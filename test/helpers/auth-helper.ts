@@ -11,7 +11,10 @@ export class AuthHelper {
   constructor(private app: INestApplication) {}
 
   /** Admin kullanici ile login */
-  async loginAsAdmin(email = 'admin@test.com', password = 'Admin123!'): Promise<string> {
+  async loginAsAdmin(
+    email = 'admin@test.com',
+    password = 'Admin123!',
+  ): Promise<string> {
     const res = await request(this.app.getHttpServer())
       .post('/api/auth/login')
       .send({ email, password })

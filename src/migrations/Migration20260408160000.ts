@@ -12,7 +12,6 @@ import { Migration } from '@mikro-orm/migrations';
  * 20260409120000 (PartnerAddress FK) arasinda calisir.
  */
 export class Migration20260408160000 extends Migration {
-
   override async up(): Promise<void> {
     this.addSql(`create table "classification_nodes" (
       "id" uuid not null,
@@ -41,15 +40,31 @@ export class Migration20260408160000 extends Migration {
       constraint "classification_nodes_pkey" primary key ("id")
     );`);
 
-    this.addSql(`create index "classification_nodes_tenant_id_index" on "classification_nodes" ("tenant_id");`);
-    this.addSql(`create index "idx_classification_type" on "classification_nodes" ("classification_type");`);
-    this.addSql(`create index "idx_classification_tenant_type" on "classification_nodes" ("tenant_id", "classification_type");`);
-    this.addSql(`create index "idx_classification_path" on "classification_nodes" ("path");`);
-    this.addSql(`create index "idx_classification_module" on "classification_nodes" ("module");`);
-    this.addSql(`alter table "classification_nodes" add constraint "uq_classification_tenant_type_code" unique ("tenant_id", "classification_type", "code");`);
+    this.addSql(
+      `create index "classification_nodes_tenant_id_index" on "classification_nodes" ("tenant_id");`,
+    );
+    this.addSql(
+      `create index "idx_classification_type" on "classification_nodes" ("classification_type");`,
+    );
+    this.addSql(
+      `create index "idx_classification_tenant_type" on "classification_nodes" ("tenant_id", "classification_type");`,
+    );
+    this.addSql(
+      `create index "idx_classification_path" on "classification_nodes" ("path");`,
+    );
+    this.addSql(
+      `create index "idx_classification_module" on "classification_nodes" ("module");`,
+    );
+    this.addSql(
+      `alter table "classification_nodes" add constraint "uq_classification_tenant_type_code" unique ("tenant_id", "classification_type", "code");`,
+    );
 
-    this.addSql(`alter table "classification_nodes" add constraint "classification_nodes_tenant_id_foreign" foreign key ("tenant_id") references "tenants" ("id") on update cascade on delete set null;`);
-    this.addSql(`alter table "classification_nodes" add constraint "classification_nodes_parent_id_foreign" foreign key ("parent_id") references "classification_nodes" ("id") on update cascade on delete set null;`);
+    this.addSql(
+      `alter table "classification_nodes" add constraint "classification_nodes_tenant_id_foreign" foreign key ("tenant_id") references "tenants" ("id") on update cascade on delete set null;`,
+    );
+    this.addSql(
+      `alter table "classification_nodes" add constraint "classification_nodes_parent_id_foreign" foreign key ("parent_id") references "classification_nodes" ("id") on update cascade on delete set null;`,
+    );
   }
 
   override async down(): Promise<void> {

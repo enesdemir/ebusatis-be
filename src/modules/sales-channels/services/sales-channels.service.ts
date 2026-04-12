@@ -8,9 +8,12 @@ import { ChannelOrder } from '../entities/channel-order.entity';
 @Injectable()
 export class SalesChannelsService {
   constructor(
-    @InjectRepository(SalesChannel) private readonly channelRepo: EntityRepository<SalesChannel>,
-    @InjectRepository(ChannelProductMapping) private readonly mappingRepo: EntityRepository<ChannelProductMapping>,
-    @InjectRepository(ChannelOrder) private readonly orderRepo: EntityRepository<ChannelOrder>,
+    @InjectRepository(SalesChannel)
+    private readonly channelRepo: EntityRepository<SalesChannel>,
+    @InjectRepository(ChannelProductMapping)
+    private readonly mappingRepo: EntityRepository<ChannelProductMapping>,
+    @InjectRepository(ChannelOrder)
+    private readonly orderRepo: EntityRepository<ChannelOrder>,
     private readonly em: EntityManager,
   ) {}
 
@@ -19,7 +22,10 @@ export class SalesChannelsService {
   }
 
   async findChannelById(id: string) {
-    const ch = await this.channelRepo.findOne({ id }, { populate: ['productMappings'] });
+    const ch = await this.channelRepo.findOne(
+      { id },
+      { populate: ['productMappings'] },
+    );
     if (!ch) throw new NotFoundException('Channel not found');
     return ch;
   }
@@ -39,7 +45,10 @@ export class SalesChannelsService {
 
   // Mappings
   async findMappings(channelId: string) {
-    return this.mappingRepo.find({ channel: channelId } as any, { populate: ['variant', 'channel'], orderBy: { createdAt: 'DESC' } });
+    return this.mappingRepo.find({ channel: channelId } as any, {
+      populate: ['variant', 'channel'],
+      orderBy: { createdAt: 'DESC' },
+    });
   }
 
   async createMapping(data: any) {
@@ -52,6 +61,10 @@ export class SalesChannelsService {
   async findChannelOrders(channelId?: string) {
     const where: any = {};
     if (channelId) where.channel = channelId;
-    return this.orderRepo.find(where, { populate: ['channel'], orderBy: { createdAt: 'DESC' }, limit: 50 });
+    return this.orderRepo.find(where, {
+      populate: ['channel'],
+      orderBy: { createdAt: 'DESC' },
+      limit: 50,
+    });
   }
 }

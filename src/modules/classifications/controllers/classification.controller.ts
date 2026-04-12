@@ -45,10 +45,7 @@ export class ClassificationController {
 
   /** Dugumun cocuklari */
   @Get(':id/children')
-  getChildren(
-    @Param('id') id: string,
-    @Query('recursive') recursive?: string,
-  ) {
+  getChildren(@Param('id') id: string, @Query('recursive') recursive?: string) {
     return this.service.getChildren(id, recursive === 'true');
   }
 

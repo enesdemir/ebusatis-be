@@ -1,9 +1,16 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { EntityManager, FilterQuery } from '@mikro-orm/postgresql';
 import { PurchaseOrder } from '../entities/purchase-order.entity';
 import { PurchaseOrderLine } from '../entities/purchase-order-line.entity';
 import { TenantContext } from '../../../common/context/tenant.context';
-import { QueryBuilderHelper, PaginatedResponse } from '../../../common/helpers/query-builder.helper';
+import {
+  QueryBuilderHelper,
+  PaginatedResponse,
+} from '../../../common/helpers/query-builder.helper';
 import { PaginatedQueryDto } from '../../../common/dto/paginated-query.dto';
 import { Tenant } from '../../tenants/entities/tenant.entity';
 
@@ -11,7 +18,9 @@ import { Tenant } from '../../tenants/entities/tenant.entity';
 export class PurchaseOrderService {
   constructor(private readonly em: EntityManager) {}
 
-  async findAll(query: PaginatedQueryDto & { supplierId?: string }): Promise<PaginatedResponse<PurchaseOrder>> {
+  async findAll(
+    query: PaginatedQueryDto & { supplierId?: string },
+  ): Promise<PaginatedResponse<PurchaseOrder>> {
     const where: FilterQuery<PurchaseOrder> = {};
     if (query.supplierId) where.supplier = query.supplierId;
     return QueryBuilderHelper.paginate(this.em, PurchaseOrder, query, {
@@ -23,10 +32,25 @@ export class PurchaseOrderService {
   }
 
   async findOne(id: string): Promise<PurchaseOrder> {
-    const order = await this.em.findOne(PurchaseOrder, { id }, {
-      populate: ['supplier', 'counterparty', 'currency', 'status', 'createdBy', 'lines', 'lines.variant', 'lines.variant.product', 'lines.taxRate'] as any,
-    });
-    if (!order) throw new NotFoundException(`Satınalma siparişi bulunamadı: ${id}`);
+    const order = await this.em.findOne(
+      PurchaseOrder,
+      { id },
+      {
+        populate: [
+          'supplier',
+          'counterparty',
+          'currency',
+          'status',
+          'createdBy',
+          'lines',
+          'lines.variant',
+          'lines.variant.product',
+          'lines.taxRate',
+        ] as any,
+      },
+    );
+    if (!order)
+      throw new NotFoundException(`Satınalma siparişi bulunamadı: ${id}`);
     return order;
   }
 
@@ -35,18 +59,28 @@ export class PurchaseOrderService {
     if (!tenantId) throw new BadRequestException('Tenant context bulunamadı');
     const tenant = await this.em.findOneOrFail(Tenant, { id: tenantId });
 
-    const count = await this.em.count(PurchaseOrder, { tenant: tenantId } as any);
+    const count = await this.em.count(PurchaseOrder, {
+      tenant: tenantId,
+    } as any);
     const orderNumber = `PO-${new Date().getFullYear()}-${String(count + 1).padStart(4, '0')}`;
 
     const order = this.em.create(PurchaseOrder, {
       tenant,
       orderNumber,
       supplier: this.em.getReference('Partner', data.supplierId),
-      counterparty: data.counterpartyId ? this.em.getReference('Counterparty', data.counterpartyId) : undefined,
-      currency: data.currencyId ? this.em.getReference('Currency', data.currencyId) : undefined,
+      counterparty: data.counterpartyId
+        ? this.em.getReference('Counterparty', data.counterpartyId)
+        : undefined,
+      currency: data.currencyId
+        ? this.em.getReference('Currency', data.currencyId)
+        : undefined,
       exchangeRate: data.exchangeRate,
-      status: data.statusId ? this.em.getReference('StatusDefinition', data.statusId) : undefined,
-      expectedDeliveryDate: data.expectedDeliveryDate ? new Date(data.expectedDeliveryDate) : undefined,
+      status: data.statusId
+        ? this.em.getReference('StatusDefinition', data.statusId)
+        : undefined,
+      expectedDeliveryDate: data.expectedDeliveryDate
+        ? new Date(data.expectedDeliveryDate)
+        : undefined,
       containerInfo: data.containerInfo,
       note: data.note,
       createdBy: this.em.getReference('User', userId),
@@ -65,7 +99,9 @@ export class PurchaseOrderService {
           variant: this.em.getReference('ProductVariant', lineData.variantId),
           quantity: lineData.quantity,
           unitPrice: lineData.unitPrice,
-          taxRate: lineData.taxRateId ? this.em.getReference('TaxRate', lineData.taxRateId) : undefined,
+          taxRate: lineData.taxRateId
+            ? this.em.getReference('TaxRate', lineData.taxRateId)
+            : undefined,
           lineTotal,
           note: lineData.note,
         } as any);

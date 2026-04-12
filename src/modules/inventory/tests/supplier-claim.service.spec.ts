@@ -95,8 +95,7 @@ describe('SupplierClaimService', () => {
     });
 
     it('should throw when goods receive is missing', async () => {
-      em.findOne
-        .mockResolvedValueOnce(null); // first call: goods receive
+      em.findOne.mockResolvedValueOnce(null); // first call: goods receive
       await expect(service.open(baseDto, 'user-1')).rejects.toThrow(
         SupplierClaimNotFoundException,
       );
@@ -104,7 +103,11 @@ describe('SupplierClaimService', () => {
 
     it('should throw GoodsReceiveLineNotFoundException when line is missing', async () => {
       em.findOne
-        .mockResolvedValueOnce({ id: 'gr-1', supplier: { id: 'sup-1' }, purchaseOrder: { id: 'po-1' } }) // goods receive
+        .mockResolvedValueOnce({
+          id: 'gr-1',
+          supplier: { id: 'sup-1' },
+          purchaseOrder: { id: 'po-1' },
+        }) // goods receive
         .mockResolvedValueOnce(null); // line lookup
       await expect(service.open(baseDto, 'user-1')).rejects.toThrow(
         GoodsReceiveLineNotFoundException,
@@ -113,7 +116,11 @@ describe('SupplierClaimService', () => {
 
     it('should reject lines without a discrepancy', async () => {
       em.findOne
-        .mockResolvedValueOnce({ id: 'gr-1', supplier: { id: 'sup-1' }, purchaseOrder: { id: 'po-1' } })
+        .mockResolvedValueOnce({
+          id: 'gr-1',
+          supplier: { id: 'sup-1' },
+          purchaseOrder: { id: 'po-1' },
+        })
         .mockResolvedValueOnce({
           id: 'grl-1',
           discrepancyType: DiscrepancyType.NONE,
@@ -127,7 +134,11 @@ describe('SupplierClaimService', () => {
 
     it('should reject lines that already have an open claim', async () => {
       em.findOne
-        .mockResolvedValueOnce({ id: 'gr-1', supplier: { id: 'sup-1' }, purchaseOrder: { id: 'po-1' } })
+        .mockResolvedValueOnce({
+          id: 'gr-1',
+          supplier: { id: 'sup-1' },
+          purchaseOrder: { id: 'po-1' },
+        })
         .mockResolvedValueOnce({
           id: 'grl-1',
           discrepancyType: DiscrepancyType.DAMAGED,

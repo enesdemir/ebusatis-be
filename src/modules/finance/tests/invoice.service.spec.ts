@@ -2,7 +2,11 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { NotFoundException, BadRequestException } from '@nestjs/common';
 import { EntityManager } from '@mikro-orm/postgresql';
 import { InvoiceService } from '../services/invoice.service';
-import { Invoice, InvoiceType, InvoiceStatus } from '../entities/invoice.entity';
+import {
+  Invoice,
+  InvoiceType,
+  InvoiceStatus,
+} from '../entities/invoice.entity';
 import { PaymentService } from '../services/payment.service';
 import { Payment, PaymentDirection } from '../entities/payment.entity';
 import { TenantContext } from '../../../common/context/tenant.context';
@@ -49,10 +53,7 @@ describe('InvoiceService', () => {
     };
 
     const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        InvoiceService,
-        { provide: EntityManager, useValue: mockEm },
-      ],
+      providers: [InvoiceService, { provide: EntityManager, useValue: mockEm }],
     }).compile();
 
     service = module.get<InvoiceService>(InvoiceService);
@@ -83,7 +84,9 @@ describe('InvoiceService', () => {
     it('should throw NotFoundException when invoice does not exist', async () => {
       mockEm.findOne.mockResolvedValue(null);
 
-      await expect(service.findOne('nonexistent')).rejects.toThrow(NotFoundException);
+      await expect(service.findOne('nonexistent')).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 
@@ -144,10 +147,15 @@ describe('InvoiceService', () => {
       };
 
       // create returns an object we can inspect
-      const invoiceObj: any = { tenant: mockTenant, subtotal: 0, taxAmount: 0, grandTotal: 0 };
+      const invoiceObj: any = {
+        tenant: mockTenant,
+        subtotal: 0,
+        taxAmount: 0,
+        grandTotal: 0,
+      };
       mockEm.create
-        .mockReturnValueOnce(invoiceObj)   // invoice creation
-        .mockReturnValue({});              // line creation
+        .mockReturnValueOnce(invoiceObj) // invoice creation
+        .mockReturnValue({}); // line creation
 
       await service.create(data, 'user-1');
 
@@ -161,7 +169,10 @@ describe('InvoiceService', () => {
       (TenantContext.getTenantId as jest.Mock).mockReturnValue(undefined);
 
       await expect(
-        service.create({ type: InvoiceType.SALES, partnerId: 'p-1', lines: [] }, 'user-1'),
+        service.create(
+          { type: InvoiceType.SALES, partnerId: 'p-1', lines: [] },
+          'user-1',
+        ),
       ).rejects.toThrow(BadRequestException);
     });
 
@@ -174,7 +185,12 @@ describe('InvoiceService', () => {
         ],
       };
 
-      const invoiceObj: any = { tenant: mockTenant, subtotal: 0, taxAmount: 0, grandTotal: 0 };
+      const invoiceObj: any = {
+        tenant: mockTenant,
+        subtotal: 0,
+        taxAmount: 0,
+        grandTotal: 0,
+      };
       const lineObj = {};
       mockEm.create
         .mockReturnValueOnce(invoiceObj)
@@ -238,10 +254,7 @@ describe('PaymentService', () => {
     };
 
     const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        PaymentService,
-        { provide: EntityManager, useValue: mockEm },
-      ],
+      providers: [PaymentService, { provide: EntityManager, useValue: mockEm }],
     }).compile();
 
     paymentService = module.get<PaymentService>(PaymentService);
@@ -254,7 +267,11 @@ describe('PaymentService', () => {
 
   describe('findOne', () => {
     it('should return the payment with populated relations', async () => {
-      const payment = { id: 'pay-1', paymentNumber: 'PAY-2026-0001', amount: 500 };
+      const payment = {
+        id: 'pay-1',
+        paymentNumber: 'PAY-2026-0001',
+        amount: 500,
+      };
       mockEm.findOne.mockResolvedValue(payment);
 
       const result = await paymentService.findOne('pay-1');
@@ -272,7 +289,9 @@ describe('PaymentService', () => {
     it('should throw NotFoundException when payment does not exist', async () => {
       mockEm.findOne.mockResolvedValue(null);
 
-      await expect(paymentService.findOne('nonexistent')).rejects.toThrow(NotFoundException);
+      await expect(paymentService.findOne('nonexistent')).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 
@@ -311,8 +330,8 @@ describe('PaymentService', () => {
         status: InvoiceStatus.ISSUED,
       };
       mockEm.findOneOrFail
-        .mockResolvedValueOnce(mockTenant)  // tenant lookup
-        .mockResolvedValueOnce(invoice);    // invoice lookup
+        .mockResolvedValueOnce(mockTenant) // tenant lookup
+        .mockResolvedValueOnce(invoice); // invoice lookup
 
       const data = {
         direction: PaymentDirection.INCOMING,
@@ -355,7 +374,14 @@ describe('PaymentService', () => {
       (TenantContext.getTenantId as jest.Mock).mockReturnValue(undefined);
 
       await expect(
-        paymentService.create({ direction: PaymentDirection.INCOMING, partnerId: 'p-1', amount: 100 }, 'user-1'),
+        paymentService.create(
+          {
+            direction: PaymentDirection.INCOMING,
+            partnerId: 'p-1',
+            amount: 100,
+          },
+          'user-1',
+        ),
       ).rejects.toThrow(BadRequestException);
     });
   });
@@ -367,14 +393,26 @@ describe('PaymentService', () => {
   describe('getLedger', () => {
     it('should combine invoices and payments into movements sorted by date', async () => {
       const invoices = [
-        { id: 'inv-1', invoiceNumber: 'INV-001', type: 'SALES', grandTotal: 1000, issueDate: new Date('2026-01-10') },
+        {
+          id: 'inv-1',
+          invoiceNumber: 'INV-001',
+          type: 'SALES',
+          grandTotal: 1000,
+          issueDate: new Date('2026-01-10'),
+        },
       ];
       const payments = [
-        { id: 'pay-1', paymentNumber: 'PAY-001', direction: 'INCOMING', amount: 500, paymentDate: new Date('2026-01-20') },
+        {
+          id: 'pay-1',
+          paymentNumber: 'PAY-001',
+          direction: 'INCOMING',
+          amount: 500,
+          paymentDate: new Date('2026-01-20'),
+        },
       ];
 
       mockEm.find
-        .mockResolvedValueOnce(invoices)  // invoices query
+        .mockResolvedValueOnce(invoices) // invoices query
         .mockResolvedValueOnce(payments); // payments query
 
       const result = await paymentService.getLedger('counterparty-1');
@@ -390,11 +428,29 @@ describe('PaymentService', () => {
 
     it('should calculate closing balance correctly (debit - credit)', async () => {
       const invoices = [
-        { id: 'inv-1', invoiceNumber: 'INV-001', type: 'SALES', grandTotal: 2000, issueDate: new Date('2026-01-05') },
-        { id: 'inv-2', invoiceNumber: 'INV-002', type: 'PURCHASE', grandTotal: 300, issueDate: new Date('2026-01-06') },
+        {
+          id: 'inv-1',
+          invoiceNumber: 'INV-001',
+          type: 'SALES',
+          grandTotal: 2000,
+          issueDate: new Date('2026-01-05'),
+        },
+        {
+          id: 'inv-2',
+          invoiceNumber: 'INV-002',
+          type: 'PURCHASE',
+          grandTotal: 300,
+          issueDate: new Date('2026-01-06'),
+        },
       ];
       const payments = [
-        { id: 'pay-1', paymentNumber: 'PAY-001', direction: 'INCOMING', amount: 800, paymentDate: new Date('2026-01-15') },
+        {
+          id: 'pay-1',
+          paymentNumber: 'PAY-001',
+          direction: 'INCOMING',
+          amount: 800,
+          paymentDate: new Date('2026-01-15'),
+        },
       ];
 
       mockEm.find
@@ -409,7 +465,7 @@ describe('PaymentService', () => {
 
     it('should return empty movements when no invoices or payments exist', async () => {
       mockEm.find
-        .mockResolvedValueOnce([])  // no invoices
+        .mockResolvedValueOnce([]) // no invoices
         .mockResolvedValueOnce([]); // no payments
 
       const result = await paymentService.getLedger('counterparty-empty');

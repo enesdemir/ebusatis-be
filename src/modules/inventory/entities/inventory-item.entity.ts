@@ -1,4 +1,13 @@
-import { Entity, Property, ManyToOne, Enum, OneToMany, Collection, Unique, Index } from '@mikro-orm/core';
+import {
+  Entity,
+  Property,
+  ManyToOne,
+  Enum,
+  OneToMany,
+  Collection,
+  Unique,
+  Index,
+} from '@mikro-orm/core';
 import { BaseTenantEntity } from '../../../common/entities/base-tenant.entity';
 import { ProductVariant } from '../../products/entities/product-variant.entity';
 import { Tenant } from '../../tenants/entities/tenant.entity';
@@ -95,7 +104,12 @@ export class InventoryItem extends BaseTenantEntity {
   @OneToMany('InventoryTransaction', 'item')
   transactions = new Collection<any>(this);
 
-  constructor(variant: ProductVariant, tenant: Tenant, barcode: string, quantity: number) {
+  constructor(
+    variant: ProductVariant,
+    tenant: Tenant,
+    barcode: string,
+    quantity: number,
+  ) {
     super();
     this.variant = variant;
     this.tenant = tenant;

@@ -40,7 +40,11 @@ import { AuthModule } from '../auth/auth.module';
     ]),
     AuthModule,
   ],
-  controllers: [InventoryController, GoodsReceiveController, SupplierClaimController],
+  controllers: [
+    InventoryController,
+    GoodsReceiveController,
+    SupplierClaimController,
+  ],
   providers: [InventoryService, GoodsReceiveService, SupplierClaimService],
   exports: [
     MikroOrmModule,
