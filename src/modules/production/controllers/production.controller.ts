@@ -1,17 +1,40 @@
-import { Controller, Get, Post, Patch, Body, Param, Query, UseGuards, Request } from '@nestjs/common';
+import { Controller, Get, Post, Patch, Body, Param, Query, UseGuards } from '@nestjs/common';
 import { ProductionService } from '../services/production.service';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
+import { TenantGuard } from '../../../common/guards/tenant.guard';
+import {
+  CreateSupplierProductionOrderDto,
+  UpdateSupplierProductionStatusDto,
+  SupplierProductionOrderQueryDto,
+  UpdateMilestoneDto,
+  SupplierMilestoneReportDto,
+  CreateQualityCheckDto,
+  UpdateQualityCheckDto,
+  AddProductionMediaDto,
+} from '../dto';
 
-@UseGuards(JwtAuthGuard)
+/**
+ * Supplier production tracking controller.
+ *
+ * Owns the supplier-side production lifecycle for the international
+ * import flow. This controller is NOT used for in-house production.
+ *
+ * CLAUDE.md compliance:
+ *   - Protected by JwtAuthGuard + TenantGuard.
+ *   - Every @Body / @Query parameter is a class-validator DTO (no `any`).
+ *   - Error messages are returned by the service as error code +
+ *     i18n key — no hardcoded TR/EN strings on this layer either.
+ */
+@UseGuards(JwtAuthGuard, TenantGuard)
 @Controller('production')
 export class ProductionController {
   constructor(private readonly service: ProductionService) {}
 
-  // ── Üretim Emirleri ──
+  // ── Supplier production orders ──
 
   @Get('orders')
-  findAll(@Query() params: any) {
-    return this.service.findAllOrders(params);
+  findAll(@Query() query: SupplierProductionOrderQueryDto) {
+    return this.service.findAllOrders(query);
   }
 
   @Get('orders/:id')
@@ -20,43 +43,51 @@ export class ProductionController {
   }
 
   @Post('orders')
-  create(@Body() data: any, @Request() req: any) {
-    return this.service.createOrder({ ...data, createdBy: req.user?.id, tenant: req.user?.tenantId });
+  create(@Body() dto: CreateSupplierProductionOrderDto) {
+    return this.service.createOrder(dto);
   }
 
   @Patch('orders/:id/status')
-  updateStatus(@Param('id') id: string, @Body('status') status: any) {
-    return this.service.updateOrderStatus(id, status);
+  updateStatus(@Param('id') id: string, @Body() dto: UpdateSupplierProductionStatusDto) {
+    return this.service.updateOrderStatus(id, dto.status);
   }
 
-  // ── Milestone'lar ──
+  // ── Milestones ──
 
   @Patch('milestones/:id')
-  updateMilestone(@Param('id') id: string, @Body() data: any) {
-    return this.service.updateMilestone(id, data);
+  updateMilestone(@Param('id') id: string, @Body() dto: UpdateMilestoneDto) {
+    return this.service.updateMilestone(id, dto);
   }
 
-  // ── QC ──
+  /**
+   * Supplier-side milestone report endpoint. In a future iteration this
+   * route will be protected by a dedicated supplier-portal token rather
+   * than a regular tenant JWT.
+   */
+  @Patch('milestones/:id/supplier-report')
+  reportMilestoneFromSupplier(
+    @Param('id') id: string,
+    @Body() dto: SupplierMilestoneReportDto,
+  ) {
+    return this.service.reportMilestoneFromSupplier(id, dto);
+  }
+
+  // ── Quality control ──
 
   @Post('qc')
-  createQC(@Body() data: any) {
-    return this.service.createQC(data);
+  createQC(@Body() dto: CreateQualityCheckDto) {
+    return this.service.createQC(dto);
   }
 
   @Patch('qc/:id')
-  updateQC(@Param('id') id: string, @Body() data: any) {
-    return this.service.updateQC(id, data);
+  updateQC(@Param('id') id: string, @Body() dto: UpdateQualityCheckDto) {
+    return this.service.updateQC(id, dto);
   }
 
-  // ── BOM ──
+  // ── Media ──
 
-  @Get('bom')
-  findAllBOMs() {
-    return this.service.findAllBOMs();
-  }
-
-  @Post('bom')
-  createBOM(@Body() data: any) {
-    return this.service.createBOM(data);
+  @Post('media')
+  addMedia(@Body() dto: AddProductionMediaDto) {
+    return this.service.addMedia(dto);
   }
 }

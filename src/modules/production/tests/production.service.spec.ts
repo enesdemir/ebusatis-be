@@ -1,323 +1,331 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { NotFoundException } from '@nestjs/common';
-import { getRepositoryToken } from '@mikro-orm/nestjs';
 import { EntityManager } from '@mikro-orm/postgresql';
+import { getRepositoryToken } from '@mikro-orm/nestjs';
 import { ProductionService } from '../services/production.service';
-import { ProductionOrder, ProductionStatus } from '../entities/production-order.entity';
-import { ProductionMilestone, MilestoneStatus } from '../entities/production-milestone.entity';
-import { QualityCheck } from '../entities/quality-check.entity';
+import {
+  SupplierProductionOrder,
+  SupplierProductionStatus,
+} from '../entities/supplier-production-order.entity';
+import {
+  ProductionMilestone,
+  MilestoneStatus,
+} from '../entities/production-milestone.entity';
+import { QualityCheck, QCType } from '../entities/quality-check.entity';
 import { ProductionMedia } from '../entities/production-media.entity';
-import { BillOfMaterials } from '../entities/bill-of-materials.entity';
+import {
+  TenantContextMissingException,
+  SupplierProductionOrderNotFoundException,
+  ProductionMilestoneNotFoundException,
+  QualityCheckNotFoundException,
+} from '../../../common/errors/app.exceptions';
+
+// Default TenantContext mock — assumes a tenant context is active.
+jest.mock('../../../common/context/tenant.context', () => ({
+  TenantContext: { getTenantId: jest.fn(() => 'test-tenant-id') },
+}));
+
+import { TenantContext } from '../../../common/context/tenant.context';
+
+const tenantStub = { id: 'test-tenant-id' };
+
+const buildRepoMock = () => ({
+  findOne: jest.fn(),
+  findAndCount: jest.fn(),
+  create: jest.fn((data: any) => ({ ...data })),
+});
 
 describe('ProductionService', () => {
   let service: ProductionService;
-  let mockOrderRepo: Record<string, jest.Mock>;
-  let mockMilestoneRepo: Record<string, jest.Mock>;
-  let mockQcRepo: Record<string, jest.Mock>;
-  let mockMediaRepo: Record<string, jest.Mock>;
-  let mockBomRepo: Record<string, jest.Mock>;
-  let mockEm: Record<string, jest.Mock>;
-
-  const createMockOrder = (overrides: Partial<ProductionOrder> = {}): any => ({
-    id: 'order-1',
-    orderNumber: 'PO-2026-0001',
-    status: ProductionStatus.DRAFT,
-    plannedQuantity: 1000,
-    producedQuantity: 0,
-    actualStartDate: undefined,
-    actualEndDate: undefined,
-    tenant: { id: 'tenant-1' },
-    createdAt: new Date('2026-01-01'),
-    ...overrides,
-  });
+  let orderRepo: ReturnType<typeof buildRepoMock>;
+  let milestoneRepo: ReturnType<typeof buildRepoMock>;
+  let qcRepo: ReturnType<typeof buildRepoMock>;
+  let mediaRepo: ReturnType<typeof buildRepoMock>;
+  let em: { findOneOrFail: jest.Mock; persist: jest.Mock; persistAndFlush: jest.Mock; flush: jest.Mock; assign: jest.Mock };
 
   beforeEach(async () => {
-    mockOrderRepo = {
-      findOne: jest.fn(),
-      findAndCount: jest.fn(),
-      create: jest.fn((data) => ({ ...data, id: 'new-order-id' })),
-    };
+    jest.clearAllMocks();
+    (TenantContext.getTenantId as jest.Mock).mockReturnValue('test-tenant-id');
 
-    mockMilestoneRepo = {
-      findOne: jest.fn(),
-      create: jest.fn((data) => ({ ...data, id: `ms-${data.code}` })),
-    };
-
-    mockQcRepo = {
-      findOne: jest.fn(),
-      create: jest.fn((data) => ({ ...data, id: 'new-qc-id' })),
-    };
-
-    mockMediaRepo = {
-      findOne: jest.fn(),
-    };
-
-    mockBomRepo = {
-      findAll: jest.fn(),
-      create: jest.fn((data) => ({ ...data, id: 'new-bom-id' })),
-    };
-
-    mockEm = {
+    orderRepo = buildRepoMock();
+    milestoneRepo = buildRepoMock();
+    qcRepo = buildRepoMock();
+    mediaRepo = buildRepoMock();
+    em = {
+      findOneOrFail: jest.fn().mockResolvedValue(tenantStub),
       persist: jest.fn(),
-      flush: jest.fn(),
-      persistAndFlush: jest.fn(),
+      persistAndFlush: jest.fn().mockResolvedValue(undefined),
+      flush: jest.fn().mockResolvedValue(undefined),
+      assign: jest.fn((target: any, source: any) => Object.assign(target, source)),
     };
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         ProductionService,
-        { provide: getRepositoryToken(ProductionOrder), useValue: mockOrderRepo },
-        { provide: getRepositoryToken(ProductionMilestone), useValue: mockMilestoneRepo },
-        { provide: getRepositoryToken(QualityCheck), useValue: mockQcRepo },
-        { provide: getRepositoryToken(ProductionMedia), useValue: mockMediaRepo },
-        { provide: getRepositoryToken(BillOfMaterials), useValue: mockBomRepo },
-        { provide: EntityManager, useValue: mockEm },
+        { provide: getRepositoryToken(SupplierProductionOrder), useValue: orderRepo },
+        { provide: getRepositoryToken(ProductionMilestone), useValue: milestoneRepo },
+        { provide: getRepositoryToken(QualityCheck), useValue: qcRepo },
+        { provide: getRepositoryToken(ProductionMedia), useValue: mediaRepo },
+        { provide: EntityManager, useValue: em },
       ],
     }).compile();
 
-    service = module.get<ProductionService>(ProductionService);
-    jest.clearAllMocks();
+    service = module.get(ProductionService);
   });
 
-  // ═══════════════════════════════════════════════════════
-  //  createOrder
-  // ═══════════════════════════════════════════════════════
+  // ── findAllOrders ──
+  describe('findAllOrders', () => {
+    it('should apply filters and return paginated result', async () => {
+      orderRepo.findAndCount.mockResolvedValue([
+        [{ id: 'spo-1', productionNumber: 'SPO-2026-0001' }],
+        1,
+      ]);
 
-  describe('createOrder', () => {
-    it('should create an order and persist it', async () => {
-      const orderData = { orderNumber: 'PO-2026-0001', plannedQuantity: 500, tenant: { id: 'tenant-1' } };
-      mockOrderRepo.create.mockReturnValue({ ...orderData, id: 'new-order-id', tenant: { id: 'tenant-1' } });
-      mockEm.persistAndFlush.mockResolvedValue(undefined);
-      mockEm.flush.mockResolvedValue(undefined);
+      const result = await service.findAllOrders({
+        page: 1,
+        limit: 20,
+        status: SupplierProductionStatus.IN_DYEHOUSE,
+        supplierId: 'sup-1',
+        purchaseOrderId: 'po-1',
+        search: 'SPO',
+      } as any);
 
-      const result = await service.createOrder(orderData);
-
-      expect(mockOrderRepo.create).toHaveBeenCalledWith(orderData);
-      expect(mockEm.persistAndFlush).toHaveBeenCalled();
-    });
-
-    it('should auto-create 5 default textile milestones', async () => {
-      const createdOrder = { id: 'new-order', tenant: { id: 'tenant-1' } };
-      mockOrderRepo.create.mockReturnValue(createdOrder);
-      mockEm.persistAndFlush.mockResolvedValue(undefined);
-      mockEm.flush.mockResolvedValue(undefined);
-
-      await service.createOrder({ orderNumber: 'PO-001' });
-
-      // 5 milestones: IPLIK, DOKUMA, BOYAMA, APRE, QC
-      expect(mockMilestoneRepo.create).toHaveBeenCalledTimes(5);
-      expect(mockEm.persist).toHaveBeenCalledTimes(5);
-
-      const createdCodes = mockMilestoneRepo.create.mock.calls.map((call) => call[0].code);
-      expect(createdCodes).toEqual(['IPLIK', 'DOKUMA', 'BOYAMA', 'APRE', 'QC']);
-    });
-
-    it('should assign correct sortOrder to milestones (0-4)', async () => {
-      const createdOrder = { id: 'new-order', tenant: { id: 'tenant-1' } };
-      mockOrderRepo.create.mockReturnValue(createdOrder);
-      mockEm.persistAndFlush.mockResolvedValue(undefined);
-      mockEm.flush.mockResolvedValue(undefined);
-
-      await service.createOrder({ orderNumber: 'PO-002' });
-
-      const sortOrders = mockMilestoneRepo.create.mock.calls.map((call) => call[0].sortOrder);
-      expect(sortOrders).toEqual([0, 1, 2, 3, 4]);
-    });
-
-    it('should link milestones to the created order', async () => {
-      const createdOrder = { id: 'linked-order', tenant: { id: 'tenant-1' } };
-      mockOrderRepo.create.mockReturnValue(createdOrder);
-      mockEm.persistAndFlush.mockResolvedValue(undefined);
-      mockEm.flush.mockResolvedValue(undefined);
-
-      await service.createOrder({ orderNumber: 'PO-003' });
-
-      for (const call of mockMilestoneRepo.create.mock.calls) {
-        expect(call[0].productionOrder).toBe(createdOrder);
-      }
+      expect(result.data).toHaveLength(1);
+      expect(result.meta.total).toBe(1);
+      expect(orderRepo.findAndCount).toHaveBeenCalledWith(
+        {
+          status: SupplierProductionStatus.IN_DYEHOUSE,
+          supplier: 'sup-1',
+          purchaseOrder: 'po-1',
+          productionNumber: { $like: '%SPO%' },
+        },
+        expect.objectContaining({ limit: 20, offset: 0 }),
+      );
     });
   });
 
-  // ═══════════════════════════════════════════════════════
-  //  findOrderById
-  // ═══════════════════════════════════════════════════════
-
+  // ── findOrderById ──
   describe('findOrderById', () => {
-    it('should return the order with all populated relations', async () => {
-      const order = createMockOrder();
-      mockOrderRepo.findOne.mockResolvedValue(order);
-
-      const result = await service.findOrderById('order-1');
-
+    it('should return order when found', async () => {
+      const order = { id: 'spo-1', productionNumber: 'SPO-2026-0001' };
+      orderRepo.findOne.mockResolvedValue(order);
+      const result = await service.findOrderById('spo-1');
       expect(result).toBe(order);
-      expect(mockOrderRepo.findOne).toHaveBeenCalledWith(
-        { id: 'order-1' },
-        expect.objectContaining({
-          populate: expect.arrayContaining(['milestones', 'qualityChecks', 'media']),
-        }),
+    });
+
+    it('should throw SupplierProductionOrderNotFoundException when missing', async () => {
+      orderRepo.findOne.mockResolvedValue(null);
+      await expect(service.findOrderById('missing')).rejects.toThrow(
+        SupplierProductionOrderNotFoundException,
+      );
+    });
+  });
+
+  // ── createOrder ──
+  describe('createOrder', () => {
+    const dto = {
+      productionNumber: 'SPO-2026-0001',
+      purchaseOrderId: 'po-1',
+      supplierId: 'sup-1',
+      plannedQuantity: 100,
+    } as any;
+
+    it('should throw TenantContextMissingException without tenant context', async () => {
+      (TenantContext.getTenantId as jest.Mock).mockReturnValue(undefined);
+      await expect(service.createOrder(dto)).rejects.toThrow(TenantContextMissingException);
+    });
+
+    it('should create order and seed default milestones from template', async () => {
+      const createdOrder = { id: 'spo-1', tenant: tenantStub, ...dto };
+      orderRepo.create.mockReturnValue(createdOrder);
+
+      const result = await service.createOrder(dto);
+
+      expect(result).toBe(createdOrder);
+      expect(em.persistAndFlush).toHaveBeenCalledWith(createdOrder);
+      // 6 standart milestone (DYEHOUSE, WEAVING, FINISHING, QC, PACKAGING, READY_FOR_PICKUP)
+      expect(milestoneRepo.create).toHaveBeenCalledTimes(
+        ProductionService.DEFAULT_MILESTONE_TEMPLATE.length,
+      );
+      expect(em.persist).toHaveBeenCalledTimes(
+        ProductionService.DEFAULT_MILESTONE_TEMPLATE.length,
+      );
+      expect(em.flush).toHaveBeenCalled();
+    });
+
+    it('should set status to AWAITING_START by default', async () => {
+      const createdOrder = { id: 'spo-1' };
+      orderRepo.create.mockReturnValue(createdOrder);
+      await service.createOrder(dto);
+      const createCall = orderRepo.create.mock.calls[0][0] as any;
+      expect(createCall.status).toBe(SupplierProductionStatus.AWAITING_START);
+    });
+  });
+
+  // ── updateOrderStatus ──
+  describe('updateOrderStatus', () => {
+    it('should set actualStartDate when transitioning to IN_DYEHOUSE', async () => {
+      const order: any = {
+        id: 'spo-1',
+        status: SupplierProductionStatus.AWAITING_START,
+        actualStartDate: undefined,
+      };
+      orderRepo.findOne.mockResolvedValue(order);
+
+      await service.updateOrderStatus('spo-1', SupplierProductionStatus.IN_DYEHOUSE);
+
+      expect(order.status).toBe(SupplierProductionStatus.IN_DYEHOUSE);
+      expect(order.actualStartDate).toBeInstanceOf(Date);
+    });
+
+    it('should set actualCompletionDate when transitioning to READY_TO_SHIP', async () => {
+      const order: any = {
+        id: 'spo-1',
+        status: SupplierProductionStatus.IN_QC,
+        actualCompletionDate: undefined,
+      };
+      orderRepo.findOne.mockResolvedValue(order);
+
+      await service.updateOrderStatus('spo-1', SupplierProductionStatus.READY_TO_SHIP);
+
+      expect(order.actualCompletionDate).toBeInstanceOf(Date);
+    });
+
+    it('should not overwrite actualStartDate if already set', async () => {
+      const existing = new Date('2026-01-01');
+      const order: any = {
+        id: 'spo-1',
+        status: SupplierProductionStatus.IN_DYEHOUSE,
+        actualStartDate: existing,
+      };
+      orderRepo.findOne.mockResolvedValue(order);
+
+      await service.updateOrderStatus('spo-1', SupplierProductionStatus.IN_DYEHOUSE);
+      expect(order.actualStartDate).toBe(existing);
+    });
+  });
+
+  // ── updateMilestone ──
+  describe('updateMilestone', () => {
+    it('should throw ProductionMilestoneNotFoundException when missing', async () => {
+      milestoneRepo.findOne.mockResolvedValue(null);
+      await expect(service.updateMilestone('missing', {} as any)).rejects.toThrow(
+        ProductionMilestoneNotFoundException,
       );
     });
 
-    it('should throw NotFoundException when order does not exist', async () => {
-      mockOrderRepo.findOne.mockResolvedValue(null);
+    it('should set startedAt when transitioning to IN_PROGRESS', async () => {
+      const ms: any = { id: 'ms-1', startedAt: undefined };
+      milestoneRepo.findOne.mockResolvedValue(ms);
 
-      await expect(service.findOrderById('nonexistent')).rejects.toThrow(NotFoundException);
-      await expect(service.findOrderById('nonexistent')).rejects.toThrow('Production order not found');
+      await service.updateMilestone('ms-1', { status: MilestoneStatus.IN_PROGRESS } as any);
+
+      expect(ms.startedAt).toBeInstanceOf(Date);
+      expect(ms.status).toBe(MilestoneStatus.IN_PROGRESS);
+    });
+
+    it('should set completedAt when transitioning to COMPLETED', async () => {
+      const ms: any = { id: 'ms-1', completedAt: undefined };
+      milestoneRepo.findOne.mockResolvedValue(ms);
+
+      await service.updateMilestone('ms-1', { status: MilestoneStatus.COMPLETED } as any);
+
+      expect(ms.completedAt).toBeInstanceOf(Date);
     });
   });
 
-  // ═══════════════════════════════════════════════════════
-  //  updateOrderStatus
-  // ═══════════════════════════════════════════════════════
+  // ── reportMilestoneFromSupplier ──
+  describe('reportMilestoneFromSupplier', () => {
+    it('should update milestone and bump parent order lastSupplierUpdateAt', async () => {
+      const parentOrder: any = { id: 'spo-1', lastSupplierUpdateAt: undefined };
+      const ms: any = {
+        id: 'ms-1',
+        productionOrder: parentOrder,
+        reportedBySupplierAt: undefined,
+      };
+      milestoneRepo.findOne.mockResolvedValue(ms);
 
-  describe('updateOrderStatus', () => {
-    it('should set actualStartDate when transitioning to IN_PROGRESS', async () => {
-      const order = createMockOrder({ status: ProductionStatus.PLANNED, actualStartDate: undefined });
-      mockOrderRepo.findOne.mockResolvedValue(order);
-      mockEm.flush.mockResolvedValue(undefined);
-
-      const result = await service.updateOrderStatus('order-1', ProductionStatus.IN_PROGRESS);
-
-      expect(result.status).toBe(ProductionStatus.IN_PROGRESS);
-      expect(result.actualStartDate).toBeInstanceOf(Date);
-    });
-
-    it('should NOT overwrite actualStartDate if already set', async () => {
-      const existingDate = new Date('2026-03-01');
-      const order = createMockOrder({
-        status: ProductionStatus.QC_PENDING,
-        actualStartDate: existingDate,
+      await service.reportMilestoneFromSupplier('ms-1', {
+        status: MilestoneStatus.COMPLETED,
+        mediaUrls: ['https://cdn/photo.jpg'],
+        note: 'Done',
       });
-      mockOrderRepo.findOne.mockResolvedValue(order);
-      mockEm.flush.mockResolvedValue(undefined);
 
-      await service.updateOrderStatus('order-1', ProductionStatus.IN_PROGRESS);
-
-      expect(order.actualStartDate).toBe(existingDate);
+      expect(ms.status).toBe(MilestoneStatus.COMPLETED);
+      expect(ms.supplierMediaUrls).toEqual(['https://cdn/photo.jpg']);
+      expect(ms.note).toBe('Done');
+      expect(ms.reportedBySupplierAt).toBeInstanceOf(Date);
+      expect(parentOrder.lastSupplierUpdateAt).toBeInstanceOf(Date);
     });
 
-    it('should set actualEndDate when transitioning to COMPLETED', async () => {
-      const order = createMockOrder({ status: ProductionStatus.IN_PROGRESS });
-      mockOrderRepo.findOne.mockResolvedValue(order);
-      mockEm.flush.mockResolvedValue(undefined);
-
-      const result = await service.updateOrderStatus('order-1', ProductionStatus.COMPLETED);
-
-      expect(result.status).toBe(ProductionStatus.COMPLETED);
-      expect(result.actualEndDate).toBeInstanceOf(Date);
-    });
-
-    it('should not set dates for non-triggering status transitions', async () => {
-      const order = createMockOrder({ status: ProductionStatus.DRAFT });
-      mockOrderRepo.findOne.mockResolvedValue(order);
-      mockEm.flush.mockResolvedValue(undefined);
-
-      await service.updateOrderStatus('order-1', ProductionStatus.CANCELLED);
-
-      expect(order.status).toBe(ProductionStatus.CANCELLED);
-      expect(order.actualStartDate).toBeUndefined();
-      expect(order.actualEndDate).toBeUndefined();
-    });
-  });
-
-  // ═══════════════════════════════════════════════════════
-  //  updateMilestone
-  // ═══════════════════════════════════════════════════════
-
-  describe('updateMilestone', () => {
-    it('should set startedAt when milestone transitions to IN_PROGRESS', async () => {
-      const ms = { id: 'ms-1', status: MilestoneStatus.PENDING, startedAt: undefined, completedAt: undefined };
-      mockMilestoneRepo.findOne.mockResolvedValue(ms);
-      mockEm.flush.mockResolvedValue(undefined);
-
-      const result = await service.updateMilestone('ms-1', { status: MilestoneStatus.IN_PROGRESS } as any);
-
-      expect(result.startedAt).toBeInstanceOf(Date);
-    });
-
-    it('should set completedAt when milestone transitions to COMPLETED', async () => {
-      const ms = { id: 'ms-2', status: MilestoneStatus.IN_PROGRESS, startedAt: new Date(), completedAt: undefined };
-      mockMilestoneRepo.findOne.mockResolvedValue(ms);
-      mockEm.flush.mockResolvedValue(undefined);
-
-      const result = await service.updateMilestone('ms-2', { status: MilestoneStatus.COMPLETED } as any);
-
-      expect(result.completedAt).toBeInstanceOf(Date);
-    });
-
-    it('should throw NotFoundException when milestone does not exist', async () => {
-      mockMilestoneRepo.findOne.mockResolvedValue(null);
-
+    it('should throw when milestone missing', async () => {
+      milestoneRepo.findOne.mockResolvedValue(null);
       await expect(
-        service.updateMilestone('nonexistent', { status: MilestoneStatus.COMPLETED } as any),
-      ).rejects.toThrow(NotFoundException);
+        service.reportMilestoneFromSupplier('missing', {} as any),
+      ).rejects.toThrow(ProductionMilestoneNotFoundException);
     });
   });
 
-  // ═══════════════════════════════════════════════════════
-  //  QC (Quality Check) CRUD
-  // ═══════════════════════════════════════════════════════
-
+  // ── createQC ──
   describe('createQC', () => {
-    it('should create and persist a quality check', async () => {
-      const qcData = { testType: 'Martindale', productionOrder: 'order-1' };
-      const created = { ...qcData, id: 'new-qc-id' };
-      mockQcRepo.create.mockReturnValue(created);
-      mockEm.persistAndFlush.mockResolvedValue(undefined);
+    const dto = {
+      productionOrderId: 'spo-1',
+      testType: 'Martindale',
+    } as any;
 
-      const result = await service.createQC(qcData);
+    it('should throw without tenant context', async () => {
+      (TenantContext.getTenantId as jest.Mock).mockReturnValue(undefined);
+      await expect(service.createQC(dto)).rejects.toThrow(TenantContextMissingException);
+    });
 
-      expect(result.id).toBe('new-qc-id');
-      expect(result.testType).toBe('Martindale');
-      expect(mockQcRepo.create).toHaveBeenCalledWith(qcData);
-      expect(mockEm.persistAndFlush).toHaveBeenCalledWith(created);
+    it('should default qcType to SUPPLIER_PRE_SHIPMENT', async () => {
+      const created = { id: 'qc-1' };
+      qcRepo.create.mockReturnValue(created);
+      await service.createQC(dto);
+      const call = qcRepo.create.mock.calls[0][0] as any;
+      expect(call.qcType).toBe(QCType.SUPPLIER_PRE_SHIPMENT);
     });
   });
 
+  // ── updateQC ──
   describe('updateQC', () => {
-    it('should update an existing QC check', async () => {
-      const existingQc = { id: 'qc-1', testType: 'Martindale', result: 'PENDING' };
-      mockQcRepo.findOne.mockResolvedValue(existingQc);
-      mockEm.flush.mockResolvedValue(undefined);
-
-      const result = await service.updateQC('qc-1', { result: 'PASSED', measuredValue: '50000' });
-
-      expect(result.result).toBe('PASSED');
-      expect(result.measuredValue).toBe('50000');
-      expect(mockEm.flush).toHaveBeenCalled();
+    it('should throw QualityCheckNotFoundException when missing', async () => {
+      qcRepo.findOne.mockResolvedValue(null);
+      await expect(service.updateQC('missing', {} as any)).rejects.toThrow(
+        QualityCheckNotFoundException,
+      );
     });
 
-    it('should throw NotFoundException when QC check does not exist', async () => {
-      mockQcRepo.findOne.mockResolvedValue(null);
-
-      await expect(service.updateQC('nonexistent', {})).rejects.toThrow(NotFoundException);
-      await expect(service.updateQC('nonexistent', {})).rejects.toThrow('QC check not found');
+    it('should assign provided fields', async () => {
+      const qc: any = { id: 'qc-1', result: 'PENDING' };
+      qcRepo.findOne.mockResolvedValue(qc);
+      await service.updateQC('qc-1', { result: 'PASSED' } as any);
+      expect(qc.result).toBe('PASSED');
     });
   });
 
-  // ═══════════════════════════════════════════════════════
-  //  findAllOrders
-  // ═══════════════════════════════════════════════════════
-
-  describe('findAllOrders', () => {
-    it('should return paginated results with metadata', async () => {
-      const orders = [createMockOrder()];
-      mockOrderRepo.findAndCount.mockResolvedValue([orders, 1]);
-
-      const result = await service.findAllOrders({ page: 1, limit: 20 });
-
-      expect(result.data).toEqual(orders);
-      expect(result.meta).toEqual({ total: 1, page: 1, limit: 20, totalPages: 1 });
+  // ── addMedia ──
+  describe('addMedia', () => {
+    it('should throw without tenant context', async () => {
+      (TenantContext.getTenantId as jest.Mock).mockReturnValue(undefined);
+      await expect(
+        service.addMedia({
+          productionOrderId: 'spo-1',
+          fileName: 'a.jpg',
+          fileUrl: 'https://cdn/a.jpg',
+        } as any),
+      ).rejects.toThrow(TenantContextMissingException);
     });
 
-    it('should filter by status and search term', async () => {
-      mockOrderRepo.findAndCount.mockResolvedValue([[], 0]);
-
-      await service.findAllOrders({ page: 1, limit: 10, search: 'PO-2026', status: ProductionStatus.IN_PROGRESS });
-
-      const whereArg = mockOrderRepo.findAndCount.mock.calls[0][0];
-      expect(whereArg.status).toBe(ProductionStatus.IN_PROGRESS);
-      expect(whereArg.orderNumber).toEqual({ $like: '%PO-2026%' });
+    it('should default uploadedBySupplier to false', async () => {
+      const created = { id: 'm-1' };
+      mediaRepo.create.mockReturnValue(created);
+      await service.addMedia({
+        productionOrderId: 'spo-1',
+        fileName: 'a.jpg',
+        fileUrl: 'https://cdn/a.jpg',
+      } as any);
+      const call = mediaRepo.create.mock.calls[0][0] as any;
+      expect(call.uploadedBySupplier).toBe(false);
     });
   });
 });

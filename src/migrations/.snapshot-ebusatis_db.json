@@ -6977,370 +6977,6 @@
           "length": 6,
           "mappedType": "datetime"
         },
-        "tenant_id": {
-          "name": "tenant_id",
-          "type": "uuid",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "mappedType": "uuid"
-        },
-        "name": {
-          "name": "name",
-          "type": "varchar(255)",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "length": 255,
-          "mappedType": "string"
-        },
-        "code": {
-          "name": "code",
-          "type": "varchar(255)",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": true,
-          "length": 255,
-          "mappedType": "string"
-        },
-        "output_product_id": {
-          "name": "output_product_id",
-          "type": "uuid",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "mappedType": "uuid"
-        },
-        "output_quantity": {
-          "name": "output_quantity",
-          "type": "numeric(10,2)",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "precision": 10,
-          "scale": 2,
-          "default": "1",
-          "mappedType": "decimal"
-        },
-        "labor_cost_per_unit": {
-          "name": "labor_cost_per_unit",
-          "type": "numeric(10,2)",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "precision": 10,
-          "scale": 2,
-          "default": "0",
-          "mappedType": "decimal"
-        },
-        "wastage_percent": {
-          "name": "wastage_percent",
-          "type": "numeric(5,2)",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "precision": 5,
-          "scale": 2,
-          "default": "0",
-          "mappedType": "decimal"
-        },
-        "description": {
-          "name": "description",
-          "type": "varchar(255)",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": true,
-          "length": 255,
-          "mappedType": "string"
-        },
-        "is_active": {
-          "name": "is_active",
-          "type": "boolean",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "default": "true",
-          "mappedType": "boolean"
-        }
-      },
-      "name": "bill_of_materials",
-      "schema": "public",
-      "indexes": [
-        {
-          "columnNames": [
-            "tenant_id"
-          ],
-          "composite": false,
-          "keyName": "bill_of_materials_tenant_id_index",
-          "constraint": false,
-          "primary": false,
-          "unique": false
-        },
-        {
-          "keyName": "bill_of_materials_pkey",
-          "columnNames": [
-            "id"
-          ],
-          "composite": false,
-          "constraint": true,
-          "primary": true,
-          "unique": true
-        }
-      ],
-      "checks": [],
-      "foreignKeys": {
-        "bill_of_materials_tenant_id_foreign": {
-          "constraintName": "bill_of_materials_tenant_id_foreign",
-          "columnNames": [
-            "tenant_id"
-          ],
-          "localTableName": "public.bill_of_materials",
-          "referencedColumnNames": [
-            "id"
-          ],
-          "referencedTableName": "public.tenants",
-          "updateRule": "cascade"
-        },
-        "bill_of_materials_output_product_id_foreign": {
-          "constraintName": "bill_of_materials_output_product_id_foreign",
-          "columnNames": [
-            "output_product_id"
-          ],
-          "localTableName": "public.bill_of_materials",
-          "referencedColumnNames": [
-            "id"
-          ],
-          "referencedTableName": "public.products",
-          "updateRule": "cascade"
-        }
-      },
-      "nativeEnums": {}
-    },
-    {
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "mappedType": "uuid"
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamptz",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "length": 6,
-          "mappedType": "datetime"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamptz",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "length": 6,
-          "mappedType": "datetime"
-        },
-        "deleted_at": {
-          "name": "deleted_at",
-          "type": "timestamptz",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": true,
-          "length": 6,
-          "mappedType": "datetime"
-        },
-        "tenant_id": {
-          "name": "tenant_id",
-          "type": "uuid",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "mappedType": "uuid"
-        },
-        "bom_id": {
-          "name": "bom_id",
-          "type": "uuid",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "mappedType": "uuid"
-        },
-        "input_product_id": {
-          "name": "input_product_id",
-          "type": "uuid",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "mappedType": "uuid"
-        },
-        "quantity": {
-          "name": "quantity",
-          "type": "numeric(10,2)",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "precision": 10,
-          "scale": 2,
-          "mappedType": "decimal"
-        },
-        "unit": {
-          "name": "unit",
-          "type": "varchar(255)",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": true,
-          "length": 255,
-          "mappedType": "string"
-        },
-        "note": {
-          "name": "note",
-          "type": "varchar(255)",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": true,
-          "length": 255,
-          "mappedType": "string"
-        },
-        "sort_order": {
-          "name": "sort_order",
-          "type": "int",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "default": "0",
-          "mappedType": "integer"
-        }
-      },
-      "name": "bom_components",
-      "schema": "public",
-      "indexes": [
-        {
-          "columnNames": [
-            "tenant_id"
-          ],
-          "composite": false,
-          "keyName": "bom_components_tenant_id_index",
-          "constraint": false,
-          "primary": false,
-          "unique": false
-        },
-        {
-          "keyName": "bom_components_pkey",
-          "columnNames": [
-            "id"
-          ],
-          "composite": false,
-          "constraint": true,
-          "primary": true,
-          "unique": true
-        }
-      ],
-      "checks": [],
-      "foreignKeys": {
-        "bom_components_tenant_id_foreign": {
-          "constraintName": "bom_components_tenant_id_foreign",
-          "columnNames": [
-            "tenant_id"
-          ],
-          "localTableName": "public.bom_components",
-          "referencedColumnNames": [
-            "id"
-          ],
-          "referencedTableName": "public.tenants",
-          "updateRule": "cascade"
-        },
-        "bom_components_bom_id_foreign": {
-          "constraintName": "bom_components_bom_id_foreign",
-          "columnNames": [
-            "bom_id"
-          ],
-          "localTableName": "public.bom_components",
-          "referencedColumnNames": [
-            "id"
-          ],
-          "referencedTableName": "public.bill_of_materials",
-          "updateRule": "cascade"
-        },
-        "bom_components_input_product_id_foreign": {
-          "constraintName": "bom_components_input_product_id_foreign",
-          "columnNames": [
-            "input_product_id"
-          ],
-          "localTableName": "public.bom_components",
-          "referencedColumnNames": [
-            "id"
-          ],
-          "referencedTableName": "public.products",
-          "updateRule": "cascade"
-        }
-      },
-      "nativeEnums": {}
-    },
-    {
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "mappedType": "uuid"
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamptz",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "length": 6,
-          "mappedType": "datetime"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamptz",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "length": 6,
-          "mappedType": "datetime"
-        },
-        "deleted_at": {
-          "name": "deleted_at",
-          "type": "timestamptz",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": true,
-          "length": 6,
-          "mappedType": "datetime"
-        },
         "email": {
           "name": "email",
           "type": "varchar(255)",
@@ -7459,911 +7095,6 @@
           ],
           "referencedTableName": "public.tenants",
           "deleteRule": "set null",
-          "updateRule": "cascade"
-        }
-      },
-      "nativeEnums": {}
-    },
-    {
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "mappedType": "uuid"
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamptz",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "length": 6,
-          "mappedType": "datetime"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamptz",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "length": 6,
-          "mappedType": "datetime"
-        },
-        "deleted_at": {
-          "name": "deleted_at",
-          "type": "timestamptz",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": true,
-          "length": 6,
-          "mappedType": "datetime"
-        },
-        "tenant_id": {
-          "name": "tenant_id",
-          "type": "uuid",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "mappedType": "uuid"
-        },
-        "plan_number": {
-          "name": "plan_number",
-          "type": "varchar(255)",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "length": 255,
-          "mappedType": "string"
-        },
-        "status": {
-          "name": "status",
-          "type": "text",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "default": "'DRAFT'",
-          "enumItems": [
-            "DRAFT",
-            "CONFIRMED",
-            "IN_TRANSIT",
-            "AT_CUSTOMS",
-            "DELIVERED",
-            "CANCELLED"
-          ],
-          "mappedType": "enum"
-        },
-        "origin": {
-          "name": "origin",
-          "type": "varchar(255)",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": true,
-          "length": 255,
-          "mappedType": "string"
-        },
-        "destination": {
-          "name": "destination",
-          "type": "varchar(255)",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": true,
-          "length": 255,
-          "mappedType": "string"
-        },
-        "incoterm": {
-          "name": "incoterm",
-          "type": "varchar(255)",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": true,
-          "length": 255,
-          "mappedType": "string"
-        },
-        "container_no": {
-          "name": "container_no",
-          "type": "varchar(255)",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": true,
-          "length": 255,
-          "mappedType": "string"
-        },
-        "container_type": {
-          "name": "container_type",
-          "type": "varchar(255)",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": true,
-          "length": 255,
-          "mappedType": "string"
-        },
-        "seal_no": {
-          "name": "seal_no",
-          "type": "varchar(255)",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": true,
-          "length": 255,
-          "mappedType": "string"
-        },
-        "vessel": {
-          "name": "vessel",
-          "type": "varchar(255)",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": true,
-          "length": 255,
-          "mappedType": "string"
-        },
-        "voyage_no": {
-          "name": "voyage_no",
-          "type": "varchar(255)",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": true,
-          "length": 255,
-          "mappedType": "string"
-        },
-        "estimated_departure": {
-          "name": "estimated_departure",
-          "type": "date",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": true,
-          "length": 0,
-          "mappedType": "date"
-        },
-        "estimated_arrival": {
-          "name": "estimated_arrival",
-          "type": "date",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": true,
-          "length": 0,
-          "mappedType": "date"
-        },
-        "actual_departure": {
-          "name": "actual_departure",
-          "type": "timestamptz",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": true,
-          "length": 6,
-          "mappedType": "datetime"
-        },
-        "actual_arrival": {
-          "name": "actual_arrival",
-          "type": "timestamptz",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": true,
-          "length": 6,
-          "mappedType": "datetime"
-        },
-        "freight_cost": {
-          "name": "freight_cost",
-          "type": "numeric(10,2)",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "precision": 10,
-          "scale": 2,
-          "default": "0",
-          "mappedType": "decimal"
-        },
-        "freight_currency": {
-          "name": "freight_currency",
-          "type": "varchar(255)",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": true,
-          "length": 255,
-          "mappedType": "string"
-        },
-        "carrier": {
-          "name": "carrier",
-          "type": "varchar(255)",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": true,
-          "length": 255,
-          "mappedType": "string"
-        },
-        "tracking_url": {
-          "name": "tracking_url",
-          "type": "varchar(255)",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": true,
-          "length": 255,
-          "mappedType": "string"
-        },
-        "note": {
-          "name": "note",
-          "type": "varchar(255)",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": true,
-          "length": 255,
-          "mappedType": "string"
-        },
-        "created_by_id": {
-          "name": "created_by_id",
-          "type": "uuid",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "mappedType": "uuid"
-        },
-        "linked_order_ids": {
-          "name": "linked_order_ids",
-          "type": "jsonb",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": true,
-          "mappedType": "json"
-        }
-      },
-      "name": "shipment_plans",
-      "schema": "public",
-      "indexes": [
-        {
-          "columnNames": [
-            "tenant_id"
-          ],
-          "composite": false,
-          "keyName": "shipment_plans_tenant_id_index",
-          "constraint": false,
-          "primary": false,
-          "unique": false
-        },
-        {
-          "keyName": "shipment_plans_pkey",
-          "columnNames": [
-            "id"
-          ],
-          "composite": false,
-          "constraint": true,
-          "primary": true,
-          "unique": true
-        }
-      ],
-      "checks": [],
-      "foreignKeys": {
-        "shipment_plans_tenant_id_foreign": {
-          "constraintName": "shipment_plans_tenant_id_foreign",
-          "columnNames": [
-            "tenant_id"
-          ],
-          "localTableName": "public.shipment_plans",
-          "referencedColumnNames": [
-            "id"
-          ],
-          "referencedTableName": "public.tenants",
-          "updateRule": "cascade"
-        },
-        "shipment_plans_created_by_id_foreign": {
-          "constraintName": "shipment_plans_created_by_id_foreign",
-          "columnNames": [
-            "created_by_id"
-          ],
-          "localTableName": "public.shipment_plans",
-          "referencedColumnNames": [
-            "id"
-          ],
-          "referencedTableName": "public.users",
-          "updateRule": "cascade"
-        }
-      },
-      "nativeEnums": {}
-    },
-    {
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "mappedType": "uuid"
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamptz",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "length": 6,
-          "mappedType": "datetime"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamptz",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "length": 6,
-          "mappedType": "datetime"
-        },
-        "deleted_at": {
-          "name": "deleted_at",
-          "type": "timestamptz",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": true,
-          "length": 6,
-          "mappedType": "datetime"
-        },
-        "tenant_id": {
-          "name": "tenant_id",
-          "type": "uuid",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "mappedType": "uuid"
-        },
-        "shipment_plan_id": {
-          "name": "shipment_plan_id",
-          "type": "uuid",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": true,
-          "mappedType": "uuid"
-        },
-        "carrier": {
-          "name": "carrier",
-          "type": "varchar(255)",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "length": 255,
-          "mappedType": "string"
-        },
-        "route": {
-          "name": "route",
-          "type": "varchar(255)",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": true,
-          "length": 255,
-          "mappedType": "string"
-        },
-        "price": {
-          "name": "price",
-          "type": "numeric(10,2)",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "precision": 10,
-          "scale": 2,
-          "mappedType": "decimal"
-        },
-        "currency": {
-          "name": "currency",
-          "type": "varchar(255)",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": true,
-          "length": 255,
-          "mappedType": "string"
-        },
-        "transit_days": {
-          "name": "transit_days",
-          "type": "int",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": true,
-          "mappedType": "integer"
-        },
-        "valid_until": {
-          "name": "valid_until",
-          "type": "date",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": true,
-          "length": 0,
-          "mappedType": "date"
-        },
-        "is_selected": {
-          "name": "is_selected",
-          "type": "boolean",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "default": "false",
-          "mappedType": "boolean"
-        },
-        "note": {
-          "name": "note",
-          "type": "varchar(255)",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": true,
-          "length": 255,
-          "mappedType": "string"
-        }
-      },
-      "name": "freight_quotes",
-      "schema": "public",
-      "indexes": [
-        {
-          "columnNames": [
-            "tenant_id"
-          ],
-          "composite": false,
-          "keyName": "freight_quotes_tenant_id_index",
-          "constraint": false,
-          "primary": false,
-          "unique": false
-        },
-        {
-          "keyName": "freight_quotes_pkey",
-          "columnNames": [
-            "id"
-          ],
-          "composite": false,
-          "constraint": true,
-          "primary": true,
-          "unique": true
-        }
-      ],
-      "checks": [],
-      "foreignKeys": {
-        "freight_quotes_tenant_id_foreign": {
-          "constraintName": "freight_quotes_tenant_id_foreign",
-          "columnNames": [
-            "tenant_id"
-          ],
-          "localTableName": "public.freight_quotes",
-          "referencedColumnNames": [
-            "id"
-          ],
-          "referencedTableName": "public.tenants",
-          "updateRule": "cascade"
-        },
-        "freight_quotes_shipment_plan_id_foreign": {
-          "constraintName": "freight_quotes_shipment_plan_id_foreign",
-          "columnNames": [
-            "shipment_plan_id"
-          ],
-          "localTableName": "public.freight_quotes",
-          "referencedColumnNames": [
-            "id"
-          ],
-          "referencedTableName": "public.shipment_plans",
-          "deleteRule": "set null",
-          "updateRule": "cascade"
-        }
-      },
-      "nativeEnums": {}
-    },
-    {
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "mappedType": "uuid"
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamptz",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "length": 6,
-          "mappedType": "datetime"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamptz",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "length": 6,
-          "mappedType": "datetime"
-        },
-        "deleted_at": {
-          "name": "deleted_at",
-          "type": "timestamptz",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": true,
-          "length": 6,
-          "mappedType": "datetime"
-        },
-        "tenant_id": {
-          "name": "tenant_id",
-          "type": "uuid",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "mappedType": "uuid"
-        },
-        "declaration_number": {
-          "name": "declaration_number",
-          "type": "varchar(255)",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "length": 255,
-          "mappedType": "string"
-        },
-        "shipment_plan_id": {
-          "name": "shipment_plan_id",
-          "type": "uuid",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": true,
-          "mappedType": "uuid"
-        },
-        "status": {
-          "name": "status",
-          "type": "text",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "default": "'DRAFT'",
-          "enumItems": [
-            "DRAFT",
-            "SUBMITTED",
-            "UNDER_REVIEW",
-            "APPROVED",
-            "REJECTED"
-          ],
-          "mappedType": "enum"
-        },
-        "declaration_type": {
-          "name": "declaration_type",
-          "type": "varchar(255)",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": true,
-          "length": 255,
-          "mappedType": "string"
-        },
-        "customs_duty": {
-          "name": "customs_duty",
-          "type": "numeric(10,2)",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "precision": 10,
-          "scale": 2,
-          "default": "0",
-          "mappedType": "decimal"
-        },
-        "customs_vat": {
-          "name": "customs_vat",
-          "type": "numeric(10,2)",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "precision": 10,
-          "scale": 2,
-          "default": "0",
-          "mappedType": "decimal"
-        },
-        "total_cost": {
-          "name": "total_cost",
-          "type": "numeric(10,2)",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "precision": 10,
-          "scale": 2,
-          "default": "0",
-          "mappedType": "decimal"
-        },
-        "currency": {
-          "name": "currency",
-          "type": "varchar(255)",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": true,
-          "length": 255,
-          "mappedType": "string"
-        },
-        "submitted_at": {
-          "name": "submitted_at",
-          "type": "date",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": true,
-          "length": 0,
-          "mappedType": "date"
-        },
-        "approved_at": {
-          "name": "approved_at",
-          "type": "date",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": true,
-          "length": 0,
-          "mappedType": "date"
-        },
-        "note": {
-          "name": "note",
-          "type": "varchar(255)",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": true,
-          "length": 255,
-          "mappedType": "string"
-        },
-        "documents": {
-          "name": "documents",
-          "type": "jsonb",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": true,
-          "mappedType": "json"
-        }
-      },
-      "name": "customs_declarations",
-      "schema": "public",
-      "indexes": [
-        {
-          "columnNames": [
-            "tenant_id"
-          ],
-          "composite": false,
-          "keyName": "customs_declarations_tenant_id_index",
-          "constraint": false,
-          "primary": false,
-          "unique": false
-        },
-        {
-          "keyName": "customs_declarations_pkey",
-          "columnNames": [
-            "id"
-          ],
-          "composite": false,
-          "constraint": true,
-          "primary": true,
-          "unique": true
-        }
-      ],
-      "checks": [],
-      "foreignKeys": {
-        "customs_declarations_tenant_id_foreign": {
-          "constraintName": "customs_declarations_tenant_id_foreign",
-          "columnNames": [
-            "tenant_id"
-          ],
-          "localTableName": "public.customs_declarations",
-          "referencedColumnNames": [
-            "id"
-          ],
-          "referencedTableName": "public.tenants",
-          "updateRule": "cascade"
-        },
-        "customs_declarations_shipment_plan_id_foreign": {
-          "constraintName": "customs_declarations_shipment_plan_id_foreign",
-          "columnNames": [
-            "shipment_plan_id"
-          ],
-          "localTableName": "public.customs_declarations",
-          "referencedColumnNames": [
-            "id"
-          ],
-          "referencedTableName": "public.shipment_plans",
-          "deleteRule": "set null",
-          "updateRule": "cascade"
-        }
-      },
-      "nativeEnums": {}
-    },
-    {
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "mappedType": "uuid"
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamptz",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "length": 6,
-          "mappedType": "datetime"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamptz",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "length": 6,
-          "mappedType": "datetime"
-        },
-        "deleted_at": {
-          "name": "deleted_at",
-          "type": "timestamptz",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": true,
-          "length": 6,
-          "mappedType": "datetime"
-        },
-        "tenant_id": {
-          "name": "tenant_id",
-          "type": "uuid",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "mappedType": "uuid"
-        },
-        "shipment_plan_id": {
-          "name": "shipment_plan_id",
-          "type": "uuid",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "mappedType": "uuid"
-        },
-        "event_type": {
-          "name": "event_type",
-          "type": "varchar(255)",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "length": 255,
-          "mappedType": "string"
-        },
-        "location": {
-          "name": "location",
-          "type": "varchar(255)",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": true,
-          "length": 255,
-          "mappedType": "string"
-        },
-        "event_date": {
-          "name": "event_date",
-          "type": "timestamptz",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "length": 6,
-          "mappedType": "datetime"
-        },
-        "note": {
-          "name": "note",
-          "type": "varchar(255)",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": true,
-          "length": 255,
-          "mappedType": "string"
-        }
-      },
-      "name": "container_events",
-      "schema": "public",
-      "indexes": [
-        {
-          "columnNames": [
-            "tenant_id"
-          ],
-          "composite": false,
-          "keyName": "container_events_tenant_id_index",
-          "constraint": false,
-          "primary": false,
-          "unique": false
-        },
-        {
-          "keyName": "container_events_pkey",
-          "columnNames": [
-            "id"
-          ],
-          "composite": false,
-          "constraint": true,
-          "primary": true,
-          "unique": true
-        }
-      ],
-      "checks": [],
-      "foreignKeys": {
-        "container_events_tenant_id_foreign": {
-          "constraintName": "container_events_tenant_id_foreign",
-          "columnNames": [
-            "tenant_id"
-          ],
-          "localTableName": "public.container_events",
-          "referencedColumnNames": [
-            "id"
-          ],
-          "referencedTableName": "public.tenants",
-          "updateRule": "cascade"
-        },
-        "container_events_shipment_plan_id_foreign": {
-          "constraintName": "container_events_shipment_plan_id_foreign",
-          "columnNames": [
-            "shipment_plan_id"
-          ],
-          "localTableName": "public.container_events",
-          "referencedColumnNames": [
-            "id"
-          ],
-          "referencedTableName": "public.shipment_plans",
           "updateRule": "cascade"
         }
       },
@@ -8934,6 +7665,55 @@
           "default": "0",
           "mappedType": "decimal"
         },
+        "down_payment_amount": {
+          "name": "down_payment_amount",
+          "type": "numeric(14,2)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "precision": 14,
+          "scale": 2,
+          "default": "0",
+          "mappedType": "decimal"
+        },
+        "payment_terms": {
+          "name": "payment_terms",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "mappedType": "text"
+        },
+        "delivery_warning_config": {
+          "name": "delivery_warning_config",
+          "type": "jsonb",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "mappedType": "json"
+        },
+        "qr_code": {
+          "name": "qr_code",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "mappedType": "text"
+        },
+        "digital_signature_url": {
+          "name": "digital_signature_url",
+          "type": "varchar(255)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "length": 255,
+          "mappedType": "string"
+        },
         "container_info": {
           "name": "container_info",
           "type": "jsonb",
@@ -9126,6 +7906,593 @@
           "nullable": false,
           "mappedType": "uuid"
         },
+        "production_number": {
+          "name": "production_number",
+          "type": "varchar(255)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": 255,
+          "mappedType": "string"
+        },
+        "purchase_order_id": {
+          "name": "purchase_order_id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "uuid"
+        },
+        "supplier_id": {
+          "name": "supplier_id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "uuid"
+        },
+        "supplier_contact_id": {
+          "name": "supplier_contact_id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "mappedType": "uuid"
+        },
+        "product_id": {
+          "name": "product_id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "mappedType": "uuid"
+        },
+        "variant_id": {
+          "name": "variant_id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "mappedType": "uuid"
+        },
+        "planned_quantity": {
+          "name": "planned_quantity",
+          "type": "numeric(12,2)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "precision": 12,
+          "scale": 2,
+          "mappedType": "decimal"
+        },
+        "produced_quantity": {
+          "name": "produced_quantity",
+          "type": "numeric(12,2)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "precision": 12,
+          "scale": 2,
+          "default": "0",
+          "mappedType": "decimal"
+        },
+        "status": {
+          "name": "status",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "default": "'AWAITING_START'",
+          "enumItems": [
+            "AWAITING_START",
+            "IN_DYEHOUSE",
+            "IN_WEAVING",
+            "IN_FINISHING",
+            "IN_QC",
+            "READY_TO_SHIP",
+            "SHIPPED",
+            "CANCELLED",
+            "ON_HOLD"
+          ],
+          "mappedType": "enum"
+        },
+        "factory_location": {
+          "name": "factory_location",
+          "type": "varchar(255)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "length": 255,
+          "mappedType": "string"
+        },
+        "estimated_start_date": {
+          "name": "estimated_start_date",
+          "type": "date",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "length": 0,
+          "mappedType": "date"
+        },
+        "estimated_completion_date": {
+          "name": "estimated_completion_date",
+          "type": "date",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "length": 0,
+          "mappedType": "date"
+        },
+        "actual_start_date": {
+          "name": "actual_start_date",
+          "type": "timestamptz",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "length": 6,
+          "mappedType": "datetime"
+        },
+        "actual_completion_date": {
+          "name": "actual_completion_date",
+          "type": "timestamptz",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "length": 6,
+          "mappedType": "datetime"
+        },
+        "last_supplier_update_at": {
+          "name": "last_supplier_update_at",
+          "type": "timestamptz",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "length": 6,
+          "mappedType": "datetime"
+        },
+        "notes": {
+          "name": "notes",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "mappedType": "text"
+        }
+      },
+      "name": "supplier_production_orders",
+      "schema": "public",
+      "indexes": [
+        {
+          "columnNames": [
+            "tenant_id"
+          ],
+          "composite": false,
+          "keyName": "supplier_production_orders_tenant_id_index",
+          "constraint": false,
+          "primary": false,
+          "unique": false
+        },
+        {
+          "columnNames": [
+            "production_number"
+          ],
+          "composite": false,
+          "keyName": "supplier_production_orders_production_number_index",
+          "constraint": false,
+          "primary": false,
+          "unique": false
+        },
+        {
+          "columnNames": [
+            "purchase_order_id"
+          ],
+          "composite": false,
+          "keyName": "supplier_production_orders_purchase_order_id_index",
+          "constraint": false,
+          "primary": false,
+          "unique": false
+        },
+        {
+          "keyName": "supplier_production_orders_pkey",
+          "columnNames": [
+            "id"
+          ],
+          "composite": false,
+          "constraint": true,
+          "primary": true,
+          "unique": true
+        }
+      ],
+      "checks": [],
+      "foreignKeys": {
+        "supplier_production_orders_tenant_id_foreign": {
+          "constraintName": "supplier_production_orders_tenant_id_foreign",
+          "columnNames": [
+            "tenant_id"
+          ],
+          "localTableName": "public.supplier_production_orders",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.tenants",
+          "updateRule": "cascade"
+        },
+        "supplier_production_orders_purchase_order_id_foreign": {
+          "constraintName": "supplier_production_orders_purchase_order_id_foreign",
+          "columnNames": [
+            "purchase_order_id"
+          ],
+          "localTableName": "public.supplier_production_orders",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.purchase_orders",
+          "updateRule": "cascade"
+        },
+        "supplier_production_orders_supplier_id_foreign": {
+          "constraintName": "supplier_production_orders_supplier_id_foreign",
+          "columnNames": [
+            "supplier_id"
+          ],
+          "localTableName": "public.supplier_production_orders",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.partners",
+          "updateRule": "cascade"
+        },
+        "supplier_production_orders_supplier_contact_id_foreign": {
+          "constraintName": "supplier_production_orders_supplier_contact_id_foreign",
+          "columnNames": [
+            "supplier_contact_id"
+          ],
+          "localTableName": "public.supplier_production_orders",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.partner_contacts",
+          "deleteRule": "set null",
+          "updateRule": "cascade"
+        },
+        "supplier_production_orders_product_id_foreign": {
+          "constraintName": "supplier_production_orders_product_id_foreign",
+          "columnNames": [
+            "product_id"
+          ],
+          "localTableName": "public.supplier_production_orders",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.products",
+          "deleteRule": "set null",
+          "updateRule": "cascade"
+        },
+        "supplier_production_orders_variant_id_foreign": {
+          "constraintName": "supplier_production_orders_variant_id_foreign",
+          "columnNames": [
+            "variant_id"
+          ],
+          "localTableName": "public.supplier_production_orders",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.product_variants",
+          "deleteRule": "set null",
+          "updateRule": "cascade"
+        }
+      },
+      "nativeEnums": {}
+    },
+    {
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "uuid"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamptz",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": 6,
+          "mappedType": "datetime"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamptz",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": 6,
+          "mappedType": "datetime"
+        },
+        "deleted_at": {
+          "name": "deleted_at",
+          "type": "timestamptz",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "length": 6,
+          "mappedType": "datetime"
+        },
+        "tenant_id": {
+          "name": "tenant_id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "uuid"
+        },
+        "production_order_id": {
+          "name": "production_order_id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "uuid"
+        },
+        "qc_type": {
+          "name": "qc_type",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "default": "'SUPPLIER_PRE_SHIPMENT'",
+          "enumItems": [
+            "SUPPLIER_PRE_SHIPMENT",
+            "OUR_INCOMING",
+            "OUR_RANDOM_AUDIT"
+          ],
+          "mappedType": "enum"
+        },
+        "test_type": {
+          "name": "test_type",
+          "type": "varchar(255)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": 255,
+          "mappedType": "string"
+        },
+        "test_standard": {
+          "name": "test_standard",
+          "type": "varchar(255)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "length": 255,
+          "mappedType": "string"
+        },
+        "result": {
+          "name": "result",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "default": "'PENDING'",
+          "enumItems": [
+            "PENDING",
+            "PASSED",
+            "FAILED",
+            "CONDITIONAL"
+          ],
+          "mappedType": "enum"
+        },
+        "measured_value": {
+          "name": "measured_value",
+          "type": "varchar(255)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "length": 255,
+          "mappedType": "string"
+        },
+        "expected_value": {
+          "name": "expected_value",
+          "type": "varchar(255)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "length": 255,
+          "mappedType": "string"
+        },
+        "tested_at": {
+          "name": "tested_at",
+          "type": "timestamptz",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "length": 6,
+          "mappedType": "datetime"
+        },
+        "inspector_id": {
+          "name": "inspector_id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "mappedType": "uuid"
+        },
+        "note": {
+          "name": "note",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "mappedType": "text"
+        },
+        "attachments": {
+          "name": "attachments",
+          "type": "jsonb",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "mappedType": "json"
+        }
+      },
+      "name": "quality_checks",
+      "schema": "public",
+      "indexes": [
+        {
+          "columnNames": [
+            "tenant_id"
+          ],
+          "composite": false,
+          "keyName": "quality_checks_tenant_id_index",
+          "constraint": false,
+          "primary": false,
+          "unique": false
+        },
+        {
+          "columnNames": [
+            "production_order_id"
+          ],
+          "composite": false,
+          "keyName": "quality_checks_production_order_id_index",
+          "constraint": false,
+          "primary": false,
+          "unique": false
+        },
+        {
+          "keyName": "quality_checks_pkey",
+          "columnNames": [
+            "id"
+          ],
+          "composite": false,
+          "constraint": true,
+          "primary": true,
+          "unique": true
+        }
+      ],
+      "checks": [],
+      "foreignKeys": {
+        "quality_checks_tenant_id_foreign": {
+          "constraintName": "quality_checks_tenant_id_foreign",
+          "columnNames": [
+            "tenant_id"
+          ],
+          "localTableName": "public.quality_checks",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.tenants",
+          "updateRule": "cascade"
+        },
+        "quality_checks_production_order_id_foreign": {
+          "constraintName": "quality_checks_production_order_id_foreign",
+          "columnNames": [
+            "production_order_id"
+          ],
+          "localTableName": "public.quality_checks",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.supplier_production_orders",
+          "updateRule": "cascade"
+        },
+        "quality_checks_inspector_id_foreign": {
+          "constraintName": "quality_checks_inspector_id_foreign",
+          "columnNames": [
+            "inspector_id"
+          ],
+          "localTableName": "public.quality_checks",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.users",
+          "deleteRule": "set null",
+          "updateRule": "cascade"
+        }
+      },
+      "nativeEnums": {}
+    },
+    {
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "uuid"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamptz",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": 6,
+          "mappedType": "datetime"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamptz",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": 6,
+          "mappedType": "datetime"
+        },
+        "deleted_at": {
+          "name": "deleted_at",
+          "type": "timestamptz",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "length": 6,
+          "mappedType": "datetime"
+        },
+        "tenant_id": {
+          "name": "tenant_id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "uuid"
+        },
         "order_id": {
           "name": "order_id",
           "type": "uuid",
@@ -9146,24 +8513,24 @@
         },
         "quantity": {
           "name": "quantity",
-          "type": "numeric(10,2)",
+          "type": "numeric(12,2)",
           "unsigned": false,
           "autoincrement": false,
           "primary": false,
           "nullable": false,
-          "precision": 10,
+          "precision": 12,
           "scale": 2,
           "mappedType": "decimal"
         },
         "unit_price": {
           "name": "unit_price",
-          "type": "numeric(10,2)",
+          "type": "numeric(14,4)",
           "unsigned": false,
           "autoincrement": false,
           "primary": false,
           "nullable": false,
-          "precision": 10,
-          "scale": 2,
+          "precision": 14,
+          "scale": 4,
           "mappedType": "decimal"
         },
         "tax_rate_id": {
@@ -9189,14 +8556,25 @@
         },
         "received_quantity": {
           "name": "received_quantity",
-          "type": "numeric(10,2)",
+          "type": "numeric(12,2)",
           "unsigned": false,
           "autoincrement": false,
           "primary": false,
           "nullable": false,
-          "precision": 10,
+          "precision": 12,
           "scale": 2,
           "default": "0",
+          "mappedType": "decimal"
+        },
+        "landed_unit_cost": {
+          "name": "landed_unit_cost",
+          "type": "numeric(14,4)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "precision": 14,
+          "scale": 4,
           "mappedType": "decimal"
         },
         "note": {
@@ -9337,539 +8715,6 @@
           "nullable": false,
           "mappedType": "uuid"
         },
-        "order_number": {
-          "name": "order_number",
-          "type": "varchar(255)",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "length": 255,
-          "mappedType": "string"
-        },
-        "product_id": {
-          "name": "product_id",
-          "type": "uuid",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "mappedType": "uuid"
-        },
-        "variant_id": {
-          "name": "variant_id",
-          "type": "uuid",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": true,
-          "mappedType": "uuid"
-        },
-        "bom_id": {
-          "name": "bom_id",
-          "type": "uuid",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": true,
-          "mappedType": "uuid"
-        },
-        "planned_quantity": {
-          "name": "planned_quantity",
-          "type": "numeric(10,2)",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "precision": 10,
-          "scale": 2,
-          "mappedType": "decimal"
-        },
-        "produced_quantity": {
-          "name": "produced_quantity",
-          "type": "numeric(10,2)",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "precision": 10,
-          "scale": 2,
-          "default": "0",
-          "mappedType": "decimal"
-        },
-        "status": {
-          "name": "status",
-          "type": "text",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "default": "'DRAFT'",
-          "enumItems": [
-            "DRAFT",
-            "PLANNED",
-            "IN_PROGRESS",
-            "QC_PENDING",
-            "COMPLETED",
-            "CANCELLED"
-          ],
-          "mappedType": "enum"
-        },
-        "planned_start_date": {
-          "name": "planned_start_date",
-          "type": "date",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": true,
-          "length": 0,
-          "mappedType": "date"
-        },
-        "planned_end_date": {
-          "name": "planned_end_date",
-          "type": "date",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": true,
-          "length": 0,
-          "mappedType": "date"
-        },
-        "actual_start_date": {
-          "name": "actual_start_date",
-          "type": "timestamptz",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": true,
-          "length": 6,
-          "mappedType": "datetime"
-        },
-        "actual_end_date": {
-          "name": "actual_end_date",
-          "type": "timestamptz",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": true,
-          "length": 6,
-          "mappedType": "datetime"
-        },
-        "total_cost": {
-          "name": "total_cost",
-          "type": "numeric(10,2)",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "precision": 10,
-          "scale": 2,
-          "default": "0",
-          "mappedType": "decimal"
-        },
-        "note": {
-          "name": "note",
-          "type": "varchar(255)",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": true,
-          "length": 255,
-          "mappedType": "string"
-        },
-        "assigned_to_id": {
-          "name": "assigned_to_id",
-          "type": "uuid",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": true,
-          "mappedType": "uuid"
-        },
-        "created_by_id": {
-          "name": "created_by_id",
-          "type": "uuid",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "mappedType": "uuid"
-        }
-      },
-      "name": "production_orders",
-      "schema": "public",
-      "indexes": [
-        {
-          "columnNames": [
-            "tenant_id"
-          ],
-          "composite": false,
-          "keyName": "production_orders_tenant_id_index",
-          "constraint": false,
-          "primary": false,
-          "unique": false
-        },
-        {
-          "keyName": "production_orders_pkey",
-          "columnNames": [
-            "id"
-          ],
-          "composite": false,
-          "constraint": true,
-          "primary": true,
-          "unique": true
-        }
-      ],
-      "checks": [],
-      "foreignKeys": {
-        "production_orders_tenant_id_foreign": {
-          "constraintName": "production_orders_tenant_id_foreign",
-          "columnNames": [
-            "tenant_id"
-          ],
-          "localTableName": "public.production_orders",
-          "referencedColumnNames": [
-            "id"
-          ],
-          "referencedTableName": "public.tenants",
-          "updateRule": "cascade"
-        },
-        "production_orders_product_id_foreign": {
-          "constraintName": "production_orders_product_id_foreign",
-          "columnNames": [
-            "product_id"
-          ],
-          "localTableName": "public.production_orders",
-          "referencedColumnNames": [
-            "id"
-          ],
-          "referencedTableName": "public.products",
-          "updateRule": "cascade"
-        },
-        "production_orders_variant_id_foreign": {
-          "constraintName": "production_orders_variant_id_foreign",
-          "columnNames": [
-            "variant_id"
-          ],
-          "localTableName": "public.production_orders",
-          "referencedColumnNames": [
-            "id"
-          ],
-          "referencedTableName": "public.product_variants",
-          "deleteRule": "set null",
-          "updateRule": "cascade"
-        },
-        "production_orders_bom_id_foreign": {
-          "constraintName": "production_orders_bom_id_foreign",
-          "columnNames": [
-            "bom_id"
-          ],
-          "localTableName": "public.production_orders",
-          "referencedColumnNames": [
-            "id"
-          ],
-          "referencedTableName": "public.bill_of_materials",
-          "deleteRule": "set null",
-          "updateRule": "cascade"
-        },
-        "production_orders_assigned_to_id_foreign": {
-          "constraintName": "production_orders_assigned_to_id_foreign",
-          "columnNames": [
-            "assigned_to_id"
-          ],
-          "localTableName": "public.production_orders",
-          "referencedColumnNames": [
-            "id"
-          ],
-          "referencedTableName": "public.users",
-          "deleteRule": "set null",
-          "updateRule": "cascade"
-        },
-        "production_orders_created_by_id_foreign": {
-          "constraintName": "production_orders_created_by_id_foreign",
-          "columnNames": [
-            "created_by_id"
-          ],
-          "localTableName": "public.production_orders",
-          "referencedColumnNames": [
-            "id"
-          ],
-          "referencedTableName": "public.users",
-          "updateRule": "cascade"
-        }
-      },
-      "nativeEnums": {}
-    },
-    {
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "mappedType": "uuid"
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamptz",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "length": 6,
-          "mappedType": "datetime"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamptz",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "length": 6,
-          "mappedType": "datetime"
-        },
-        "deleted_at": {
-          "name": "deleted_at",
-          "type": "timestamptz",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": true,
-          "length": 6,
-          "mappedType": "datetime"
-        },
-        "tenant_id": {
-          "name": "tenant_id",
-          "type": "uuid",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "mappedType": "uuid"
-        },
-        "production_order_id": {
-          "name": "production_order_id",
-          "type": "uuid",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "mappedType": "uuid"
-        },
-        "test_type": {
-          "name": "test_type",
-          "type": "varchar(255)",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "length": 255,
-          "mappedType": "string"
-        },
-        "test_standard": {
-          "name": "test_standard",
-          "type": "varchar(255)",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": true,
-          "length": 255,
-          "mappedType": "string"
-        },
-        "result": {
-          "name": "result",
-          "type": "text",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "default": "'PENDING'",
-          "enumItems": [
-            "PENDING",
-            "PASSED",
-            "FAILED",
-            "CONDITIONAL"
-          ],
-          "mappedType": "enum"
-        },
-        "measured_value": {
-          "name": "measured_value",
-          "type": "varchar(255)",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": true,
-          "length": 255,
-          "mappedType": "string"
-        },
-        "expected_value": {
-          "name": "expected_value",
-          "type": "varchar(255)",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": true,
-          "length": 255,
-          "mappedType": "string"
-        },
-        "tested_at": {
-          "name": "tested_at",
-          "type": "timestamptz",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": true,
-          "length": 6,
-          "mappedType": "datetime"
-        },
-        "inspector_id": {
-          "name": "inspector_id",
-          "type": "uuid",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": true,
-          "mappedType": "uuid"
-        },
-        "note": {
-          "name": "note",
-          "type": "varchar(255)",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": true,
-          "length": 255,
-          "mappedType": "string"
-        },
-        "attachments": {
-          "name": "attachments",
-          "type": "jsonb",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": true,
-          "mappedType": "json"
-        }
-      },
-      "name": "quality_checks",
-      "schema": "public",
-      "indexes": [
-        {
-          "columnNames": [
-            "tenant_id"
-          ],
-          "composite": false,
-          "keyName": "quality_checks_tenant_id_index",
-          "constraint": false,
-          "primary": false,
-          "unique": false
-        },
-        {
-          "keyName": "quality_checks_pkey",
-          "columnNames": [
-            "id"
-          ],
-          "composite": false,
-          "constraint": true,
-          "primary": true,
-          "unique": true
-        }
-      ],
-      "checks": [],
-      "foreignKeys": {
-        "quality_checks_tenant_id_foreign": {
-          "constraintName": "quality_checks_tenant_id_foreign",
-          "columnNames": [
-            "tenant_id"
-          ],
-          "localTableName": "public.quality_checks",
-          "referencedColumnNames": [
-            "id"
-          ],
-          "referencedTableName": "public.tenants",
-          "updateRule": "cascade"
-        },
-        "quality_checks_production_order_id_foreign": {
-          "constraintName": "quality_checks_production_order_id_foreign",
-          "columnNames": [
-            "production_order_id"
-          ],
-          "localTableName": "public.quality_checks",
-          "referencedColumnNames": [
-            "id"
-          ],
-          "referencedTableName": "public.production_orders",
-          "updateRule": "cascade"
-        },
-        "quality_checks_inspector_id_foreign": {
-          "constraintName": "quality_checks_inspector_id_foreign",
-          "columnNames": [
-            "inspector_id"
-          ],
-          "localTableName": "public.quality_checks",
-          "referencedColumnNames": [
-            "id"
-          ],
-          "referencedTableName": "public.users",
-          "deleteRule": "set null",
-          "updateRule": "cascade"
-        }
-      },
-      "nativeEnums": {}
-    },
-    {
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "mappedType": "uuid"
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamptz",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "length": 6,
-          "mappedType": "datetime"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamptz",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "length": 6,
-          "mappedType": "datetime"
-        },
-        "deleted_at": {
-          "name": "deleted_at",
-          "type": "timestamptz",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": true,
-          "length": 6,
-          "mappedType": "datetime"
-        },
-        "tenant_id": {
-          "name": "tenant_id",
-          "type": "uuid",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "mappedType": "uuid"
-        },
         "production_order_id": {
           "name": "production_order_id",
           "type": "uuid",
@@ -9945,15 +8790,33 @@
           "length": 6,
           "mappedType": "datetime"
         },
-        "note": {
-          "name": "note",
-          "type": "varchar(255)",
+        "reported_by_supplier_at": {
+          "name": "reported_by_supplier_at",
+          "type": "timestamptz",
           "unsigned": false,
           "autoincrement": false,
           "primary": false,
           "nullable": true,
-          "length": 255,
-          "mappedType": "string"
+          "length": 6,
+          "mappedType": "datetime"
+        },
+        "supplier_media_urls": {
+          "name": "supplier_media_urls",
+          "type": "jsonb",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "mappedType": "json"
+        },
+        "note": {
+          "name": "note",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "mappedType": "text"
         },
         "assigned_to_id": {
           "name": "assigned_to_id",
@@ -9963,18 +8826,6 @@
           "primary": false,
           "nullable": true,
           "mappedType": "uuid"
-        },
-        "cost": {
-          "name": "cost",
-          "type": "numeric(10,2)",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "precision": 10,
-          "scale": 2,
-          "default": "0",
-          "mappedType": "decimal"
         }
       },
       "name": "production_milestones",
@@ -9986,6 +8837,16 @@
           ],
           "composite": false,
           "keyName": "production_milestones_tenant_id_index",
+          "constraint": false,
+          "primary": false,
+          "unique": false
+        },
+        {
+          "columnNames": [
+            "production_order_id"
+          ],
+          "composite": false,
+          "keyName": "production_milestones_production_order_id_index",
           "constraint": false,
           "primary": false,
           "unique": false
@@ -10024,7 +8885,7 @@
           "referencedColumnNames": [
             "id"
           ],
-          "referencedTableName": "public.production_orders",
+          "referencedTableName": "public.supplier_production_orders",
           "updateRule": "cascade"
         },
         "production_milestones_assigned_to_id_foreign": {
@@ -10147,8 +9008,8 @@
           "length": 255,
           "mappedType": "string"
         },
-        "milestone_name": {
-          "name": "milestone_name",
+        "milestone_code": {
+          "name": "milestone_code",
           "type": "varchar(255)",
           "unsigned": false,
           "autoincrement": false,
@@ -10163,8 +9024,18 @@
           "unsigned": false,
           "autoincrement": false,
           "primary": false,
-          "nullable": false,
+          "nullable": true,
           "mappedType": "uuid"
+        },
+        "uploaded_by_supplier": {
+          "name": "uploaded_by_supplier",
+          "type": "boolean",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "default": "false",
+          "mappedType": "boolean"
         }
       },
       "name": "production_media",
@@ -10176,6 +9047,16 @@
           ],
           "composite": false,
           "keyName": "production_media_tenant_id_index",
+          "constraint": false,
+          "primary": false,
+          "unique": false
+        },
+        {
+          "columnNames": [
+            "production_order_id"
+          ],
+          "composite": false,
+          "keyName": "production_media_production_order_id_index",
           "constraint": false,
           "primary": false,
           "unique": false
@@ -10214,7 +9095,7 @@
           "referencedColumnNames": [
             "id"
           ],
-          "referencedTableName": "public.production_orders",
+          "referencedTableName": "public.supplier_production_orders",
           "updateRule": "cascade"
         },
         "production_media_uploaded_by_id_foreign": {
@@ -10227,6 +9108,7 @@
             "id"
           ],
           "referencedTableName": "public.users",
+          "deleteRule": "set null",
           "updateRule": "cascade"
         }
       },
@@ -13032,17 +11914,98 @@
           "length": 255,
           "mappedType": "string"
         },
+        "direction": {
+          "name": "direction",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "enumItems": [
+            "INBOUND",
+            "OUTBOUND"
+          ],
+          "mappedType": "enum"
+        },
+        "status": {
+          "name": "status",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "default": "'DRAFT'",
+          "enumItems": [
+            "DRAFT",
+            "CONFIRMED",
+            "PREPARING",
+            "IN_TRANSIT",
+            "AT_CUSTOMS",
+            "OUT_FOR_DELIVERY",
+            "DELIVERED",
+            "RETURNED",
+            "CANCELLED"
+          ],
+          "mappedType": "enum"
+        },
+        "purchase_order_id": {
+          "name": "purchase_order_id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "mappedType": "uuid"
+        },
         "sales_order_id": {
           "name": "sales_order_id",
           "type": "uuid",
           "unsigned": false,
           "autoincrement": false,
           "primary": false,
-          "nullable": false,
+          "nullable": true,
           "mappedType": "uuid"
         },
-        "warehouse_id": {
-          "name": "warehouse_id",
+        "origin_warehouse_id": {
+          "name": "origin_warehouse_id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "mappedType": "uuid"
+        },
+        "destination_warehouse_id": {
+          "name": "destination_warehouse_id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "mappedType": "uuid"
+        },
+        "origin_address": {
+          "name": "origin_address",
+          "type": "varchar(255)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "length": 255,
+          "mappedType": "string"
+        },
+        "destination_address": {
+          "name": "destination_address",
+          "type": "varchar(255)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "length": 255,
+          "mappedType": "string"
+        },
+        "carrier_id": {
+          "name": "carrier_id",
           "type": "uuid",
           "unsigned": false,
           "autoincrement": false,
@@ -13059,24 +12022,8 @@
           "nullable": true,
           "mappedType": "uuid"
         },
-        "status": {
-          "name": "status",
-          "type": "text",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "default": "'PREPARING'",
-          "enumItems": [
-            "PREPARING",
-            "SHIPPED",
-            "DELIVERED",
-            "RETURNED"
-          ],
-          "mappedType": "enum"
-        },
-        "tracking_number": {
-          "name": "tracking_number",
+        "carrier_tracking_number": {
+          "name": "carrier_tracking_number",
           "type": "varchar(255)",
           "unsigned": false,
           "autoincrement": false,
@@ -13085,8 +12032,160 @@
           "length": 255,
           "mappedType": "string"
         },
-        "shipped_at": {
-          "name": "shipped_at",
+        "carrier_tracking_url": {
+          "name": "carrier_tracking_url",
+          "type": "varchar(255)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "length": 255,
+          "mappedType": "string"
+        },
+        "container_number": {
+          "name": "container_number",
+          "type": "varchar(255)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "length": 255,
+          "mappedType": "string"
+        },
+        "container_type": {
+          "name": "container_type",
+          "type": "varchar(255)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "length": 255,
+          "mappedType": "string"
+        },
+        "seal_number": {
+          "name": "seal_number",
+          "type": "varchar(255)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "length": 255,
+          "mappedType": "string"
+        },
+        "vessel": {
+          "name": "vessel",
+          "type": "varchar(255)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "length": 255,
+          "mappedType": "string"
+        },
+        "voyage_number": {
+          "name": "voyage_number",
+          "type": "varchar(255)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "length": 255,
+          "mappedType": "string"
+        },
+        "incoterm": {
+          "name": "incoterm",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "enumItems": [
+            "EXW",
+            "FCA",
+            "CPT",
+            "CIP",
+            "DAP",
+            "DPU",
+            "DDP",
+            "FAS",
+            "FOB",
+            "CFR",
+            "CIF"
+          ],
+          "mappedType": "enum"
+        },
+        "vehicle_plate": {
+          "name": "vehicle_plate",
+          "type": "varchar(255)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "length": 255,
+          "mappedType": "string"
+        },
+        "vehicle_type": {
+          "name": "vehicle_type",
+          "type": "varchar(255)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "length": 255,
+          "mappedType": "string"
+        },
+        "driver_name": {
+          "name": "driver_name",
+          "type": "varchar(255)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "length": 255,
+          "mappedType": "string"
+        },
+        "driver_phone": {
+          "name": "driver_phone",
+          "type": "varchar(255)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "length": 255,
+          "mappedType": "string"
+        },
+        "driver_id_number": {
+          "name": "driver_id_number",
+          "type": "varchar(255)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "length": 255,
+          "mappedType": "string"
+        },
+        "estimated_departure": {
+          "name": "estimated_departure",
+          "type": "date",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "length": 0,
+          "mappedType": "date"
+        },
+        "estimated_arrival": {
+          "name": "estimated_arrival",
+          "type": "date",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "length": 0,
+          "mappedType": "date"
+        },
+        "actual_departure": {
+          "name": "actual_departure",
           "type": "timestamptz",
           "unsigned": false,
           "autoincrement": false,
@@ -13095,8 +12194,8 @@
           "length": 6,
           "mappedType": "datetime"
         },
-        "delivered_at": {
-          "name": "delivered_at",
+        "actual_arrival": {
+          "name": "actual_arrival",
           "type": "timestamptz",
           "unsigned": false,
           "autoincrement": false,
@@ -13105,8 +12204,53 @@
           "length": 6,
           "mappedType": "datetime"
         },
-        "note": {
-          "name": "note",
+        "total_freight_cost": {
+          "name": "total_freight_cost",
+          "type": "numeric(14,2)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "precision": 14,
+          "scale": 2,
+          "default": "0",
+          "mappedType": "decimal"
+        },
+        "total_customs_cost": {
+          "name": "total_customs_cost",
+          "type": "numeric(14,2)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "precision": 14,
+          "scale": 2,
+          "default": "0",
+          "mappedType": "decimal"
+        },
+        "total_storage_cost": {
+          "name": "total_storage_cost",
+          "type": "numeric(14,2)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "precision": 14,
+          "scale": 2,
+          "default": "0",
+          "mappedType": "decimal"
+        },
+        "cost_currency_id": {
+          "name": "cost_currency_id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "mappedType": "uuid"
+        },
+        "notes": {
+          "name": "notes",
           "type": "text",
           "unsigned": false,
           "autoincrement": false,
@@ -13120,7 +12264,7 @@
           "unsigned": false,
           "autoincrement": false,
           "primary": false,
-          "nullable": false,
+          "nullable": true,
           "mappedType": "uuid"
         }
       },
@@ -13143,6 +12287,16 @@
           ],
           "composite": false,
           "keyName": "shipments_shipment_number_index",
+          "constraint": false,
+          "primary": false,
+          "unique": false
+        },
+        {
+          "columnNames": [
+            "direction"
+          ],
+          "composite": false,
+          "keyName": "shipments_direction_index",
           "constraint": false,
           "primary": false,
           "unique": false
@@ -13172,6 +12326,19 @@
           "referencedTableName": "public.tenants",
           "updateRule": "cascade"
         },
+        "shipments_purchase_order_id_foreign": {
+          "constraintName": "shipments_purchase_order_id_foreign",
+          "columnNames": [
+            "purchase_order_id"
+          ],
+          "localTableName": "public.shipments",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.purchase_orders",
+          "deleteRule": "set null",
+          "updateRule": "cascade"
+        },
         "shipments_sales_order_id_foreign": {
           "constraintName": "shipments_sales_order_id_foreign",
           "columnNames": [
@@ -13182,18 +12349,45 @@
             "id"
           ],
           "referencedTableName": "public.sales_orders",
+          "deleteRule": "set null",
           "updateRule": "cascade"
         },
-        "shipments_warehouse_id_foreign": {
-          "constraintName": "shipments_warehouse_id_foreign",
+        "shipments_origin_warehouse_id_foreign": {
+          "constraintName": "shipments_origin_warehouse_id_foreign",
           "columnNames": [
-            "warehouse_id"
+            "origin_warehouse_id"
           ],
           "localTableName": "public.shipments",
           "referencedColumnNames": [
             "id"
           ],
           "referencedTableName": "public.warehouses",
+          "deleteRule": "set null",
+          "updateRule": "cascade"
+        },
+        "shipments_destination_warehouse_id_foreign": {
+          "constraintName": "shipments_destination_warehouse_id_foreign",
+          "columnNames": [
+            "destination_warehouse_id"
+          ],
+          "localTableName": "public.shipments",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.warehouses",
+          "deleteRule": "set null",
+          "updateRule": "cascade"
+        },
+        "shipments_carrier_id_foreign": {
+          "constraintName": "shipments_carrier_id_foreign",
+          "columnNames": [
+            "carrier_id"
+          ],
+          "localTableName": "public.shipments",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.partners",
           "deleteRule": "set null",
           "updateRule": "cascade"
         },
@@ -13210,6 +12404,19 @@
           "deleteRule": "set null",
           "updateRule": "cascade"
         },
+        "shipments_cost_currency_id_foreign": {
+          "constraintName": "shipments_cost_currency_id_foreign",
+          "columnNames": [
+            "cost_currency_id"
+          ],
+          "localTableName": "public.shipments",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.currencies",
+          "deleteRule": "set null",
+          "updateRule": "cascade"
+        },
         "shipments_created_by_id_foreign": {
           "constraintName": "shipments_created_by_id_foreign",
           "columnNames": [
@@ -13220,6 +12427,1595 @@
             "id"
           ],
           "referencedTableName": "public.users",
+          "deleteRule": "set null",
+          "updateRule": "cascade"
+        }
+      },
+      "nativeEnums": {}
+    },
+    {
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "uuid"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamptz",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": 6,
+          "mappedType": "datetime"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamptz",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": 6,
+          "mappedType": "datetime"
+        },
+        "deleted_at": {
+          "name": "deleted_at",
+          "type": "timestamptz",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "length": 6,
+          "mappedType": "datetime"
+        },
+        "tenant_id": {
+          "name": "tenant_id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "uuid"
+        },
+        "shipment_id": {
+          "name": "shipment_id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "uuid"
+        },
+        "leg_number": {
+          "name": "leg_number",
+          "type": "int",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "integer"
+        },
+        "leg_type": {
+          "name": "leg_type",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "enumItems": [
+            "FACTORY_TO_PORT",
+            "SEA",
+            "AIR",
+            "RAIL",
+            "PORT_TO_WAREHOUSE",
+            "WAREHOUSE_TO_WAREHOUSE",
+            "TRANSIT_STORAGE",
+            "LAST_MILE"
+          ],
+          "mappedType": "enum"
+        },
+        "origin_location": {
+          "name": "origin_location",
+          "type": "varchar(255)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "length": 255,
+          "mappedType": "string"
+        },
+        "destination_location": {
+          "name": "destination_location",
+          "type": "varchar(255)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "length": 255,
+          "mappedType": "string"
+        },
+        "intermediate_warehouse_id": {
+          "name": "intermediate_warehouse_id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "mappedType": "uuid"
+        },
+        "estimated_departure": {
+          "name": "estimated_departure",
+          "type": "timestamptz",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "length": 6,
+          "mappedType": "datetime"
+        },
+        "estimated_arrival": {
+          "name": "estimated_arrival",
+          "type": "timestamptz",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "length": 6,
+          "mappedType": "datetime"
+        },
+        "actual_departure": {
+          "name": "actual_departure",
+          "type": "timestamptz",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "length": 6,
+          "mappedType": "datetime"
+        },
+        "actual_arrival": {
+          "name": "actual_arrival",
+          "type": "timestamptz",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "length": 6,
+          "mappedType": "datetime"
+        },
+        "carrier_id": {
+          "name": "carrier_id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "mappedType": "uuid"
+        },
+        "freight_cost": {
+          "name": "freight_cost",
+          "type": "numeric(14,2)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "precision": 14,
+          "scale": 2,
+          "default": "0",
+          "mappedType": "decimal"
+        },
+        "storage_cost": {
+          "name": "storage_cost",
+          "type": "numeric(14,2)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "precision": 14,
+          "scale": 2,
+          "default": "0",
+          "mappedType": "decimal"
+        },
+        "other_costs": {
+          "name": "other_costs",
+          "type": "numeric(14,2)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "precision": 14,
+          "scale": 2,
+          "default": "0",
+          "mappedType": "decimal"
+        },
+        "currency_id": {
+          "name": "currency_id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "mappedType": "uuid"
+        },
+        "notes": {
+          "name": "notes",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "mappedType": "text"
+        }
+      },
+      "name": "shipment_legs",
+      "schema": "public",
+      "indexes": [
+        {
+          "columnNames": [
+            "tenant_id"
+          ],
+          "composite": false,
+          "keyName": "shipment_legs_tenant_id_index",
+          "constraint": false,
+          "primary": false,
+          "unique": false
+        },
+        {
+          "columnNames": [
+            "shipment_id"
+          ],
+          "composite": false,
+          "keyName": "shipment_legs_shipment_id_index",
+          "constraint": false,
+          "primary": false,
+          "unique": false
+        },
+        {
+          "keyName": "shipment_legs_pkey",
+          "columnNames": [
+            "id"
+          ],
+          "composite": false,
+          "constraint": true,
+          "primary": true,
+          "unique": true
+        }
+      ],
+      "checks": [],
+      "foreignKeys": {
+        "shipment_legs_tenant_id_foreign": {
+          "constraintName": "shipment_legs_tenant_id_foreign",
+          "columnNames": [
+            "tenant_id"
+          ],
+          "localTableName": "public.shipment_legs",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.tenants",
+          "updateRule": "cascade"
+        },
+        "shipment_legs_shipment_id_foreign": {
+          "constraintName": "shipment_legs_shipment_id_foreign",
+          "columnNames": [
+            "shipment_id"
+          ],
+          "localTableName": "public.shipment_legs",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.shipments",
+          "updateRule": "cascade"
+        },
+        "shipment_legs_intermediate_warehouse_id_foreign": {
+          "constraintName": "shipment_legs_intermediate_warehouse_id_foreign",
+          "columnNames": [
+            "intermediate_warehouse_id"
+          ],
+          "localTableName": "public.shipment_legs",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.warehouses",
+          "deleteRule": "set null",
+          "updateRule": "cascade"
+        },
+        "shipment_legs_carrier_id_foreign": {
+          "constraintName": "shipment_legs_carrier_id_foreign",
+          "columnNames": [
+            "carrier_id"
+          ],
+          "localTableName": "public.shipment_legs",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.partners",
+          "deleteRule": "set null",
+          "updateRule": "cascade"
+        },
+        "shipment_legs_currency_id_foreign": {
+          "constraintName": "shipment_legs_currency_id_foreign",
+          "columnNames": [
+            "currency_id"
+          ],
+          "localTableName": "public.shipment_legs",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.currencies",
+          "deleteRule": "set null",
+          "updateRule": "cascade"
+        }
+      },
+      "nativeEnums": {}
+    },
+    {
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "uuid"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamptz",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": 6,
+          "mappedType": "datetime"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamptz",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": 6,
+          "mappedType": "datetime"
+        },
+        "deleted_at": {
+          "name": "deleted_at",
+          "type": "timestamptz",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "length": 6,
+          "mappedType": "datetime"
+        },
+        "tenant_id": {
+          "name": "tenant_id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "uuid"
+        },
+        "leg_id": {
+          "name": "leg_id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "uuid"
+        },
+        "installment_number": {
+          "name": "installment_number",
+          "type": "int",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "integer"
+        },
+        "trigger": {
+          "name": "trigger",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "enumItems": [
+            "ON_BOOKING",
+            "ON_LOADING",
+            "ON_DEPARTURE",
+            "ON_ARRIVAL",
+            "ON_DELIVERY",
+            "FIXED_DATE"
+          ],
+          "mappedType": "enum"
+        },
+        "amount": {
+          "name": "amount",
+          "type": "numeric(14,2)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "precision": 14,
+          "scale": 2,
+          "mappedType": "decimal"
+        },
+        "percentage": {
+          "name": "percentage",
+          "type": "numeric(5,2)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "precision": 5,
+          "scale": 2,
+          "mappedType": "decimal"
+        },
+        "due_date": {
+          "name": "due_date",
+          "type": "date",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "length": 0,
+          "mappedType": "date"
+        },
+        "status": {
+          "name": "status",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "default": "'PENDING'",
+          "enumItems": [
+            "PENDING",
+            "SCHEDULED",
+            "PAID",
+            "CANCELLED"
+          ],
+          "mappedType": "enum"
+        },
+        "paid_at": {
+          "name": "paid_at",
+          "type": "timestamptz",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "length": 6,
+          "mappedType": "datetime"
+        },
+        "payment_id": {
+          "name": "payment_id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "mappedType": "uuid"
+        },
+        "notes": {
+          "name": "notes",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "mappedType": "text"
+        }
+      },
+      "name": "carrier_payment_schedules",
+      "schema": "public",
+      "indexes": [
+        {
+          "columnNames": [
+            "tenant_id"
+          ],
+          "composite": false,
+          "keyName": "carrier_payment_schedules_tenant_id_index",
+          "constraint": false,
+          "primary": false,
+          "unique": false
+        },
+        {
+          "columnNames": [
+            "leg_id"
+          ],
+          "composite": false,
+          "keyName": "carrier_payment_schedules_leg_id_index",
+          "constraint": false,
+          "primary": false,
+          "unique": false
+        },
+        {
+          "keyName": "carrier_payment_schedules_pkey",
+          "columnNames": [
+            "id"
+          ],
+          "composite": false,
+          "constraint": true,
+          "primary": true,
+          "unique": true
+        }
+      ],
+      "checks": [],
+      "foreignKeys": {
+        "carrier_payment_schedules_tenant_id_foreign": {
+          "constraintName": "carrier_payment_schedules_tenant_id_foreign",
+          "columnNames": [
+            "tenant_id"
+          ],
+          "localTableName": "public.carrier_payment_schedules",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.tenants",
+          "updateRule": "cascade"
+        },
+        "carrier_payment_schedules_leg_id_foreign": {
+          "constraintName": "carrier_payment_schedules_leg_id_foreign",
+          "columnNames": [
+            "leg_id"
+          ],
+          "localTableName": "public.carrier_payment_schedules",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.shipment_legs",
+          "updateRule": "cascade"
+        },
+        "carrier_payment_schedules_payment_id_foreign": {
+          "constraintName": "carrier_payment_schedules_payment_id_foreign",
+          "columnNames": [
+            "payment_id"
+          ],
+          "localTableName": "public.carrier_payment_schedules",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.payments",
+          "deleteRule": "set null",
+          "updateRule": "cascade"
+        }
+      },
+      "nativeEnums": {}
+    },
+    {
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "uuid"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamptz",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": 6,
+          "mappedType": "datetime"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamptz",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": 6,
+          "mappedType": "datetime"
+        },
+        "deleted_at": {
+          "name": "deleted_at",
+          "type": "timestamptz",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "length": 6,
+          "mappedType": "datetime"
+        },
+        "tenant_id": {
+          "name": "tenant_id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "uuid"
+        },
+        "purchase_order_id": {
+          "name": "purchase_order_id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "uuid"
+        },
+        "shipment_id": {
+          "name": "shipment_id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "mappedType": "uuid"
+        },
+        "product_cost": {
+          "name": "product_cost",
+          "type": "numeric(14,2)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "precision": 14,
+          "scale": 2,
+          "mappedType": "decimal"
+        },
+        "freight_cost": {
+          "name": "freight_cost",
+          "type": "numeric(14,2)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "precision": 14,
+          "scale": 2,
+          "default": "0",
+          "mappedType": "decimal"
+        },
+        "customs_duty": {
+          "name": "customs_duty",
+          "type": "numeric(14,2)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "precision": 14,
+          "scale": 2,
+          "default": "0",
+          "mappedType": "decimal"
+        },
+        "customs_vat": {
+          "name": "customs_vat",
+          "type": "numeric(14,2)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "precision": 14,
+          "scale": 2,
+          "default": "0",
+          "mappedType": "decimal"
+        },
+        "broker_fee": {
+          "name": "broker_fee",
+          "type": "numeric(14,2)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "precision": 14,
+          "scale": 2,
+          "default": "0",
+          "mappedType": "decimal"
+        },
+        "insurance_cost": {
+          "name": "insurance_cost",
+          "type": "numeric(14,2)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "precision": 14,
+          "scale": 2,
+          "default": "0",
+          "mappedType": "decimal"
+        },
+        "storage_cost": {
+          "name": "storage_cost",
+          "type": "numeric(14,2)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "precision": 14,
+          "scale": 2,
+          "default": "0",
+          "mappedType": "decimal"
+        },
+        "inland_transport_cost": {
+          "name": "inland_transport_cost",
+          "type": "numeric(14,2)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "precision": 14,
+          "scale": 2,
+          "default": "0",
+          "mappedType": "decimal"
+        },
+        "other_costs": {
+          "name": "other_costs",
+          "type": "numeric(14,2)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "precision": 14,
+          "scale": 2,
+          "default": "0",
+          "mappedType": "decimal"
+        },
+        "total_landed_cost": {
+          "name": "total_landed_cost",
+          "type": "numeric(14,2)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "precision": 14,
+          "scale": 2,
+          "mappedType": "decimal"
+        },
+        "currency_id": {
+          "name": "currency_id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "uuid"
+        },
+        "calculated_at": {
+          "name": "calculated_at",
+          "type": "timestamptz",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": 6,
+          "mappedType": "datetime"
+        },
+        "calculated_by_id": {
+          "name": "calculated_by_id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "mappedType": "uuid"
+        },
+        "notes": {
+          "name": "notes",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "mappedType": "text"
+        },
+        "line_allocations": {
+          "name": "line_allocations",
+          "type": "jsonb",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "mappedType": "json"
+        }
+      },
+      "name": "landed_cost_calculations",
+      "schema": "public",
+      "indexes": [
+        {
+          "columnNames": [
+            "tenant_id"
+          ],
+          "composite": false,
+          "keyName": "landed_cost_calculations_tenant_id_index",
+          "constraint": false,
+          "primary": false,
+          "unique": false
+        },
+        {
+          "columnNames": [
+            "purchase_order_id"
+          ],
+          "composite": false,
+          "keyName": "landed_cost_calculations_purchase_order_id_index",
+          "constraint": false,
+          "primary": false,
+          "unique": false
+        },
+        {
+          "columnNames": [
+            "shipment_id"
+          ],
+          "composite": false,
+          "keyName": "landed_cost_calculations_shipment_id_index",
+          "constraint": false,
+          "primary": false,
+          "unique": false
+        },
+        {
+          "keyName": "landed_cost_calculations_pkey",
+          "columnNames": [
+            "id"
+          ],
+          "composite": false,
+          "constraint": true,
+          "primary": true,
+          "unique": true
+        }
+      ],
+      "checks": [],
+      "foreignKeys": {
+        "landed_cost_calculations_tenant_id_foreign": {
+          "constraintName": "landed_cost_calculations_tenant_id_foreign",
+          "columnNames": [
+            "tenant_id"
+          ],
+          "localTableName": "public.landed_cost_calculations",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.tenants",
+          "updateRule": "cascade"
+        },
+        "landed_cost_calculations_purchase_order_id_foreign": {
+          "constraintName": "landed_cost_calculations_purchase_order_id_foreign",
+          "columnNames": [
+            "purchase_order_id"
+          ],
+          "localTableName": "public.landed_cost_calculations",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.purchase_orders",
+          "updateRule": "cascade"
+        },
+        "landed_cost_calculations_shipment_id_foreign": {
+          "constraintName": "landed_cost_calculations_shipment_id_foreign",
+          "columnNames": [
+            "shipment_id"
+          ],
+          "localTableName": "public.landed_cost_calculations",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.shipments",
+          "deleteRule": "set null",
+          "updateRule": "cascade"
+        },
+        "landed_cost_calculations_currency_id_foreign": {
+          "constraintName": "landed_cost_calculations_currency_id_foreign",
+          "columnNames": [
+            "currency_id"
+          ],
+          "localTableName": "public.landed_cost_calculations",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.currencies",
+          "updateRule": "cascade"
+        },
+        "landed_cost_calculations_calculated_by_id_foreign": {
+          "constraintName": "landed_cost_calculations_calculated_by_id_foreign",
+          "columnNames": [
+            "calculated_by_id"
+          ],
+          "localTableName": "public.landed_cost_calculations",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.users",
+          "deleteRule": "set null",
+          "updateRule": "cascade"
+        }
+      },
+      "nativeEnums": {}
+    },
+    {
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "uuid"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamptz",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": 6,
+          "mappedType": "datetime"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamptz",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": 6,
+          "mappedType": "datetime"
+        },
+        "deleted_at": {
+          "name": "deleted_at",
+          "type": "timestamptz",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "length": 6,
+          "mappedType": "datetime"
+        },
+        "tenant_id": {
+          "name": "tenant_id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "uuid"
+        },
+        "shipment_id": {
+          "name": "shipment_id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "mappedType": "uuid"
+        },
+        "carrier_id": {
+          "name": "carrier_id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "mappedType": "uuid"
+        },
+        "route": {
+          "name": "route",
+          "type": "varchar(255)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "length": 255,
+          "mappedType": "string"
+        },
+        "price": {
+          "name": "price",
+          "type": "numeric(14,2)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "precision": 14,
+          "scale": 2,
+          "mappedType": "decimal"
+        },
+        "currency_id": {
+          "name": "currency_id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "mappedType": "uuid"
+        },
+        "transit_days": {
+          "name": "transit_days",
+          "type": "int",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "mappedType": "integer"
+        },
+        "valid_until": {
+          "name": "valid_until",
+          "type": "date",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "length": 0,
+          "mappedType": "date"
+        },
+        "is_selected": {
+          "name": "is_selected",
+          "type": "boolean",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "default": "false",
+          "mappedType": "boolean"
+        },
+        "note": {
+          "name": "note",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "mappedType": "text"
+        }
+      },
+      "name": "freight_quotes",
+      "schema": "public",
+      "indexes": [
+        {
+          "columnNames": [
+            "tenant_id"
+          ],
+          "composite": false,
+          "keyName": "freight_quotes_tenant_id_index",
+          "constraint": false,
+          "primary": false,
+          "unique": false
+        },
+        {
+          "columnNames": [
+            "shipment_id"
+          ],
+          "composite": false,
+          "keyName": "freight_quotes_shipment_id_index",
+          "constraint": false,
+          "primary": false,
+          "unique": false
+        },
+        {
+          "keyName": "freight_quotes_pkey",
+          "columnNames": [
+            "id"
+          ],
+          "composite": false,
+          "constraint": true,
+          "primary": true,
+          "unique": true
+        }
+      ],
+      "checks": [],
+      "foreignKeys": {
+        "freight_quotes_tenant_id_foreign": {
+          "constraintName": "freight_quotes_tenant_id_foreign",
+          "columnNames": [
+            "tenant_id"
+          ],
+          "localTableName": "public.freight_quotes",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.tenants",
+          "updateRule": "cascade"
+        },
+        "freight_quotes_shipment_id_foreign": {
+          "constraintName": "freight_quotes_shipment_id_foreign",
+          "columnNames": [
+            "shipment_id"
+          ],
+          "localTableName": "public.freight_quotes",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.shipments",
+          "deleteRule": "set null",
+          "updateRule": "cascade"
+        },
+        "freight_quotes_carrier_id_foreign": {
+          "constraintName": "freight_quotes_carrier_id_foreign",
+          "columnNames": [
+            "carrier_id"
+          ],
+          "localTableName": "public.freight_quotes",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.partners",
+          "deleteRule": "set null",
+          "updateRule": "cascade"
+        },
+        "freight_quotes_currency_id_foreign": {
+          "constraintName": "freight_quotes_currency_id_foreign",
+          "columnNames": [
+            "currency_id"
+          ],
+          "localTableName": "public.freight_quotes",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.currencies",
+          "deleteRule": "set null",
+          "updateRule": "cascade"
+        }
+      },
+      "nativeEnums": {}
+    },
+    {
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "uuid"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamptz",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": 6,
+          "mappedType": "datetime"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamptz",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": 6,
+          "mappedType": "datetime"
+        },
+        "deleted_at": {
+          "name": "deleted_at",
+          "type": "timestamptz",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "length": 6,
+          "mappedType": "datetime"
+        },
+        "tenant_id": {
+          "name": "tenant_id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "uuid"
+        },
+        "declaration_number": {
+          "name": "declaration_number",
+          "type": "varchar(255)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": 255,
+          "mappedType": "string"
+        },
+        "shipment_id": {
+          "name": "shipment_id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "mappedType": "uuid"
+        },
+        "status": {
+          "name": "status",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "default": "'DRAFT'",
+          "enumItems": [
+            "DRAFT",
+            "SUBMITTED",
+            "UNDER_REVIEW",
+            "APPROVED",
+            "REJECTED"
+          ],
+          "mappedType": "enum"
+        },
+        "declaration_type": {
+          "name": "declaration_type",
+          "type": "varchar(255)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "length": 255,
+          "mappedType": "string"
+        },
+        "customs_duty": {
+          "name": "customs_duty",
+          "type": "numeric(14,2)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "precision": 14,
+          "scale": 2,
+          "default": "0",
+          "mappedType": "decimal"
+        },
+        "customs_vat": {
+          "name": "customs_vat",
+          "type": "numeric(14,2)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "precision": 14,
+          "scale": 2,
+          "default": "0",
+          "mappedType": "decimal"
+        },
+        "broker_fee": {
+          "name": "broker_fee",
+          "type": "numeric(14,2)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "precision": 14,
+          "scale": 2,
+          "default": "0",
+          "mappedType": "decimal"
+        },
+        "insurance_cost": {
+          "name": "insurance_cost",
+          "type": "numeric(14,2)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "precision": 14,
+          "scale": 2,
+          "default": "0",
+          "mappedType": "decimal"
+        },
+        "total_cost": {
+          "name": "total_cost",
+          "type": "numeric(14,2)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "precision": 14,
+          "scale": 2,
+          "default": "0",
+          "mappedType": "decimal"
+        },
+        "currency_id": {
+          "name": "currency_id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "mappedType": "uuid"
+        },
+        "submitted_at": {
+          "name": "submitted_at",
+          "type": "date",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "length": 0,
+          "mappedType": "date"
+        },
+        "approved_at": {
+          "name": "approved_at",
+          "type": "date",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "length": 0,
+          "mappedType": "date"
+        },
+        "note": {
+          "name": "note",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "mappedType": "text"
+        },
+        "documents": {
+          "name": "documents",
+          "type": "jsonb",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "mappedType": "json"
+        }
+      },
+      "name": "customs_declarations",
+      "schema": "public",
+      "indexes": [
+        {
+          "columnNames": [
+            "tenant_id"
+          ],
+          "composite": false,
+          "keyName": "customs_declarations_tenant_id_index",
+          "constraint": false,
+          "primary": false,
+          "unique": false
+        },
+        {
+          "columnNames": [
+            "shipment_id"
+          ],
+          "composite": false,
+          "keyName": "customs_declarations_shipment_id_index",
+          "constraint": false,
+          "primary": false,
+          "unique": false
+        },
+        {
+          "keyName": "customs_declarations_pkey",
+          "columnNames": [
+            "id"
+          ],
+          "composite": false,
+          "constraint": true,
+          "primary": true,
+          "unique": true
+        }
+      ],
+      "checks": [],
+      "foreignKeys": {
+        "customs_declarations_tenant_id_foreign": {
+          "constraintName": "customs_declarations_tenant_id_foreign",
+          "columnNames": [
+            "tenant_id"
+          ],
+          "localTableName": "public.customs_declarations",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.tenants",
+          "updateRule": "cascade"
+        },
+        "customs_declarations_shipment_id_foreign": {
+          "constraintName": "customs_declarations_shipment_id_foreign",
+          "columnNames": [
+            "shipment_id"
+          ],
+          "localTableName": "public.customs_declarations",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.shipments",
+          "deleteRule": "set null",
+          "updateRule": "cascade"
+        },
+        "customs_declarations_currency_id_foreign": {
+          "constraintName": "customs_declarations_currency_id_foreign",
+          "columnNames": [
+            "currency_id"
+          ],
+          "localTableName": "public.customs_declarations",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.currencies",
+          "deleteRule": "set null",
+          "updateRule": "cascade"
+        }
+      },
+      "nativeEnums": {}
+    },
+    {
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "uuid"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamptz",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": 6,
+          "mappedType": "datetime"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamptz",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": 6,
+          "mappedType": "datetime"
+        },
+        "deleted_at": {
+          "name": "deleted_at",
+          "type": "timestamptz",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "length": 6,
+          "mappedType": "datetime"
+        },
+        "tenant_id": {
+          "name": "tenant_id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "uuid"
+        },
+        "shipment_id": {
+          "name": "shipment_id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "uuid"
+        },
+        "event_type": {
+          "name": "event_type",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "enumItems": [
+            "LOADED_AT_FACTORY",
+            "IN_TRANSIT_TO_PORT",
+            "AT_ORIGIN_PORT",
+            "LOADED_ON_VESSEL",
+            "IN_TRANSIT_AT_SEA",
+            "AT_DESTINATION_PORT",
+            "CUSTOMS_HOLD",
+            "CUSTOMS_CLEARED",
+            "IN_TRANSIT_TO_WAREHOUSE",
+            "ARRIVED_AT_WAREHOUSE",
+            "OUT_FOR_DELIVERY",
+            "DELIVERED",
+            "EXCEPTION"
+          ],
+          "mappedType": "enum"
+        },
+        "location": {
+          "name": "location",
+          "type": "varchar(255)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "length": 255,
+          "mappedType": "string"
+        },
+        "event_date": {
+          "name": "event_date",
+          "type": "timestamptz",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": 6,
+          "mappedType": "datetime"
+        },
+        "note": {
+          "name": "note",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "mappedType": "text"
+        }
+      },
+      "name": "container_events",
+      "schema": "public",
+      "indexes": [
+        {
+          "columnNames": [
+            "tenant_id"
+          ],
+          "composite": false,
+          "keyName": "container_events_tenant_id_index",
+          "constraint": false,
+          "primary": false,
+          "unique": false
+        },
+        {
+          "columnNames": [
+            "shipment_id"
+          ],
+          "composite": false,
+          "keyName": "container_events_shipment_id_index",
+          "constraint": false,
+          "primary": false,
+          "unique": false
+        },
+        {
+          "keyName": "container_events_pkey",
+          "columnNames": [
+            "id"
+          ],
+          "composite": false,
+          "constraint": true,
+          "primary": true,
+          "unique": true
+        }
+      ],
+      "checks": [],
+      "foreignKeys": {
+        "container_events_tenant_id_foreign": {
+          "constraintName": "container_events_tenant_id_foreign",
+          "columnNames": [
+            "tenant_id"
+          ],
+          "localTableName": "public.container_events",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.tenants",
+          "updateRule": "cascade"
+        },
+        "container_events_shipment_id_foreign": {
+          "constraintName": "container_events_shipment_id_foreign",
+          "columnNames": [
+            "shipment_id"
+          ],
+          "localTableName": "public.container_events",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.shipments",
           "updateRule": "cascade"
         }
       },
@@ -13505,8 +14301,17 @@
           "nullable": false,
           "mappedType": "uuid"
         },
-        "order_line_id": {
-          "name": "order_line_id",
+        "purchase_order_line_id": {
+          "name": "purchase_order_line_id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "mappedType": "uuid"
+        },
+        "sales_order_line_id": {
+          "name": "sales_order_line_id",
           "type": "uuid",
           "unsigned": false,
           "autoincrement": false,
@@ -13525,23 +14330,14 @@
         },
         "quantity": {
           "name": "quantity",
-          "type": "numeric(10,2)",
+          "type": "numeric(12,2)",
           "unsigned": false,
           "autoincrement": false,
           "primary": false,
           "nullable": false,
-          "precision": 10,
+          "precision": 12,
           "scale": 2,
           "mappedType": "decimal"
-        },
-        "note": {
-          "name": "note",
-          "type": "text",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": true,
-          "mappedType": "text"
         },
         "roll_ids": {
           "name": "roll_ids",
@@ -13552,6 +14348,15 @@
           "nullable": false,
           "default": "'[]'",
           "mappedType": "json"
+        },
+        "note": {
+          "name": "note",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "mappedType": "text"
         }
       },
       "name": "shipment_lines",
@@ -13563,6 +14368,16 @@
           ],
           "composite": false,
           "keyName": "shipment_lines_tenant_id_index",
+          "constraint": false,
+          "primary": false,
+          "unique": false
+        },
+        {
+          "columnNames": [
+            "shipment_id"
+          ],
+          "composite": false,
+          "keyName": "shipment_lines_shipment_id_index",
           "constraint": false,
           "primary": false,
           "unique": false
@@ -13604,10 +14419,23 @@
           "referencedTableName": "public.shipments",
           "updateRule": "cascade"
         },
-        "shipment_lines_order_line_id_foreign": {
-          "constraintName": "shipment_lines_order_line_id_foreign",
+        "shipment_lines_purchase_order_line_id_foreign": {
+          "constraintName": "shipment_lines_purchase_order_line_id_foreign",
           "columnNames": [
-            "order_line_id"
+            "purchase_order_line_id"
+          ],
+          "localTableName": "public.shipment_lines",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.purchase_order_lines",
+          "deleteRule": "set null",
+          "updateRule": "cascade"
+        },
+        "shipment_lines_sales_order_line_id_foreign": {
+          "constraintName": "shipment_lines_sales_order_line_id_foreign",
+          "columnNames": [
+            "sales_order_line_id"
           ],
           "localTableName": "public.shipment_lines",
           "referencedColumnNames": [
@@ -13779,6 +14607,24 @@
         },
         "purchase_order_id": {
           "name": "purchase_order_id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "mappedType": "uuid"
+        },
+        "shipment_id": {
+          "name": "shipment_id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "mappedType": "uuid"
+        },
+        "vehicle_plate": {
+          "name": "vehicle_plate",
           "type": "varchar(255)",
           "unsigned": false,
           "autoincrement": false,
@@ -13786,6 +14632,74 @@
           "nullable": true,
           "length": 255,
           "mappedType": "string"
+        },
+        "vehicle_type": {
+          "name": "vehicle_type",
+          "type": "varchar(255)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "length": 255,
+          "mappedType": "string"
+        },
+        "driver_name": {
+          "name": "driver_name",
+          "type": "varchar(255)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "length": 255,
+          "mappedType": "string"
+        },
+        "driver_phone": {
+          "name": "driver_phone",
+          "type": "varchar(255)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "length": 255,
+          "mappedType": "string"
+        },
+        "driver_id_number": {
+          "name": "driver_id_number",
+          "type": "varchar(255)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "length": 255,
+          "mappedType": "string"
+        },
+        "eta": {
+          "name": "eta",
+          "type": "timestamptz",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "length": 6,
+          "mappedType": "datetime"
+        },
+        "received_by_id": {
+          "name": "received_by_id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "mappedType": "uuid"
+        },
+        "shipment_responsible_id": {
+          "name": "shipment_responsible_id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "mappedType": "uuid"
         },
         "received_at": {
           "name": "received_at",
@@ -13845,6 +14759,36 @@
           "unique": false
         },
         {
+          "columnNames": [
+            "receive_number"
+          ],
+          "composite": false,
+          "keyName": "goods_receives_receive_number_index",
+          "constraint": false,
+          "primary": false,
+          "unique": false
+        },
+        {
+          "columnNames": [
+            "purchase_order_id"
+          ],
+          "composite": false,
+          "keyName": "goods_receives_purchase_order_id_index",
+          "constraint": false,
+          "primary": false,
+          "unique": false
+        },
+        {
+          "columnNames": [
+            "shipment_id"
+          ],
+          "composite": false,
+          "keyName": "goods_receives_shipment_id_index",
+          "constraint": false,
+          "primary": false,
+          "unique": false
+        },
+        {
           "keyName": "goods_receives_pkey",
           "columnNames": [
             "id"
@@ -13893,6 +14837,58 @@
           "referencedTableName": "public.warehouses",
           "updateRule": "cascade"
         },
+        "goods_receives_purchase_order_id_foreign": {
+          "constraintName": "goods_receives_purchase_order_id_foreign",
+          "columnNames": [
+            "purchase_order_id"
+          ],
+          "localTableName": "public.goods_receives",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.purchase_orders",
+          "deleteRule": "set null",
+          "updateRule": "cascade"
+        },
+        "goods_receives_shipment_id_foreign": {
+          "constraintName": "goods_receives_shipment_id_foreign",
+          "columnNames": [
+            "shipment_id"
+          ],
+          "localTableName": "public.goods_receives",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.shipments",
+          "deleteRule": "set null",
+          "updateRule": "cascade"
+        },
+        "goods_receives_received_by_id_foreign": {
+          "constraintName": "goods_receives_received_by_id_foreign",
+          "columnNames": [
+            "received_by_id"
+          ],
+          "localTableName": "public.goods_receives",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.users",
+          "deleteRule": "set null",
+          "updateRule": "cascade"
+        },
+        "goods_receives_shipment_responsible_id_foreign": {
+          "constraintName": "goods_receives_shipment_responsible_id_foreign",
+          "columnNames": [
+            "shipment_responsible_id"
+          ],
+          "localTableName": "public.goods_receives",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.users",
+          "deleteRule": "set null",
+          "updateRule": "cascade"
+        },
         "goods_receives_created_by_id_foreign": {
           "constraintName": "goods_receives_created_by_id_foreign",
           "columnNames": [
@@ -13903,6 +14899,341 @@
             "id"
           ],
           "referencedTableName": "public.users",
+          "updateRule": "cascade"
+        }
+      },
+      "nativeEnums": {}
+    },
+    {
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "uuid"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamptz",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": 6,
+          "mappedType": "datetime"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamptz",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": 6,
+          "mappedType": "datetime"
+        },
+        "deleted_at": {
+          "name": "deleted_at",
+          "type": "timestamptz",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "length": 6,
+          "mappedType": "datetime"
+        },
+        "tenant_id": {
+          "name": "tenant_id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "uuid"
+        },
+        "claim_number": {
+          "name": "claim_number",
+          "type": "varchar(255)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": 255,
+          "mappedType": "string"
+        },
+        "supplier_id": {
+          "name": "supplier_id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "uuid"
+        },
+        "goods_receive_id": {
+          "name": "goods_receive_id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "uuid"
+        },
+        "purchase_order_id": {
+          "name": "purchase_order_id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "uuid"
+        },
+        "claim_type": {
+          "name": "claim_type",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "enumItems": [
+            "SHORT_DELIVERY",
+            "DAMAGED",
+            "WRONG_VARIANT",
+            "WRONG_BATCH",
+            "QUALITY_ISSUE",
+            "OTHER"
+          ],
+          "mappedType": "enum"
+        },
+        "status": {
+          "name": "status",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "default": "'OPEN'",
+          "enumItems": [
+            "OPEN",
+            "NEGOTIATING",
+            "RESOLVED_CREDIT",
+            "RESOLVED_REPLACEMENT",
+            "RESOLVED_REFUND",
+            "REJECTED",
+            "CLOSED"
+          ],
+          "mappedType": "enum"
+        },
+        "claimed_amount": {
+          "name": "claimed_amount",
+          "type": "numeric(14,2)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "precision": 14,
+          "scale": 2,
+          "mappedType": "decimal"
+        },
+        "settled_amount": {
+          "name": "settled_amount",
+          "type": "numeric(14,2)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "precision": 14,
+          "scale": 2,
+          "mappedType": "decimal"
+        },
+        "currency_id": {
+          "name": "currency_id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "mappedType": "uuid"
+        },
+        "description": {
+          "name": "description",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "text"
+        },
+        "photo_urls": {
+          "name": "photo_urls",
+          "type": "jsonb",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "mappedType": "json"
+        },
+        "opened_at": {
+          "name": "opened_at",
+          "type": "timestamptz",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": 6,
+          "mappedType": "datetime"
+        },
+        "resolved_at": {
+          "name": "resolved_at",
+          "type": "timestamptz",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "length": 6,
+          "mappedType": "datetime"
+        },
+        "opened_by_id": {
+          "name": "opened_by_id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "mappedType": "uuid"
+        }
+      },
+      "name": "supplier_claims",
+      "schema": "public",
+      "indexes": [
+        {
+          "columnNames": [
+            "tenant_id"
+          ],
+          "composite": false,
+          "keyName": "supplier_claims_tenant_id_index",
+          "constraint": false,
+          "primary": false,
+          "unique": false
+        },
+        {
+          "columnNames": [
+            "claim_number"
+          ],
+          "composite": false,
+          "keyName": "supplier_claims_claim_number_index",
+          "constraint": false,
+          "primary": false,
+          "unique": false
+        },
+        {
+          "columnNames": [
+            "goods_receive_id"
+          ],
+          "composite": false,
+          "keyName": "supplier_claims_goods_receive_id_index",
+          "constraint": false,
+          "primary": false,
+          "unique": false
+        },
+        {
+          "columnNames": [
+            "purchase_order_id"
+          ],
+          "composite": false,
+          "keyName": "supplier_claims_purchase_order_id_index",
+          "constraint": false,
+          "primary": false,
+          "unique": false
+        },
+        {
+          "keyName": "supplier_claims_pkey",
+          "columnNames": [
+            "id"
+          ],
+          "composite": false,
+          "constraint": true,
+          "primary": true,
+          "unique": true
+        }
+      ],
+      "checks": [],
+      "foreignKeys": {
+        "supplier_claims_tenant_id_foreign": {
+          "constraintName": "supplier_claims_tenant_id_foreign",
+          "columnNames": [
+            "tenant_id"
+          ],
+          "localTableName": "public.supplier_claims",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.tenants",
+          "updateRule": "cascade"
+        },
+        "supplier_claims_supplier_id_foreign": {
+          "constraintName": "supplier_claims_supplier_id_foreign",
+          "columnNames": [
+            "supplier_id"
+          ],
+          "localTableName": "public.supplier_claims",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.partners",
+          "updateRule": "cascade"
+        },
+        "supplier_claims_goods_receive_id_foreign": {
+          "constraintName": "supplier_claims_goods_receive_id_foreign",
+          "columnNames": [
+            "goods_receive_id"
+          ],
+          "localTableName": "public.supplier_claims",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.goods_receives",
+          "updateRule": "cascade"
+        },
+        "supplier_claims_purchase_order_id_foreign": {
+          "constraintName": "supplier_claims_purchase_order_id_foreign",
+          "columnNames": [
+            "purchase_order_id"
+          ],
+          "localTableName": "public.supplier_claims",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.purchase_orders",
+          "updateRule": "cascade"
+        },
+        "supplier_claims_currency_id_foreign": {
+          "constraintName": "supplier_claims_currency_id_foreign",
+          "columnNames": [
+            "currency_id"
+          ],
+          "localTableName": "public.supplier_claims",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.currencies",
+          "deleteRule": "set null",
+          "updateRule": "cascade"
+        },
+        "supplier_claims_opened_by_id_foreign": {
+          "constraintName": "supplier_claims_opened_by_id_foreign",
+          "columnNames": [
+            "opened_by_id"
+          ],
+          "localTableName": "public.supplier_claims",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.users",
+          "deleteRule": "set null",
           "updateRule": "cascade"
         }
       },
@@ -13978,12 +15309,12 @@
         },
         "expected_quantity": {
           "name": "expected_quantity",
-          "type": "numeric(10,2)",
+          "type": "numeric(12,2)",
           "unsigned": false,
           "autoincrement": false,
           "primary": false,
           "nullable": true,
-          "precision": 10,
+          "precision": 12,
           "scale": 2,
           "mappedType": "decimal"
         },
@@ -13999,15 +15330,82 @@
         },
         "total_received_quantity": {
           "name": "total_received_quantity",
-          "type": "numeric(10,2)",
+          "type": "numeric(12,2)",
           "unsigned": false,
           "autoincrement": false,
           "primary": false,
           "nullable": false,
-          "precision": 10,
+          "precision": 12,
           "scale": 2,
           "default": "0",
           "mappedType": "decimal"
+        },
+        "discrepancy_type": {
+          "name": "discrepancy_type",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "default": "'NONE'",
+          "enumItems": [
+            "NONE",
+            "QUANTITY_SHORT",
+            "QUANTITY_OVER",
+            "DAMAGED",
+            "WRONG_VARIANT",
+            "WRONG_BATCH",
+            "QUALITY_ISSUE",
+            "OTHER"
+          ],
+          "mappedType": "enum"
+        },
+        "discrepancy_quantity": {
+          "name": "discrepancy_quantity",
+          "type": "numeric(12,2)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "precision": 12,
+          "scale": 2,
+          "mappedType": "decimal"
+        },
+        "discrepancy_reason": {
+          "name": "discrepancy_reason",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "mappedType": "text"
+        },
+        "condition_notes": {
+          "name": "condition_notes",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "mappedType": "text"
+        },
+        "photo_evidence_urls": {
+          "name": "photo_evidence_urls",
+          "type": "jsonb",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "mappedType": "json"
+        },
+        "claim_id": {
+          "name": "claim_id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "mappedType": "uuid"
         },
         "note": {
           "name": "note",
@@ -14028,6 +15426,26 @@
           ],
           "composite": false,
           "keyName": "goods_receive_lines_tenant_id_index",
+          "constraint": false,
+          "primary": false,
+          "unique": false
+        },
+        {
+          "columnNames": [
+            "goods_receive_id"
+          ],
+          "composite": false,
+          "keyName": "goods_receive_lines_goods_receive_id_index",
+          "constraint": false,
+          "primary": false,
+          "unique": false
+        },
+        {
+          "columnNames": [
+            "claim_id"
+          ],
+          "composite": false,
+          "keyName": "goods_receive_lines_claim_id_index",
           "constraint": false,
           "primary": false,
           "unique": false
@@ -14075,6 +15493,237 @@
             "variant_id"
           ],
           "localTableName": "public.goods_receive_lines",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.product_variants",
+          "updateRule": "cascade"
+        },
+        "goods_receive_lines_claim_id_foreign": {
+          "constraintName": "goods_receive_lines_claim_id_foreign",
+          "columnNames": [
+            "claim_id"
+          ],
+          "localTableName": "public.goods_receive_lines",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.supplier_claims",
+          "deleteRule": "set null",
+          "updateRule": "cascade"
+        }
+      },
+      "nativeEnums": {}
+    },
+    {
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "uuid"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamptz",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": 6,
+          "mappedType": "datetime"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamptz",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": 6,
+          "mappedType": "datetime"
+        },
+        "deleted_at": {
+          "name": "deleted_at",
+          "type": "timestamptz",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "length": 6,
+          "mappedType": "datetime"
+        },
+        "tenant_id": {
+          "name": "tenant_id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "uuid"
+        },
+        "claim_id": {
+          "name": "claim_id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "uuid"
+        },
+        "goods_receive_line_id": {
+          "name": "goods_receive_line_id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "mappedType": "uuid"
+        },
+        "variant_id": {
+          "name": "variant_id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "uuid"
+        },
+        "affected_quantity": {
+          "name": "affected_quantity",
+          "type": "numeric(12,2)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "precision": 12,
+          "scale": 2,
+          "mappedType": "decimal"
+        },
+        "unit_price": {
+          "name": "unit_price",
+          "type": "numeric(14,4)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "precision": 14,
+          "scale": 4,
+          "mappedType": "decimal"
+        },
+        "line_total": {
+          "name": "line_total",
+          "type": "numeric(14,2)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "precision": 14,
+          "scale": 2,
+          "mappedType": "decimal"
+        },
+        "note": {
+          "name": "note",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "mappedType": "text"
+        }
+      },
+      "name": "supplier_claim_lines",
+      "schema": "public",
+      "indexes": [
+        {
+          "columnNames": [
+            "tenant_id"
+          ],
+          "composite": false,
+          "keyName": "supplier_claim_lines_tenant_id_index",
+          "constraint": false,
+          "primary": false,
+          "unique": false
+        },
+        {
+          "columnNames": [
+            "claim_id"
+          ],
+          "composite": false,
+          "keyName": "supplier_claim_lines_claim_id_index",
+          "constraint": false,
+          "primary": false,
+          "unique": false
+        },
+        {
+          "columnNames": [
+            "goods_receive_line_id"
+          ],
+          "composite": false,
+          "keyName": "supplier_claim_lines_goods_receive_line_id_index",
+          "constraint": false,
+          "primary": false,
+          "unique": false
+        },
+        {
+          "keyName": "supplier_claim_lines_pkey",
+          "columnNames": [
+            "id"
+          ],
+          "composite": false,
+          "constraint": true,
+          "primary": true,
+          "unique": true
+        }
+      ],
+      "checks": [],
+      "foreignKeys": {
+        "supplier_claim_lines_tenant_id_foreign": {
+          "constraintName": "supplier_claim_lines_tenant_id_foreign",
+          "columnNames": [
+            "tenant_id"
+          ],
+          "localTableName": "public.supplier_claim_lines",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.tenants",
+          "updateRule": "cascade"
+        },
+        "supplier_claim_lines_claim_id_foreign": {
+          "constraintName": "supplier_claim_lines_claim_id_foreign",
+          "columnNames": [
+            "claim_id"
+          ],
+          "localTableName": "public.supplier_claim_lines",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.supplier_claims",
+          "updateRule": "cascade"
+        },
+        "supplier_claim_lines_goods_receive_line_id_foreign": {
+          "constraintName": "supplier_claim_lines_goods_receive_line_id_foreign",
+          "columnNames": [
+            "goods_receive_line_id"
+          ],
+          "localTableName": "public.supplier_claim_lines",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.goods_receive_lines",
+          "deleteRule": "set null",
+          "updateRule": "cascade"
+        },
+        "supplier_claim_lines_variant_id_foreign": {
+          "constraintName": "supplier_claim_lines_variant_id_foreign",
+          "columnNames": [
+            "variant_id"
+          ],
+          "localTableName": "public.supplier_claim_lines",
           "referencedColumnNames": [
             "id"
           ],
