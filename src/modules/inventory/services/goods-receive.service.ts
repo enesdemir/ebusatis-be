@@ -146,12 +146,49 @@ export class GoodsReceiveService {
     } as unknown as GoodsReceive);
     this.em.persist(gr);
 
+    // Sprint 4: collect quarantined rolls to auto-open a claim at the end.
+    interface QuarantinedRoll {
+      rollId: string;
+      discrepancy: DiscrepancyType;
+      note?: string;
+      variantId: string;
+      quantity: number;
+    }
+    const quarantinedRolls: QuarantinedRoll[] = [];
+
     // Create one line per variant and N inventory rolls per line.
+    const { InventoryItemStatus: ItemStatus } =
+      await import('../entities/inventory-item.entity');
+
     for (const lineData of dto.lines) {
       let totalQty = 0;
+      let hasDiscrepancy = false;
       for (const rollData of lineData.rolls) {
         totalQty += rollData.quantity;
-        await this.inventoryService.createRoll(
+
+        // Compute GSM variance if actualGSM + standardGSM are available.
+        let gsmVariance: number | undefined;
+        if (rollData.actualGSM) {
+          const variant = await this.em.findOne(
+            'ProductVariant' as never,
+            { id: lineData.variantId } as never,
+          );
+          const std = Number(
+            (variant as { standardGSM?: number } | null)?.standardGSM,
+          );
+          if (std > 0) {
+            gsmVariance =
+              Math.round(((rollData.actualGSM - std) / std) * 10000) / 100;
+          }
+        }
+
+        const isQuarantine =
+          rollData.discrepancy && rollData.discrepancy !== DiscrepancyType.NONE;
+        const rollStatus = isQuarantine
+          ? ItemStatus.QUARANTINED
+          : (rollData.status ?? ItemStatus.FULL);
+
+        const item = await this.inventoryService.createRoll(
           {
             variantId: lineData.variantId,
             barcode: rollData.barcode,
@@ -162,9 +199,26 @@ export class GoodsReceiveService {
             costPrice: rollData.costPrice,
             receivedFromId: dto.supplierId,
             goodsReceiveId: gr.id,
+            shadeGroup: rollData.shadeGroup,
+            shadeVariation: rollData.shadeVariation,
+            shadeReference: rollData.shadeReference,
+            actualGSM: rollData.actualGSM,
+            gsmVariance,
+            status: rollStatus,
           },
           userId,
         );
+
+        if (isQuarantine) {
+          hasDiscrepancy = true;
+          quarantinedRolls.push({
+            rollId: item.id,
+            discrepancy: rollData.discrepancy!,
+            note: rollData.discrepancyNote,
+            variantId: lineData.variantId,
+            quantity: rollData.quantity,
+          });
+        }
       }
 
       const line = this.em.create(GoodsReceiveLine, {
@@ -173,13 +227,101 @@ export class GoodsReceiveService {
         variant: this.em.getReference('ProductVariant', lineData.variantId),
         receivedRollCount: lineData.rolls.length,
         totalReceivedQuantity: totalQty,
+        discrepancyType: hasDiscrepancy
+          ? DiscrepancyType.DAMAGED
+          : DiscrepancyType.NONE,
         note: lineData.note,
       } as unknown as GoodsReceiveLine);
       this.em.persist(line);
     }
 
     await this.em.flush();
+
+    // Sprint 4: auto-update PO actual delivery date
+    if (dto.purchaseOrderId) {
+      const po = await this.em.findOne(PurchaseOrder, {
+        id: dto.purchaseOrderId,
+      });
+      if (po) {
+        (
+          po as PurchaseOrder & { actualDeliveryDate?: Date }
+        ).actualDeliveryDate = new Date();
+        await this.em.flush();
+      }
+    }
+
+    // Sprint 4: auto-open SupplierClaim for quarantined rolls
+    if (quarantinedRolls.length > 0) {
+      await this.autoCreateClaim(
+        tenant,
+        gr,
+        dto.supplierId,
+        dto.purchaseOrderId,
+        quarantinedRolls,
+        userId,
+      );
+    }
+
     return gr;
+  }
+
+  /**
+   * Auto-open a SupplierClaim for a batch of quarantined rolls.
+   * Called from `create()` when any roll has a non-NONE discrepancy.
+   */
+  private async autoCreateClaim(
+    tenant: Tenant,
+    gr: GoodsReceive,
+    supplierId: string,
+    purchaseOrderId: string | undefined,
+    rolls: Array<{
+      rollId: string;
+      discrepancy: DiscrepancyType;
+      note?: string;
+      variantId: string;
+      quantity: number;
+    }>,
+    userId: string,
+  ): Promise<void> {
+    const { SupplierClaim, ClaimType, ClaimStatus } =
+      await import('../entities/supplier-claim.entity');
+    const { SupplierClaimLine } =
+      await import('../entities/supplier-claim-line.entity');
+
+    const count = await this.em.count(SupplierClaim, {
+      tenant: tenant.id,
+    } as unknown as FilterQuery<InstanceType<typeof SupplierClaim>>);
+    const claimNumber = `CLM-${new Date().getFullYear()}-${String(count + 1).padStart(4, '0')}`;
+
+    const claim = this.em.create(SupplierClaim, {
+      tenant,
+      claimNumber,
+      supplier: this.em.getReference(Partner, supplierId),
+      goodsReceive: gr,
+      purchaseOrder: purchaseOrderId
+        ? this.em.getReference(PurchaseOrder, purchaseOrderId)
+        : undefined,
+      claimType: ClaimType.DAMAGED,
+      status: ClaimStatus.OPEN,
+      description: `Auto-generated from GR ${gr.receiveNumber} (${rolls.length} quarantined roll(s))`,
+      openedAt: new Date(),
+      openedBy: this.em.getReference(User, userId),
+    } as unknown as object);
+    this.em.persist(claim);
+
+    for (const r of rolls) {
+      const claimLine = this.em.create(SupplierClaimLine, {
+        tenant,
+        claim,
+        variant: this.em.getReference('ProductVariant', r.variantId),
+        quantity: r.quantity,
+        claimedAmount: 0,
+        note: `Roll ${r.rollId}: ${r.discrepancy} — ${r.note ?? 'auto'}`,
+      } as unknown as object);
+      this.em.persist(claimLine);
+    }
+
+    await this.em.flush();
   }
 
   // ── Discrepancy reporting ──

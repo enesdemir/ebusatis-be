@@ -8751,6 +8751,16 @@
           "length": 0,
           "mappedType": "date"
         },
+        "actual_delivery_date": {
+          "name": "actual_delivery_date",
+          "type": "date",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "length": 0,
+          "mappedType": "date"
+        },
         "total_amount": {
           "name": "total_amount",
           "type": "numeric(14,2)",

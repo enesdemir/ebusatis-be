@@ -227,6 +227,13 @@ export class MenuSeeder extends Seeder {
             sortOrder: 3,
             scope: MenuScope.TENANT,
           },
+          {
+            code: 'wms.supplier_claims',
+            label: 'Tedarikçi İtirazları',
+            path: '/wms/supplier-claims',
+            sortOrder: 4,
+            scope: MenuScope.TENANT,
+          },
         ],
       },
 

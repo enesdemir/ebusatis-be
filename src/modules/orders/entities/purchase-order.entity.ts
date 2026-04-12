@@ -46,6 +46,10 @@ export class PurchaseOrder extends BaseTenantEntity {
   @Property({ nullable: true, type: 'date' })
   expectedDeliveryDate?: Date;
 
+  /** Actual delivery date, set automatically when a linked GR is created. */
+  @Property({ nullable: true, type: 'date' })
+  actualDeliveryDate?: Date;
+
   // ─── Amounts ─────────────────────────────────────────────
 
   @Property({ type: 'decimal', precision: 14, scale: 2, default: 0 })

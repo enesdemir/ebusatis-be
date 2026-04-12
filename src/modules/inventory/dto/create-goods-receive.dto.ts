@@ -1,6 +1,7 @@
 import {
   IsArray,
   IsDateString,
+  IsEnum,
   IsNotEmpty,
   IsNumber,
   IsOptional,
@@ -10,6 +11,11 @@ import {
   ValidateNested,
 } from 'class-validator';
 import { Type } from 'class-transformer';
+import {
+  InventoryItemStatus,
+  ShadeVariation,
+} from '../entities/inventory-item.entity';
+import { DiscrepancyType } from '../entities/goods-receive-line.entity';
 
 /**
  * One physical roll being registered during a goods receive.
@@ -39,6 +45,42 @@ export class CreateGoodsReceiveRollDto {
   @Type(() => Number)
   @IsNumber({ maxDecimalPlaces: 2 })
   costPrice?: number;
+
+  // ── Sprint 4: textile-specific fields ──
+
+  @IsOptional()
+  @IsString()
+  shadeGroup?: string;
+
+  @IsOptional()
+  @IsEnum(ShadeVariation)
+  shadeVariation?: ShadeVariation;
+
+  @IsOptional()
+  @IsString()
+  shadeReference?: string;
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber({ maxDecimalPlaces: 2 })
+  actualGSM?: number;
+
+  /** If provided and not NONE, roll is quarantined and a claim is opened. */
+  @IsOptional()
+  @IsEnum(DiscrepancyType)
+  discrepancy?: DiscrepancyType;
+
+  @IsOptional()
+  @IsString()
+  discrepancyNote?: string;
+
+  @IsOptional()
+  @IsEnum(InventoryItemStatus)
+  status?: InventoryItemStatus;
+
+  @IsOptional()
+  @IsString()
+  palletNumber?: string;
 }
 
 /**

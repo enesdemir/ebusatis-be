@@ -146,6 +146,14 @@ export class InventoryService {
       costCurrencyId?: string;
       receivedFromId?: string;
       goodsReceiveId?: string;
+      // Sprint 4: textile fields
+      kartelaNumber?: string;
+      shadeGroup?: string;
+      shadeVariation?: import('../entities/inventory-item.entity').ShadeVariation;
+      shadeReference?: string;
+      actualGSM?: number;
+      gsmVariance?: number;
+      status?: InventoryItemStatus;
     },
     userId?: string,
   ): Promise<InventoryItem> {
@@ -157,9 +165,15 @@ export class InventoryService {
       tenant,
       variant: this.em.getReference('ProductVariant', data.variantId),
       barcode: data.barcode,
+      kartelaNumber: data.kartelaNumber,
       initialQuantity: data.quantity,
       currentQuantity: data.quantity,
       batchCode: data.batchCode,
+      shadeGroup: data.shadeGroup,
+      shadeVariation: data.shadeVariation,
+      shadeReference: data.shadeReference,
+      actualGSM: data.actualGSM,
+      gsmVariance: data.gsmVariance,
       warehouse: data.warehouseId
         ? this.em.getReference('Warehouse', data.warehouseId)
         : undefined,
@@ -175,7 +189,7 @@ export class InventoryService {
         : undefined,
       goodsReceiveId: data.goodsReceiveId,
       receivedAt: new Date(),
-      status: InventoryItemStatus.IN_STOCK,
+      status: data.status ?? InventoryItemStatus.FULL,
     } as unknown as InventoryItem);
 
     this.em.persist(item);
