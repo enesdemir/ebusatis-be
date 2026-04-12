@@ -58,6 +58,12 @@ export class SourcingController {
     return this.service.selectResponse(id);
   }
 
+  @Post('responses/:id/convert-to-po')
+  convertToPO(@Param('id') id: string, @Request() req: AuthenticatedRequest) {
+    const userId = (req.user?.sub ?? req.user?.id) as string;
+    return this.service.convertRfqToPurchaseOrder(id, userId);
+  }
+
   @Get('rfqs/:id/compare')
   compare(@Param('id') id: string) {
     return this.service.compareResponses(id);

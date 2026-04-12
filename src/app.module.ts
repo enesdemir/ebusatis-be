@@ -28,6 +28,7 @@ import { StorageModule } from './modules/storage/storage.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
 import { DocumentsModule } from './modules/documents/documents.module';
 import { ApprovalsModule } from './modules/approvals/approvals.module';
+import { SupplierPortalModule } from './modules/supplier-portal/supplier-portal.module';
 
 @Module({
   imports: [
@@ -63,6 +64,7 @@ import { ApprovalsModule } from './modules/approvals/approvals.module';
     NotificationsModule,
     DocumentsModule,
     ApprovalsModule,
+    SupplierPortalModule,
   ],
   controllers: [AppController],
   providers: [

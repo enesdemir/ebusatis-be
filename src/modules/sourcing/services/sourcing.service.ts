@@ -5,11 +5,17 @@ import {
   EntityManager,
   FilterQuery,
 } from '@mikro-orm/postgresql';
+import { v4 as uuidv4 } from 'uuid';
 import { RFQ, RFQStatus } from '../entities/rfq.entity';
 import { RFQResponse } from '../entities/rfq-response.entity';
 import { EntityNotFoundException } from '../../../common/errors/app.exceptions';
 import { PaginatedQueryDto } from '../../../common/dto/paginated-query.dto';
 import { CreateRfqDto, CreateRfqResponseDto } from '../dto';
+import {
+  PurchaseOrder,
+  PurchaseOrderWorkflowStatus,
+} from '../../orders/entities/purchase-order.entity';
+import { PurchaseOrderLine } from '../../orders/entities/purchase-order-line.entity';
 
 @Injectable()
 export class SourcingService {
@@ -89,6 +95,71 @@ export class SourcingService {
     resp.isSelected = true;
     await this.em.flush();
     return resp;
+  }
+
+  /**
+   * Convert a winning RFQResponse into a PurchaseOrder (Sprint 11).
+   *
+   * Marks the response as selected, de-selects siblings, closes the
+   * parent RFQ, and creates a PO in DRAFT from the response's line
+   * items. Each PO line points at the same ProductVariant as the RFQ
+   * item and inherits the supplier's unit price from the response.
+   */
+  async convertRfqToPurchaseOrder(
+    responseId: string,
+    userId: string,
+  ): Promise<PurchaseOrder> {
+    const resp = await this.responseRepo.findOne(
+      { id: responseId },
+      { populate: ['rfq'] },
+    );
+    if (!resp) throw new EntityNotFoundException('RFQResponse', responseId);
+
+    const others = await this.responseRepo.find({
+      rfq: resp.rfq.id,
+      isSelected: true,
+    });
+    for (const o of others) o.isSelected = false;
+    resp.isSelected = true;
+    resp.rfq.status = RFQStatus.CLOSED;
+
+    const tenant = resp.tenant;
+    const year = new Date().getFullYear();
+    const count = await this.em.count(PurchaseOrder, { tenant: tenant.id });
+    const orderNumber = `PO-${year}-${String(count + 1).padStart(4, '0')}`;
+
+    const po = this.em.create(PurchaseOrder, {
+      tenant,
+      orderNumber,
+      trackingUuid: uuidv4(),
+      workflowStatus: PurchaseOrderWorkflowStatus.DRAFT,
+      supplier: this.em.getReference('Partner', resp.supplierId),
+      createdBy: this.em.getReference('User', userId),
+      note: `Auto-generated from RFQ ${resp.rfq.rfqNumber} (response ${resp.id})`,
+    } as unknown as PurchaseOrder);
+    this.em.persist(po);
+
+    let totalAmount = 0;
+    const items = resp.lineItems ?? [];
+    for (const item of items) {
+      const lineTotal = (item.moq ?? 1) * item.unitPrice;
+      totalAmount += lineTotal;
+      const line = this.em.create(PurchaseOrderLine, {
+        tenant,
+        order: po,
+        variant: this.em.getReference('ProductVariant', item.variantId),
+        quantity: item.moq ?? 1,
+        unitPrice: item.unitPrice,
+        lineTotal,
+        note: item.note,
+      } as unknown as PurchaseOrderLine);
+      this.em.persist(line);
+    }
+    po.totalAmount = totalAmount;
+    po.grandTotal = totalAmount;
+
+    await this.em.flush();
+    return po;
   }
 
   // Teklif karsilastirma — bir RFQ'nun tum cevaplarini karsilastir

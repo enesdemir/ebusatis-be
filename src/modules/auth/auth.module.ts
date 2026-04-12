@@ -5,6 +5,8 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { JwtStrategy } from './strategies/jwt.strategy';
+import { SupplierPortalTokenService } from './services/supplier-portal-token.service';
+import { SupplierTokenGuard } from './guards/supplier-token.guard';
 import { UsersModule } from '../users/users.module';
 
 @Module({
@@ -21,7 +23,12 @@ import { UsersModule } from '../users/users.module';
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, JwtStrategy],
-  exports: [AuthService],
+  providers: [
+    AuthService,
+    JwtStrategy,
+    SupplierPortalTokenService,
+    SupplierTokenGuard,
+  ],
+  exports: [AuthService, SupplierPortalTokenService, SupplierTokenGuard],
 })
 export class AuthModule {}
