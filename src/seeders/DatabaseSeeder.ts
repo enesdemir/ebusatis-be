@@ -5,6 +5,7 @@ import { PlatformConfigSeeder } from './PlatformConfigSeeder';
 import { MenuSeeder } from './MenuSeeder';
 import { ClassificationSeeder } from './ClassificationSeeder';
 import { PilotSeeder } from './PilotSeeder';
+import { ApprovalWorkflowSeeder } from './ApprovalWorkflowSeeder';
 
 export class DatabaseSeeder extends Seeder {
   async run(em: EntityManager): Promise<void> {
@@ -14,6 +15,7 @@ export class DatabaseSeeder extends Seeder {
       MenuSeeder,
       ClassificationSeeder,
       PilotSeeder,
+      ApprovalWorkflowSeeder,
     ]);
   }
 }

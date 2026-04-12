@@ -285,6 +285,31 @@ export class MenuSeeder extends Seeder {
         ],
       },
 
+      // ── Onaylar ──
+      {
+        code: 'approvals',
+        label: 'Onaylar',
+        icon: 'Shield',
+        sortOrder: 75,
+        scope: MenuScope.TENANT,
+        children: [
+          {
+            code: 'approvals.pending',
+            label: 'Bekleyen Onaylar',
+            path: '/approvals/pending',
+            sortOrder: 0,
+            scope: MenuScope.TENANT,
+          },
+          {
+            code: 'approvals.history',
+            label: 'Onay Geçmişi',
+            path: '/approvals/history',
+            sortOrder: 1,
+            scope: MenuScope.TENANT,
+          },
+        ],
+      },
+
       // ── Cari & Finans ──
       {
         code: 'finance',

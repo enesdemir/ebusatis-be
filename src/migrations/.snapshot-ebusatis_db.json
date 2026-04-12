@@ -5883,6 +5883,375 @@
           "nullable": false,
           "mappedType": "uuid"
         },
+        "code": {
+          "name": "code",
+          "type": "varchar(255)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": 255,
+          "mappedType": "string"
+        },
+        "name": {
+          "name": "name",
+          "type": "varchar(255)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": 255,
+          "mappedType": "string"
+        },
+        "entity_type": {
+          "name": "entity_type",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "enumItems": [
+            "PURCHASE_ORDER",
+            "SALES_ORDER",
+            "SUPPLIER_CLAIM"
+          ],
+          "mappedType": "enum"
+        },
+        "is_active": {
+          "name": "is_active",
+          "type": "boolean",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "default": "true",
+          "mappedType": "boolean"
+        },
+        "description": {
+          "name": "description",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "mappedType": "text"
+        }
+      },
+      "name": "approval_workflows",
+      "schema": "public",
+      "indexes": [
+        {
+          "columnNames": [
+            "tenant_id"
+          ],
+          "composite": false,
+          "keyName": "approval_workflows_tenant_id_index",
+          "constraint": false,
+          "primary": false,
+          "unique": false
+        },
+        {
+          "columnNames": [
+            "code"
+          ],
+          "composite": false,
+          "keyName": "approval_workflows_code_index",
+          "constraint": false,
+          "primary": false,
+          "unique": false
+        },
+        {
+          "columnNames": [
+            "entity_type"
+          ],
+          "composite": false,
+          "keyName": "approval_workflows_entity_type_index",
+          "constraint": false,
+          "primary": false,
+          "unique": false
+        },
+        {
+          "keyName": "approval_workflows_pkey",
+          "columnNames": [
+            "id"
+          ],
+          "composite": false,
+          "constraint": true,
+          "primary": true,
+          "unique": true
+        }
+      ],
+      "checks": [],
+      "foreignKeys": {
+        "approval_workflows_tenant_id_foreign": {
+          "constraintName": "approval_workflows_tenant_id_foreign",
+          "columnNames": [
+            "tenant_id"
+          ],
+          "localTableName": "public.approval_workflows",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.tenants",
+          "updateRule": "cascade"
+        }
+      },
+      "nativeEnums": {}
+    },
+    {
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "uuid"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamptz",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": 6,
+          "mappedType": "datetime"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamptz",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": 6,
+          "mappedType": "datetime"
+        },
+        "deleted_at": {
+          "name": "deleted_at",
+          "type": "timestamptz",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "length": 6,
+          "mappedType": "datetime"
+        },
+        "tenant_id": {
+          "name": "tenant_id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "uuid"
+        },
+        "workflow_id": {
+          "name": "workflow_id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "uuid"
+        },
+        "step_order": {
+          "name": "step_order",
+          "type": "int",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "integer"
+        },
+        "name": {
+          "name": "name",
+          "type": "varchar(255)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": 255,
+          "mappedType": "string"
+        },
+        "min_amount": {
+          "name": "min_amount",
+          "type": "numeric(14,2)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "precision": 14,
+          "scale": 2,
+          "default": "0",
+          "mappedType": "decimal"
+        },
+        "max_amount": {
+          "name": "max_amount",
+          "type": "numeric(14,2)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "precision": 14,
+          "scale": 2,
+          "mappedType": "decimal"
+        },
+        "approver_role_code": {
+          "name": "approver_role_code",
+          "type": "varchar(255)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "length": 255,
+          "mappedType": "string"
+        },
+        "approver_group_code": {
+          "name": "approver_group_code",
+          "type": "varchar(255)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "length": 255,
+          "mappedType": "string"
+        },
+        "timeout_hours": {
+          "name": "timeout_hours",
+          "type": "int",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "mappedType": "integer"
+        },
+        "require_all": {
+          "name": "require_all",
+          "type": "boolean",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "default": "false",
+          "mappedType": "boolean"
+        }
+      },
+      "name": "approval_steps",
+      "schema": "public",
+      "indexes": [
+        {
+          "columnNames": [
+            "tenant_id"
+          ],
+          "composite": false,
+          "keyName": "approval_steps_tenant_id_index",
+          "constraint": false,
+          "primary": false,
+          "unique": false
+        },
+        {
+          "columnNames": [
+            "workflow_id"
+          ],
+          "composite": false,
+          "keyName": "approval_steps_workflow_id_index",
+          "constraint": false,
+          "primary": false,
+          "unique": false
+        },
+        {
+          "keyName": "approval_steps_pkey",
+          "columnNames": [
+            "id"
+          ],
+          "composite": false,
+          "constraint": true,
+          "primary": true,
+          "unique": true
+        }
+      ],
+      "checks": [],
+      "foreignKeys": {
+        "approval_steps_tenant_id_foreign": {
+          "constraintName": "approval_steps_tenant_id_foreign",
+          "columnNames": [
+            "tenant_id"
+          ],
+          "localTableName": "public.approval_steps",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.tenants",
+          "updateRule": "cascade"
+        },
+        "approval_steps_workflow_id_foreign": {
+          "constraintName": "approval_steps_workflow_id_foreign",
+          "columnNames": [
+            "workflow_id"
+          ],
+          "localTableName": "public.approval_steps",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.approval_workflows",
+          "updateRule": "cascade"
+        }
+      },
+      "nativeEnums": {}
+    },
+    {
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "uuid"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamptz",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": 6,
+          "mappedType": "datetime"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamptz",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": 6,
+          "mappedType": "datetime"
+        },
+        "deleted_at": {
+          "name": "deleted_at",
+          "type": "timestamptz",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "length": 6,
+          "mappedType": "datetime"
+        },
+        "tenant_id": {
+          "name": "tenant_id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "uuid"
+        },
         "name": {
           "name": "name",
           "type": "varchar(255)",
@@ -12397,6 +12766,528 @@
             "id"
           ],
           "referencedTableName": "public.product_variants",
+          "updateRule": "cascade"
+        }
+      },
+      "nativeEnums": {}
+    },
+    {
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "uuid"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamptz",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": 6,
+          "mappedType": "datetime"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamptz",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": 6,
+          "mappedType": "datetime"
+        },
+        "deleted_at": {
+          "name": "deleted_at",
+          "type": "timestamptz",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "length": 6,
+          "mappedType": "datetime"
+        },
+        "tenant_id": {
+          "name": "tenant_id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "uuid"
+        },
+        "workflow_id": {
+          "name": "workflow_id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "uuid"
+        },
+        "entity_type": {
+          "name": "entity_type",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "enumItems": [
+            "PURCHASE_ORDER",
+            "SALES_ORDER",
+            "SUPPLIER_CLAIM"
+          ],
+          "mappedType": "enum"
+        },
+        "entity_id": {
+          "name": "entity_id",
+          "type": "varchar(255)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": 255,
+          "mappedType": "string"
+        },
+        "entity_ref": {
+          "name": "entity_ref",
+          "type": "varchar(255)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "length": 255,
+          "mappedType": "string"
+        },
+        "amount": {
+          "name": "amount",
+          "type": "numeric(14,2)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "precision": 14,
+          "scale": 2,
+          "mappedType": "decimal"
+        },
+        "currency_code": {
+          "name": "currency_code",
+          "type": "varchar(255)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "length": 255,
+          "mappedType": "string"
+        },
+        "status": {
+          "name": "status",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "default": "'IN_PROGRESS'",
+          "enumItems": [
+            "IN_PROGRESS",
+            "APPROVED",
+            "REJECTED",
+            "TIMED_OUT",
+            "CANCELLED"
+          ],
+          "mappedType": "enum"
+        },
+        "current_step_order": {
+          "name": "current_step_order",
+          "type": "int",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "default": "0",
+          "mappedType": "integer"
+        },
+        "current_step_id": {
+          "name": "current_step_id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "mappedType": "uuid"
+        },
+        "requested_by_id": {
+          "name": "requested_by_id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "uuid"
+        },
+        "requested_at": {
+          "name": "requested_at",
+          "type": "timestamptz",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": 6,
+          "mappedType": "datetime"
+        },
+        "resolved_at": {
+          "name": "resolved_at",
+          "type": "timestamptz",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "length": 6,
+          "mappedType": "datetime"
+        },
+        "description": {
+          "name": "description",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "mappedType": "text"
+        }
+      },
+      "name": "approval_requests",
+      "schema": "public",
+      "indexes": [
+        {
+          "columnNames": [
+            "tenant_id"
+          ],
+          "composite": false,
+          "keyName": "approval_requests_tenant_id_index",
+          "constraint": false,
+          "primary": false,
+          "unique": false
+        },
+        {
+          "columnNames": [
+            "workflow_id"
+          ],
+          "composite": false,
+          "keyName": "approval_requests_workflow_id_index",
+          "constraint": false,
+          "primary": false,
+          "unique": false
+        },
+        {
+          "columnNames": [
+            "entity_type"
+          ],
+          "composite": false,
+          "keyName": "approval_requests_entity_type_index",
+          "constraint": false,
+          "primary": false,
+          "unique": false
+        },
+        {
+          "columnNames": [
+            "entity_id"
+          ],
+          "composite": false,
+          "keyName": "approval_requests_entity_id_index",
+          "constraint": false,
+          "primary": false,
+          "unique": false
+        },
+        {
+          "keyName": "approval_requests_pkey",
+          "columnNames": [
+            "id"
+          ],
+          "composite": false,
+          "constraint": true,
+          "primary": true,
+          "unique": true
+        }
+      ],
+      "checks": [],
+      "foreignKeys": {
+        "approval_requests_tenant_id_foreign": {
+          "constraintName": "approval_requests_tenant_id_foreign",
+          "columnNames": [
+            "tenant_id"
+          ],
+          "localTableName": "public.approval_requests",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.tenants",
+          "updateRule": "cascade"
+        },
+        "approval_requests_workflow_id_foreign": {
+          "constraintName": "approval_requests_workflow_id_foreign",
+          "columnNames": [
+            "workflow_id"
+          ],
+          "localTableName": "public.approval_requests",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.approval_workflows",
+          "updateRule": "cascade"
+        },
+        "approval_requests_current_step_id_foreign": {
+          "constraintName": "approval_requests_current_step_id_foreign",
+          "columnNames": [
+            "current_step_id"
+          ],
+          "localTableName": "public.approval_requests",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.approval_steps",
+          "deleteRule": "set null",
+          "updateRule": "cascade"
+        },
+        "approval_requests_requested_by_id_foreign": {
+          "constraintName": "approval_requests_requested_by_id_foreign",
+          "columnNames": [
+            "requested_by_id"
+          ],
+          "localTableName": "public.approval_requests",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.users",
+          "updateRule": "cascade"
+        }
+      },
+      "nativeEnums": {}
+    },
+    {
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "uuid"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamptz",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": 6,
+          "mappedType": "datetime"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamptz",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": 6,
+          "mappedType": "datetime"
+        },
+        "deleted_at": {
+          "name": "deleted_at",
+          "type": "timestamptz",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "length": 6,
+          "mappedType": "datetime"
+        },
+        "tenant_id": {
+          "name": "tenant_id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "uuid"
+        },
+        "request_id": {
+          "name": "request_id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "uuid"
+        },
+        "step_id": {
+          "name": "step_id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "mappedType": "uuid"
+        },
+        "action_type": {
+          "name": "action_type",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "enumItems": [
+            "APPROVED",
+            "REJECTED",
+            "DELEGATED",
+            "TIMED_OUT",
+            "CANCELLED",
+            "ESCALATED"
+          ],
+          "mappedType": "enum"
+        },
+        "actor_id": {
+          "name": "actor_id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "mappedType": "uuid"
+        },
+        "delegate_to_id": {
+          "name": "delegate_to_id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "mappedType": "uuid"
+        },
+        "comment": {
+          "name": "comment",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "mappedType": "text"
+        },
+        "occurred_at": {
+          "name": "occurred_at",
+          "type": "timestamptz",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": 6,
+          "mappedType": "datetime"
+        }
+      },
+      "name": "approval_actions",
+      "schema": "public",
+      "indexes": [
+        {
+          "columnNames": [
+            "tenant_id"
+          ],
+          "composite": false,
+          "keyName": "approval_actions_tenant_id_index",
+          "constraint": false,
+          "primary": false,
+          "unique": false
+        },
+        {
+          "columnNames": [
+            "request_id"
+          ],
+          "composite": false,
+          "keyName": "approval_actions_request_id_index",
+          "constraint": false,
+          "primary": false,
+          "unique": false
+        },
+        {
+          "keyName": "approval_actions_pkey",
+          "columnNames": [
+            "id"
+          ],
+          "composite": false,
+          "constraint": true,
+          "primary": true,
+          "unique": true
+        }
+      ],
+      "checks": [],
+      "foreignKeys": {
+        "approval_actions_tenant_id_foreign": {
+          "constraintName": "approval_actions_tenant_id_foreign",
+          "columnNames": [
+            "tenant_id"
+          ],
+          "localTableName": "public.approval_actions",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.tenants",
+          "updateRule": "cascade"
+        },
+        "approval_actions_request_id_foreign": {
+          "constraintName": "approval_actions_request_id_foreign",
+          "columnNames": [
+            "request_id"
+          ],
+          "localTableName": "public.approval_actions",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.approval_requests",
+          "updateRule": "cascade"
+        },
+        "approval_actions_step_id_foreign": {
+          "constraintName": "approval_actions_step_id_foreign",
+          "columnNames": [
+            "step_id"
+          ],
+          "localTableName": "public.approval_actions",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.approval_steps",
+          "deleteRule": "set null",
+          "updateRule": "cascade"
+        },
+        "approval_actions_actor_id_foreign": {
+          "constraintName": "approval_actions_actor_id_foreign",
+          "columnNames": [
+            "actor_id"
+          ],
+          "localTableName": "public.approval_actions",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.users",
+          "deleteRule": "set null",
+          "updateRule": "cascade"
+        },
+        "approval_actions_delegate_to_id_foreign": {
+          "constraintName": "approval_actions_delegate_to_id_foreign",
+          "columnNames": [
+            "delegate_to_id"
+          ],
+          "localTableName": "public.approval_actions",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.users",
+          "deleteRule": "set null",
           "updateRule": "cascade"
         }
       },

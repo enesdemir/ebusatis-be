@@ -27,6 +27,7 @@ import { AccountingModule } from './modules/accounting/accounting.module';
 import { StorageModule } from './modules/storage/storage.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
 import { DocumentsModule } from './modules/documents/documents.module';
+import { ApprovalsModule } from './modules/approvals/approvals.module';
 
 @Module({
   imports: [
@@ -61,6 +62,7 @@ import { DocumentsModule } from './modules/documents/documents.module';
     StorageModule,
     NotificationsModule,
     DocumentsModule,
+    ApprovalsModule,
   ],
   controllers: [AppController],
   providers: [
