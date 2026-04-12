@@ -123,8 +123,9 @@ Entities:
   ProductCollection → ManyToMany(Product)
   PhysicalSample → ManyToOne(Product, ProductVariant)
   SampleLoanHistory → ManyToOne(PhysicalSample, Partner, User)
-  PriceList → ManyToOne(Currency, SalesChannel)
-  PriceListItem → ManyToOne(PriceList, ProductVariant)
+  SupplierPriceList → ManyToOne(Currency, SalesChannel)
+  SupplierPriceListItem → ManyToOne(SupplierPriceList, ProductVariant)
+  ProductVariantAttributeValue → ManyToOne(ProductVariant, Attribute)
   DigitalCatalog → ManyToOne(Partner)
   DigitalCatalogItem → ManyToOne(DigitalCatalog, ProductVariant)
 ```
@@ -136,12 +137,18 @@ GET    /api/partners/:id                      → findOne(id)
 POST   /api/partners                          → create(dto)
 PATCH  /api/partners/:id                      → update(id, dto)
 DELETE /api/partners/:id                      → remove(id)
-GET    /api/partners/:id/addresses            → getAddresses(partnerId)
-POST   /api/partners/:id/addresses            → createAddress(dto)
-GET    /api/partners/:id/contacts             → getContacts(partnerId)
-POST   /api/partners/:id/contacts             → createContact(dto)
-GET    /api/partners/:id/counterparties       → getCounterparties(partnerId)
-POST   /api/partners/:id/counterparties       → createCounterparty(dto)
+GET    /api/partners/:id/addresses              → getAddresses(partnerId)
+POST   /api/partners/:id/addresses              → createAddress(dto)
+PATCH  /api/partners/:id/addresses/:addressId   → updateAddress(addressId, dto)
+DELETE /api/partners/:id/addresses/:addressId   → removeAddress(addressId)
+GET    /api/partners/:id/contacts               → getContacts(partnerId)
+POST   /api/partners/:id/contacts               → createContact(dto)
+PATCH  /api/partners/:id/contacts/:contactId    → updateContact(contactId, dto)
+DELETE /api/partners/:id/contacts/:contactId    → removeContact(contactId)
+GET    /api/partners/:id/counterparties         → getCounterparties(partnerId)
+POST   /api/partners/:id/counterparties         → createCounterparty(dto)
+PATCH  /api/partners/:id/counterparties/:cpId   → updateCounterparty(cpId, dto)
+DELETE /api/partners/:id/counterparties/:cpId   → removeCounterparty(cpId)
 GET    /api/partners/:id/interactions         → getInteractions(partnerId)
 POST   /api/partners/:id/interactions         → createInteraction(dto)
 
@@ -277,6 +284,7 @@ Landed Cost:
 POST   /api/tenants                    → create tenant
 GET    /api/tenants                    → list all
 GET    /api/tenants/:id                → detail
+GET    /api/tenants/:id/statistics     → getStatistics(id)
 PATCH  /api/tenants/:id                → update
 PATCH  /api/tenants/:id/subscription   → change status (ACTIVE|SUSPENDED|TRIAL)
 PATCH  /api/tenants/:id/features       → toggle features
@@ -295,6 +303,133 @@ Config:    GET/PUT /api/admin/config* → platform configuration
 Reports:   GET /api/admin/reports/{tenants,health,usage}
 
 Guards: JwtAuthGuard + SuperAdminGuard (all endpoints)
+```
+
+### Sourcing Module
+```
+GET    /api/sourcing/rfqs              → getRFQs(query)
+POST   /api/sourcing/rfqs              → createRFQ(dto)
+GET    /api/sourcing/rfqs/:id          → getRFQ(id)
+PATCH  /api/sourcing/rfqs/:id/status   → updateRFQStatus(id, status)
+POST   /api/sourcing/rfqs/:id/responses → addResponse(rfqId, dto)
+PATCH  /api/sourcing/responses/:id/select → selectResponse(id)
+GET    /api/sourcing/rfqs/:id/compare  → compareResponses(rfqId)
+
+Guards: JwtAuthGuard
+Entities: RFQ, RFQResponse
+```
+
+### Classifications Module
+```
+GET    /api/classifications/tree?type={type} → getTree(type)
+GET    /api/classifications/summary          → getSummary(module)
+GET    /api/classifications/:id              → getById(id)
+GET    /api/classifications/:id/children     → getChildren(id, recursive)
+POST   /api/classifications                  → create(dto)
+PATCH  /api/classifications/:id              → update(id, dto)
+DELETE /api/classifications/:id              → remove(id)
+PATCH  /api/classifications/:id/move         → move(id, newParentId)
+PATCH  /api/classifications/:id/activate     → activate(id)
+PATCH  /api/classifications/:id/deactivate   → deactivate(id)
+POST   /api/classifications/reorder          → reorder(items)
+
+Guards: JwtAuthGuard
+Entities: ClassificationNode (extends BaseEntity with optional tenant — supports platform-scoped data)
+```
+
+### IAM Module
+```
+Tenant Roles:
+  GET/POST/PUT/DELETE /api/roles*        → CRUD tenant roles
+  Guards: JwtAuthGuard + TenantGuard
+
+System Roles (SuperAdmin only):
+  GET/POST/PUT/DELETE /api/system-roles* → CRUD global roles
+  Guards: JwtAuthGuard + SuperAdminGuard
+
+Permissions:
+  GET/POST/PATCH/DELETE /api/permissions* → CRUD permissions + categories
+  Guards: JwtAuthGuard + SuperAdminGuard
+
+Entities: Role, Permission, UserGroup
+```
+
+### Users Module
+```
+GET    /api/users         → findAll(tenantId)
+POST   /api/users         → create(tenantId, CreateUserDto)
+PUT    /api/users/:id     → update(id, tenantId, UpdateUserDto)
+DELETE /api/users/:id     → remove(id, tenantId)
+
+Guards: JwtAuthGuard + TenantGuard
+Entities: User (platform-scoped, no tenant filter — uses manual tenant check)
+```
+
+### Notifications Module
+```
+GET    /api/notifications              → findAll(userId, query)
+GET    /api/notifications/unread-count → getUnreadCount(userId)
+PATCH  /api/notifications/:id/read     → markAsRead(id, userId)
+PATCH  /api/notifications/read-all     → markAllAsRead(userId)
+DELETE /api/notifications/:id          → delete(id, userId)
+DELETE /api/notifications/clear-read   → clearRead(userId)
+
+Guards: JwtAuthGuard (user-scoped, no tenant guard)
+Entities: Notification, NotificationTemplate, ScheduledNotificationTrigger
+```
+
+### Sales Channels Module
+```
+GET/POST/PATCH/DELETE /api/sales-channels*         → channel CRUD
+GET/POST             /api/sales-channels/:id/mappings → product mappings
+GET                  /api/sales-channels/orders     → channel orders
+
+Guards: JwtAuthGuard + TenantGuard
+Entities: SalesChannel, ChannelProductMapping, ChannelOrder
+```
+
+### Definitions Module (Kademe 1)
+```
+9 definition controllers, each with CRUD + toggleActive + reorder:
+  /api/definitions/units
+  /api/definitions/currencies
+  /api/definitions/categories (+ getTree)
+  /api/definitions/warehouses
+  /api/definitions/tax-rates
+  /api/definitions/tags
+  /api/definitions/statuses
+  /api/definitions/payment-methods
+  /api/definitions/delivery-methods
+
+Guards: JwtAuthGuard + TenantGuard (all)
+Entities: UnitOfMeasure, Currency, Category, Warehouse, WarehouseLocation,
+          TaxRate, Tag, StatusDefinition, PaymentMethod, DeliveryMethod, ExchangeRate
+```
+
+### Storage Module
+```
+POST   /api/storage/upload              → upload(file, folder)
+POST   /api/storage/upload-multiple     → uploadMultiple(files, folder)
+DELETE /api/storage/:key                → delete(key)
+GET    /api/storage/presigned/:key      → getPresignedUrl(key)
+GET    /api/storage/list?prefix=...     → listFiles(prefix)
+
+Guards: JwtAuthGuard
+```
+
+### Reports Module
+```
+GET /api/reports/inventory/stock-status  → stockStatus(warehouseId)
+GET /api/reports/inventory/movements     → movementReport(from, to)
+GET /api/reports/inventory/aging         → agingReport(days)
+GET /api/reports/sales/performance       → salesPerformance(from, to)
+GET /api/reports/sales/top-products      → topProducts(from, to)
+GET /api/reports/sales/profitability     → profitability(from, to)
+GET /api/reports/finance/balances        → balanceReport()
+GET /api/reports/finance/aging           → agingAnalysis()
+GET /api/reports/finance/cash-flow       → cashFlow(from, to)
+
+Guards: JwtAuthGuard + TenantGuard
 ```
 
 ## 5. International Import Pipeline (End-to-End)
