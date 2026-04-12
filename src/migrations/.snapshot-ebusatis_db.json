@@ -6683,6 +6683,29 @@
           "scale": 2,
           "mappedType": "decimal"
         },
+        "standard_gsm": {
+          "name": "standard_gsm",
+          "type": "numeric(8,2)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "precision": 8,
+          "scale": 2,
+          "mappedType": "decimal"
+        },
+        "gsm_tolerance": {
+          "name": "gsm_tolerance",
+          "type": "numeric(5,2)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "precision": 5,
+          "scale": 2,
+          "default": "5",
+          "mappedType": "decimal"
+        },
         "martindale": {
           "name": "martindale",
           "type": "int",
@@ -12138,6 +12161,16 @@
       "name": "notifications",
       "schema": "public",
       "indexes": [
+        {
+          "columnNames": [
+            "tenant_id"
+          ],
+          "composite": false,
+          "keyName": "notifications_tenant_id_index",
+          "constraint": false,
+          "primary": false,
+          "unique": false
+        },
         {
           "keyName": "idx_notification_tenant_date",
           "columnNames": [
@@ -17875,6 +17908,26 @@
           "length": 255,
           "mappedType": "string"
         },
+        "kartela_number": {
+          "name": "kartela_number",
+          "type": "varchar(255)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "length": 255,
+          "mappedType": "string"
+        },
+        "parent_kartela_id": {
+          "name": "parent_kartela_id",
+          "type": "varchar(255)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "length": 255,
+          "mappedType": "string"
+        },
         "batch_code": {
           "name": "batch_code",
           "type": "varchar(255)",
@@ -17917,6 +17970,62 @@
           "precision": 10,
           "scale": 2,
           "default": "0",
+          "mappedType": "decimal"
+        },
+        "shade_group": {
+          "name": "shade_group",
+          "type": "varchar(255)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "length": 255,
+          "mappedType": "string"
+        },
+        "shade_variation": {
+          "name": "shade_variation",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "enumItems": [
+            "CS",
+            "SS",
+            "NONE"
+          ],
+          "mappedType": "enum"
+        },
+        "shade_reference": {
+          "name": "shade_reference",
+          "type": "varchar(255)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "length": 255,
+          "mappedType": "string"
+        },
+        "actual_gsm": {
+          "name": "actual_gsm",
+          "type": "numeric(8,2)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "precision": 8,
+          "scale": 2,
+          "mappedType": "decimal"
+        },
+        "gsm_variance": {
+          "name": "gsm_variance",
+          "type": "numeric(5,2)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "precision": 5,
+          "scale": 2,
           "mappedType": "decimal"
         },
         "warehouse_id": {
@@ -18000,7 +18109,11 @@
             "SOLD",
             "CONSUMED",
             "LOST",
-            "WASTE"
+            "WASTE",
+            "FULL",
+            "PARTIAL",
+            "ALLOCATED",
+            "QUARANTINED"
           ],
           "mappedType": "enum"
         },
@@ -18040,10 +18153,40 @@
         },
         {
           "columnNames": [
+            "kartela_number"
+          ],
+          "composite": false,
+          "keyName": "inventory_items_kartela_number_index",
+          "constraint": false,
+          "primary": false,
+          "unique": false
+        },
+        {
+          "columnNames": [
+            "parent_kartela_id"
+          ],
+          "composite": false,
+          "keyName": "inventory_items_parent_kartela_id_index",
+          "constraint": false,
+          "primary": false,
+          "unique": false
+        },
+        {
+          "columnNames": [
             "batch_code"
           ],
           "composite": false,
           "keyName": "inventory_items_batch_code_index",
+          "constraint": false,
+          "primary": false,
+          "unique": false
+        },
+        {
+          "columnNames": [
+            "shade_group"
+          ],
+          "composite": false,
+          "keyName": "inventory_items_shade_group_index",
           "constraint": false,
           "primary": false,
           "unique": false

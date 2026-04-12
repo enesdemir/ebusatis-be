@@ -69,6 +69,15 @@ import {
 } from '../modules/inventory/entities/supplier-claim.entity';
 import { SupplierClaimLine } from '../modules/inventory/entities/supplier-claim-line.entity';
 import {
+  InventoryItem,
+  InventoryItemStatus,
+  ShadeVariation,
+} from '../modules/inventory/entities/inventory-item.entity';
+import {
+  InventoryTransaction,
+  TransactionType,
+} from '../modules/inventory/entities/inventory-transaction.entity';
+import {
   LandedCostCalculation,
   LandedCostLineAllocation,
 } from '../modules/accounting/entities/landed-cost-calculation.entity';
@@ -214,6 +223,9 @@ export class PilotSeeder extends Seeder {
     variant.colorCode = '#50C878';
     variant.width = 280;
     variant.weight = 450;
+    // Sprint 1: textile-specific GSM reference + tolerance
+    variant.standardGSM = 300;
+    variant.gsmTolerance = 5;
     em.persist(variant);
 
     await em.flush();
@@ -612,6 +624,213 @@ export class PilotSeeder extends Seeder {
     grLine2.claim = claim;
 
     await em.flush();
+
+    // ── 10.5. Inventory Items (Sprint 1 kartela system) ──
+    // Create 100 physical rolls in the warehouse: 95 OK (FULL) + 5 DAMAGED (QUARANTINED).
+    // Distribution:
+    //   Rolls 1-40:   Lot A, shade A1, actualGSM 302 (+0.67%), NONE variation, status FULL
+    //   Rolls 41-80:  Lot A, shade A2, actualGSM 305 (+1.67%), CS variation, status FULL
+    //   Rolls 81-90:  Lot B, shade A1, actualGSM 298 (-0.67%), NONE variation, status FULL
+    //   Rolls 91-95:  Lot B, shade A1, actualGSM 285 (-5.00%), SS variation, status QUARANTINED
+    // Each roll is 40 metres.
+
+    const existingItemCount = await em.count(
+      InventoryItem,
+      { goodsReceiveId: gr.id },
+      { filters: false },
+    );
+
+    const invItems: InventoryItem[] = [];
+    if (existingItemCount === 0) {
+      interface RollGroup {
+        count: number;
+        batchCode: string;
+        shadeGroup: string;
+        shadeVariation: ShadeVariation;
+        shadeReference: string;
+        actualGSM: number;
+        gsmVariance: number;
+        status: InventoryItemStatus;
+      }
+
+      const groups: RollGroup[] = [
+        {
+          count: 40,
+          batchCode: 'SH-2026-LOT-A',
+          shadeGroup: 'A1',
+          shadeVariation: ShadeVariation.NONE,
+          shadeReference: 'A1-REF',
+          actualGSM: 302,
+          gsmVariance: 0.67,
+          status: InventoryItemStatus.FULL,
+        },
+        {
+          count: 40,
+          batchCode: 'SH-2026-LOT-A',
+          shadeGroup: 'A2',
+          shadeVariation: ShadeVariation.CS,
+          shadeReference: 'A2-REF',
+          actualGSM: 305,
+          gsmVariance: 1.67,
+          status: InventoryItemStatus.FULL,
+        },
+        {
+          count: 10,
+          batchCode: 'SH-2026-LOT-B',
+          shadeGroup: 'A1',
+          shadeVariation: ShadeVariation.NONE,
+          shadeReference: 'A1-REF',
+          actualGSM: 298,
+          gsmVariance: -0.67,
+          status: InventoryItemStatus.FULL,
+        },
+        {
+          count: 5,
+          batchCode: 'SH-2026-LOT-B',
+          shadeGroup: 'A1',
+          shadeVariation: ShadeVariation.SS,
+          shadeReference: 'A1-REF',
+          actualGSM: 285,
+          gsmVariance: -5.0,
+          status: InventoryItemStatus.QUARANTINED,
+        },
+      ];
+
+      let idx = 1;
+      for (const g of groups) {
+        for (let i = 0; i < g.count; i++) {
+          const sequenceStr = String(idx).padStart(4, '0');
+          const barcode = `PRM-VLV-EMR-${sequenceStr}`;
+          const kartelaNumber = `KRT-2026-0412-${sequenceStr}`;
+
+          const item = new InventoryItem(variant, tenant, barcode, 40);
+          item.kartelaNumber = kartelaNumber;
+          item.batchCode = g.batchCode;
+          item.shadeGroup = g.shadeGroup;
+          item.shadeVariation = g.shadeVariation;
+          item.shadeReference = g.shadeReference;
+          item.actualGSM = g.actualGSM;
+          item.gsmVariance = g.gsmVariance;
+          item.warehouse = mainWarehouse;
+          item.receivedFrom = supplier;
+          item.receivedAt = gr.receivedAt;
+          item.goodsReceiveId = gr.id;
+          item.status = g.status;
+
+          em.persist(item);
+
+          // Create PURCHASE transaction for audit trail
+          const tx = em.create(InventoryTransaction, {
+            tenant,
+            item,
+            type: TransactionType.PURCHASE,
+            quantityChange: 40,
+            previousQuantity: 0,
+            newQuantity: 40,
+            note: `GR:${gr.id}`,
+          } as unknown as InventoryTransaction);
+          em.persist(tx);
+
+          invItems.push(item);
+          idx++;
+        }
+      }
+
+      await em.flush();
+      console.log(
+        `  ✓ Created ${invItems.length} inventory items (95 OK + 5 QUARANTINED)`,
+      );
+
+      // ── 10.6. Cut Examples (3 parent-child kartela pairs) ──
+      // Cut 1: Roll 1 (40m) → parent 25m PARTIAL + child 15m ALLOCATED
+      // Cut 2: Roll 2 (40m) → parent 30m PARTIAL + child 10m ALLOCATED
+      // Cut 3: Roll 3 (40m) → parent 0m SOLD + child 40m ALLOCATED (full transfer)
+
+      const cutPlans = [
+        {
+          parentIndex: 0,
+          cutAmount: 15,
+          parentStatus: InventoryItemStatus.PARTIAL,
+        },
+        {
+          parentIndex: 1,
+          cutAmount: 10,
+          parentStatus: InventoryItemStatus.PARTIAL,
+        },
+        {
+          parentIndex: 2,
+          cutAmount: 40,
+          parentStatus: InventoryItemStatus.SOLD,
+        },
+      ];
+
+      for (const plan of cutPlans) {
+        const parent = invItems[plan.parentIndex];
+        const prevQty = Number(parent.currentQuantity);
+        const newParentQty = prevQty - plan.cutAmount;
+
+        parent.currentQuantity = newParentQty;
+        parent.status = plan.parentStatus;
+
+        // Child kartela derives its number from the parent with a suffix.
+        const childKartelaNumber = `${parent.kartelaNumber}-A`;
+        const childBarcode = `${parent.barcode}-A`;
+
+        const child = new InventoryItem(
+          variant,
+          tenant,
+          childBarcode,
+          plan.cutAmount,
+        );
+        child.kartelaNumber = childKartelaNumber;
+        child.parentKartelaId = parent.id;
+        child.batchCode = parent.batchCode;
+        child.shadeGroup = parent.shadeGroup;
+        child.shadeVariation = parent.shadeVariation;
+        child.shadeReference = parent.shadeReference;
+        child.actualGSM = parent.actualGSM;
+        child.gsmVariance = parent.gsmVariance;
+        child.warehouse = parent.warehouse;
+        child.receivedFrom = parent.receivedFrom;
+        child.receivedAt = parent.receivedAt;
+        child.goodsReceiveId = parent.goodsReceiveId;
+        child.status = InventoryItemStatus.ALLOCATED;
+        em.persist(child);
+
+        // Parent SALE_CUT transaction
+        const parentTx = em.create(InventoryTransaction, {
+          tenant,
+          item: parent,
+          type: TransactionType.SALE_CUT,
+          quantityChange: -plan.cutAmount,
+          previousQuantity: prevQty,
+          newQuantity: newParentQty,
+          note: `SPLIT → ${childKartelaNumber}`,
+        } as unknown as InventoryTransaction);
+        em.persist(parentTx);
+
+        // Child PURCHASE transaction (creation)
+        const childTx = em.create(InventoryTransaction, {
+          tenant,
+          item: child,
+          type: TransactionType.PURCHASE,
+          quantityChange: plan.cutAmount,
+          previousQuantity: 0,
+          newQuantity: plan.cutAmount,
+          note: `SPLIT FROM ${parent.kartelaNumber}`,
+        } as unknown as InventoryTransaction);
+        em.persist(childTx);
+      }
+
+      await em.flush();
+      console.log(
+        `  ✓ Created ${cutPlans.length} cut examples (parent-child kartela pairs)`,
+      );
+    } else {
+      console.log(
+        `  ✓ Inventory items already exist (${existingItemCount}), skipping`,
+      );
+    }
 
     // ── 11. Landed Cost Calculation ──
     // Product:  50,000

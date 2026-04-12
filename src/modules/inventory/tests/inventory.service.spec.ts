@@ -53,10 +53,20 @@ describe('InventoryService', () => {
       createQueryBuilder: jest.fn(),
     };
 
+    const mockKartelaGenerator = {
+      generate: jest.fn().mockResolvedValue('KRT-2026-0412-TEST'),
+      validateFormat: jest.fn().mockReturnValue(true),
+    };
+
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         InventoryService,
         { provide: EntityManager, useValue: mockEm },
+        {
+          provide: (await import('../services/kartela-generator.service'))
+            .KartelaGeneratorService,
+          useValue: mockKartelaGenerator,
+        },
       ],
     }).compile();
 

@@ -17,6 +17,7 @@ import {
   CutRollDto,
   WasteRollDto,
   AdjustStockDto,
+  SplitRollDto,
 } from '../dto';
 
 /**
@@ -92,7 +93,28 @@ export class InventoryController {
   }
 
   @Get('summary')
-  getSummary() {
-    return this.inventoryService.getSummary();
+  getSummary(@Query('variantId') variantId?: string) {
+    return this.inventoryService.getSummary(variantId);
+  }
+
+  /**
+   * Split a roll into a parent (reduced) and a new child kartela.
+   * Used during sales order allocation when a roll must be cut.
+   */
+  @Post('rolls/:id/split')
+  splitRoll(
+    @Param('id') id: string,
+    @Body() dto: SplitRollDto,
+    @Req() req: { user?: { sub?: string } },
+  ) {
+    return this.inventoryService.splitRoll(id, dto.amountToCut, req.user?.sub);
+  }
+
+  /**
+   * Return parent + children of a kartela — a flat two-level hierarchy.
+   */
+  @Get('rolls/:id/hierarchy')
+  getKartelaHierarchy(@Param('id') id: string) {
+    return this.inventoryService.getKartelaHierarchy(id);
   }
 }

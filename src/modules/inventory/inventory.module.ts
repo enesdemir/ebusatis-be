@@ -12,6 +12,8 @@ import { InventoryCountLine } from './entities/inventory-count-line.entity';
 import { InventoryService } from './services/inventory.service';
 import { GoodsReceiveService } from './services/goods-receive.service';
 import { SupplierClaimService } from './services/supplier-claim.service';
+import { KartelaGeneratorService } from './services/kartela-generator.service';
+import { GsmCheckService } from './services/gsm-check.service';
 import { InventoryController } from './controllers/inventory.controller';
 import { GoodsReceiveController } from './controllers/goods-receive.controller';
 import { SupplierClaimController } from './controllers/supplier-claim.controller';
@@ -45,12 +47,20 @@ import { AuthModule } from '../auth/auth.module';
     GoodsReceiveController,
     SupplierClaimController,
   ],
-  providers: [InventoryService, GoodsReceiveService, SupplierClaimService],
+  providers: [
+    InventoryService,
+    GoodsReceiveService,
+    SupplierClaimService,
+    KartelaGeneratorService,
+    GsmCheckService,
+  ],
   exports: [
     MikroOrmModule,
     InventoryService,
     GoodsReceiveService,
     SupplierClaimService,
+    KartelaGeneratorService,
+    GsmCheckService,
   ],
 })
 export class InventoryModule {}

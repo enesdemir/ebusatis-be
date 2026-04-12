@@ -15,3 +15,4 @@ export { CreateRollDto } from './create-roll.dto';
 export { CutRollDto } from './cut-roll.dto';
 export { WasteRollDto } from './waste-roll.dto';
 export { AdjustStockDto } from './adjust-stock.dto';
+export { SplitRollDto } from './split-roll.dto';

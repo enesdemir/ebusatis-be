@@ -70,10 +70,25 @@ export class ProductVariant extends BaseTenantEntity {
   width?: number; // En: 280.0 cm
 
   @Property({ type: 'decimal', precision: 10, scale: 2, nullable: true })
-  weight?: number; // Gramaj: 450 gr/m²
+  weight?: number; // General weight field: 450 gr/m²
+
+  /**
+   * Standard GSM (grams per square metre) — reference value for textile.
+   * Used by GsmCheckService to compare against measured `actualGSM` on rolls.
+   * Separate from `weight` to keep textile-specific semantics clear.
+   */
+  @Property({ type: 'decimal', precision: 8, scale: 2, nullable: true })
+  standardGSM?: number;
+
+  /**
+   * Acceptable GSM deviation percent (default 5%).
+   * Rolls with variance > tolerance should be quarantined.
+   */
+  @Property({ type: 'decimal', precision: 5, scale: 2, default: 5 })
+  gsmTolerance: number = 5;
 
   @Property({ nullable: true })
-  martindale?: number; // Sürtünme katsayısı (döşemelik)
+  martindale?: number; // Abrasion coefficient (upholstery)
 
   // ─── Görsel ve Barkod ─────────────────────────────────────
 

@@ -6,6 +6,10 @@ export enum ConfigCategory {
   SECURITY = 'SECURITY',
   NOTIFICATIONS = 'NOTIFICATIONS',
   BILLING = 'BILLING',
+  INVENTORY = 'INVENTORY',
+  STORAGE = 'STORAGE',
+  EMAIL = 'EMAIL',
+  DOCUMENT = 'DOCUMENT',
 }
 
 @Entity({ tableName: 'platform_configs' })
