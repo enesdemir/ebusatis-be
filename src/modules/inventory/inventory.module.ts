@@ -14,9 +14,11 @@ import { GoodsReceiveService } from './services/goods-receive.service';
 import { SupplierClaimService } from './services/supplier-claim.service';
 import { KartelaGeneratorService } from './services/kartela-generator.service';
 import { GsmCheckService } from './services/gsm-check.service';
+import { InventoryCountService } from './services/inventory-count.service';
 import { InventoryController } from './controllers/inventory.controller';
 import { GoodsReceiveController } from './controllers/goods-receive.controller';
 import { SupplierClaimController } from './controllers/supplier-claim.controller';
+import { InventoryCountController } from './controllers/inventory-count.controller';
 
 import { AuthModule } from '../auth/auth.module';
 
@@ -46,6 +48,7 @@ import { AuthModule } from '../auth/auth.module';
     InventoryController,
     GoodsReceiveController,
     SupplierClaimController,
+    InventoryCountController,
   ],
   providers: [
     InventoryService,
@@ -53,6 +56,7 @@ import { AuthModule } from '../auth/auth.module';
     SupplierClaimService,
     KartelaGeneratorService,
     GsmCheckService,
+    InventoryCountService,
   ],
   exports: [
     MikroOrmModule,
@@ -61,6 +65,7 @@ import { AuthModule } from '../auth/auth.module';
     SupplierClaimService,
     KartelaGeneratorService,
     GsmCheckService,
+    InventoryCountService,
   ],
 })
 export class InventoryModule {}

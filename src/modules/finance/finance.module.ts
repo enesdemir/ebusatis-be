@@ -9,8 +9,11 @@ import { PaymentInvoiceMatch } from './entities/payment-invoice-match.entity';
 
 import { InvoiceService } from './services/invoice.service';
 import { PaymentService } from './services/payment.service';
+import { CurrentAccountAgingService } from './services/current-account-aging.service';
+import { ReconciliationService } from './services/reconciliation.service';
 import { InvoiceController } from './controllers/invoice.controller';
 import { PaymentController } from './controllers/payment.controller';
+import { AccountStatementController } from './controllers/account-statement.controller';
 
 import { AuthModule } from '../auth/auth.module';
 
@@ -33,8 +36,23 @@ import { AuthModule } from '../auth/auth.module';
     ]),
     AuthModule,
   ],
-  controllers: [InvoiceController, PaymentController],
-  providers: [InvoiceService, PaymentService],
-  exports: [MikroOrmModule, InvoiceService, PaymentService],
+  controllers: [
+    InvoiceController,
+    PaymentController,
+    AccountStatementController,
+  ],
+  providers: [
+    InvoiceService,
+    PaymentService,
+    CurrentAccountAgingService,
+    ReconciliationService,
+  ],
+  exports: [
+    MikroOrmModule,
+    InvoiceService,
+    PaymentService,
+    CurrentAccountAgingService,
+    ReconciliationService,
+  ],
 })
 export class FinanceModule {}

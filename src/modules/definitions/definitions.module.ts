@@ -24,6 +24,9 @@ import { TagService } from './services/tag.service';
 import { StatusDefinitionService } from './services/status-definition.service';
 import { PaymentMethodService } from './services/payment-method.service';
 import { DeliveryMethodService } from './services/delivery-method.service';
+import { WarehouseLocationService } from './services/warehouse-location.service';
+import { WarehouseLocationController } from './controllers/warehouse-location.controller';
+import { InventoryItem } from '../inventory/entities/inventory-item.entity';
 
 // Controllers
 import { UnitOfMeasureController } from './controllers/unit-of-measure.controller';
@@ -52,6 +55,7 @@ import { AuthModule } from '../auth/auth.module';
       StatusDefinition,
       PaymentMethod,
       DeliveryMethod,
+      InventoryItem,
     ]),
     AuthModule,
   ],
@@ -65,6 +69,7 @@ import { AuthModule } from '../auth/auth.module';
     StatusDefinitionController,
     PaymentMethodController,
     DeliveryMethodController,
+    WarehouseLocationController,
   ],
   providers: [
     UnitOfMeasureService,
@@ -76,6 +81,7 @@ import { AuthModule } from '../auth/auth.module';
     StatusDefinitionService,
     PaymentMethodService,
     DeliveryMethodService,
+    WarehouseLocationService,
   ],
   exports: [
     MikroOrmModule,
@@ -88,6 +94,7 @@ import { AuthModule } from '../auth/auth.module';
     StatusDefinitionService,
     PaymentMethodService,
     DeliveryMethodService,
+    WarehouseLocationService,
   ],
 })
 export class DefinitionsModule {}
