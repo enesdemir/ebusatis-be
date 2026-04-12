@@ -1,0 +1,65 @@
+name: CI
+
+on:
+  push:
+    branches: [development, master]
+  pull_request:
+    branches: [development, master]
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_USER: ebusatis_user
+          POSTGRES_PASSWORD: ebusatis_pass
+          POSTGRES_DB: ebusatis_db
+        ports:
+          - 7232:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      DATABASE_HOST: localhost
+      DATABASE_PORT: 7232
+      DATABASE_USER: ebusatis_user
+      DATABASE_PASSWORD: ebusatis_pass
+      DATABASE_NAME: ebusatis_db
+      NODE_ENV: test
+      JWT_SECRET: ci-test-secret
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: TypeScript type-check
+        run: pnpm exec tsc --noEmit -p tsconfig.build.json
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Run migrations
+        run: pnpm exec mikro-orm migration:up
+
+      - name: Unit tests
+        run: pnpm test
+
+      - name: Tenant isolation e2e tests
+        run: pnpm exec jest test/integration/ --config test/jest-e2e.json --forceExit
