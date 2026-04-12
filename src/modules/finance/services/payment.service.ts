@@ -1,8 +1,8 @@
+import { Injectable } from '@nestjs/common';
 import {
-  Injectable,
-  NotFoundException,
-  BadRequestException,
-} from '@nestjs/common';
+  EntityNotFoundException,
+  TenantContextMissingException,
+} from '../../../common/errors/app.exceptions';
 import { EntityManager, FilterQuery } from '@mikro-orm/postgresql';
 import { Payment, PaymentDirection } from '../entities/payment.entity';
 import { PaymentInvoiceMatch } from '../entities/payment-invoice-match.entity';
@@ -48,13 +48,13 @@ export class PaymentService {
         ] as any,
       },
     );
-    if (!p) throw new NotFoundException(`Ödeme bulunamadı: ${id}`);
+    if (!p) throw new EntityNotFoundException('Payment', id);
     return p;
   }
 
   async create(data: any, userId: string): Promise<Payment> {
     const tenantId = TenantContext.getTenantId();
-    if (!tenantId) throw new BadRequestException('Tenant context bulunamadı');
+    if (!tenantId) throw new TenantContextMissingException();
     const tenant = await this.em.findOneOrFail(Tenant, { id: tenantId });
 
     const count = await this.em.count(Payment, { tenant: tenantId } as any);

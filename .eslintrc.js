@@ -26,6 +26,13 @@ module.exports = {
     // --max-warnings=0 to CI so no new violations can be merged.
     '@typescript-eslint/no-explicit-any': 'warn',
 
+    // Allow _-prefixed variables for intentional destructure-to-discard
+    // patterns (e.g. `const { partnerId: _pid, ...rest } = dto`).
+    '@typescript-eslint/no-unused-vars': [
+      'error',
+      { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
+    ],
+
     // Detect hardcoded Turkish strings in source files. Migrations and
     // seeders are exempt because they contain legitimate locale data.
     'no-restricted-syntax': [

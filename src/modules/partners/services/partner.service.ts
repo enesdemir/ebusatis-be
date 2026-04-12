@@ -1,8 +1,8 @@
+import { Injectable } from '@nestjs/common';
 import {
-  Injectable,
-  NotFoundException,
-  ConflictException,
-} from '@nestjs/common';
+  EntityNotFoundException,
+  TenantContextMissingException,
+} from '../../../common/errors/app.exceptions';
 import { EntityManager, FilterQuery } from '@mikro-orm/postgresql';
 import { Partner } from '../entities/partner.entity';
 import { PartnerAddress } from '../entities/partner-address.entity';
@@ -72,13 +72,13 @@ export class PartnerService {
         } as any,
       },
     );
-    if (!partner) throw new NotFoundException(`Partner bulunamadı: ${id}`);
+    if (!partner) throw new EntityNotFoundException('Partner', id);
     return partner;
   }
 
   async create(dto: CreatePartnerDto): Promise<Partner> {
     const tenantId = TenantContext.getTenantId();
-    if (!tenantId) throw new ConflictException('Tenant context bulunamadı');
+    if (!tenantId) throw new TenantContextMissingException();
     const tenant = await this.em.findOneOrFail(Tenant, { id: tenantId });
 
     const partner = this.em.create(Partner, {
@@ -121,7 +121,7 @@ export class PartnerService {
   }
 
   private resolveAddressRefs(dto: Partial<CreateAddressDto>) {
-    const { partnerId, countryId, stateId, cityId, ...rest } = dto;
+    const { partnerId: _partnerId, countryId, stateId, cityId, ...rest } = dto;
     const refs: any = { ...rest };
     if (countryId)
       refs.country = this.em.getReference(ClassificationNode, countryId);
@@ -205,7 +205,7 @@ export class PartnerService {
       id: contactId,
       deletedAt: null,
     } as any);
-    const { partnerId, ...updateData } = dto;
+    const { partnerId: _pid, ...updateData } = dto;
     this.em.assign(contact, updateData as any);
     await this.em.flush();
     return contact;
@@ -252,7 +252,7 @@ export class PartnerService {
       id: counterpartyId,
       deletedAt: null,
     } as any);
-    const { partnerId, ...updateData } = dto;
+    const { partnerId: _pid, ...updateData } = dto;
     this.em.assign(cp, updateData as any);
     await this.em.flush();
     return cp;

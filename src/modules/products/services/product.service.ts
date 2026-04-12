@@ -1,8 +1,8 @@
+import { Injectable } from '@nestjs/common';
 import {
-  Injectable,
-  NotFoundException,
-  ConflictException,
-} from '@nestjs/common';
+  EntityNotFoundException,
+  TenantContextMissingException,
+} from '../../../common/errors/app.exceptions';
 import { EntityManager, FilterQuery } from '@mikro-orm/postgresql';
 import { Product } from '../entities/product.entity';
 import { ProductVariant } from '../entities/product-variant.entity';
@@ -52,13 +52,13 @@ export class ProductService {
         ] as any,
       },
     );
-    if (!product) throw new NotFoundException(`Ürün bulunamadı: ${id}`);
+    if (!product) throw new EntityNotFoundException('Product', id);
     return product;
   }
 
   async create(data: any): Promise<Product> {
     const tenantId = TenantContext.getTenantId();
-    if (!tenantId) throw new ConflictException('Tenant context bulunamadı');
+    if (!tenantId) throw new TenantContextMissingException();
     const tenant = await this.em.findOneOrFail(Tenant, { id: tenantId });
 
     const product = this.em.create(Product, {

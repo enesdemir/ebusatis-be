@@ -1,8 +1,8 @@
+import { Injectable, BadRequestException } from '@nestjs/common';
 import {
-  Injectable,
-  NotFoundException,
-  BadRequestException,
-} from '@nestjs/common';
+  EntityNotFoundException,
+  TenantContextMissingException,
+} from '../../../common/errors/app.exceptions';
 import { EntityManager, FilterQuery } from '@mikro-orm/postgresql';
 import { SalesOrder } from '../entities/sales-order.entity';
 import { SalesOrderLine } from '../entities/sales-order-line.entity';
@@ -60,13 +60,13 @@ export class SalesOrderService {
         ] as any,
       },
     );
-    if (!order) throw new NotFoundException(`Sipariş bulunamadı: ${id}`);
+    if (!order) throw new EntityNotFoundException('SalesOrder', id);
     return order;
   }
 
   async create(data: any, userId: string): Promise<SalesOrder> {
     const tenantId = TenantContext.getTenantId();
-    if (!tenantId) throw new BadRequestException('Tenant context bulunamadı');
+    if (!tenantId) throw new TenantContextMissingException();
     const tenant = await this.em.findOneOrFail(Tenant, { id: tenantId });
 
     // Sipariş numarası üret (tenant-scoped)

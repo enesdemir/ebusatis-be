@@ -1,8 +1,8 @@
+import { Injectable } from '@nestjs/common';
 import {
-  Injectable,
-  NotFoundException,
-  BadRequestException,
-} from '@nestjs/common';
+  EntityNotFoundException,
+  TenantContextMissingException,
+} from '../../../common/errors/app.exceptions';
 import { EntityManager, FilterQuery } from '@mikro-orm/postgresql';
 import { PurchaseOrder } from '../entities/purchase-order.entity';
 import { PurchaseOrderLine } from '../entities/purchase-order-line.entity';
@@ -49,14 +49,13 @@ export class PurchaseOrderService {
         ] as any,
       },
     );
-    if (!order)
-      throw new NotFoundException(`Satınalma siparişi bulunamadı: ${id}`);
+    if (!order) throw new EntityNotFoundException('PurchaseOrder', id);
     return order;
   }
 
   async create(data: any, userId: string): Promise<PurchaseOrder> {
     const tenantId = TenantContext.getTenantId();
-    if (!tenantId) throw new BadRequestException('Tenant context bulunamadı');
+    if (!tenantId) throw new TenantContextMissingException();
     const tenant = await this.em.findOneOrFail(Tenant, { id: tenantId });
 
     const count = await this.em.count(PurchaseOrder, {
