@@ -88,6 +88,14 @@ export class PdfController {
     return this.stream(res, await this.pdf.renderKartelaLabels(dto.rollIds));
   }
 
+  @Get('shipping-labels/:packingId')
+  async shippingLabels(
+    @Param('packingId') packingId: string,
+    @Res() res: Response,
+  ) {
+    return this.stream(res, await this.pdf.renderShippingLabels(packingId));
+  }
+
   private stream(res: Response, pdf: RenderedPdf) {
     res
       .status(200)

@@ -4,3 +4,6 @@ export { CreateSalesOrderLineDto } from './create-sales-order-line.dto';
 export { CreateSalesOrderDto } from './create-sales-order.dto';
 export { UpdateSalesOrderDto } from './update-sales-order.dto';
 export { AllocateRollDto } from './allocate-roll.dto';
+export { StartPickingDto } from './start-picking.dto';
+export { ScanKartelaDto } from './scan-kartela.dto';
+export { CreatePackingBoxDto } from './create-packing-box.dto';

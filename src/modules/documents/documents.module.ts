@@ -9,6 +9,8 @@ import { Payment } from '../finance/entities/payment.entity';
 import { Shipment } from '../logistics/entities/shipment.entity';
 import { SupplierClaim } from '../inventory/entities/supplier-claim.entity';
 import { InventoryItem } from '../inventory/entities/inventory-item.entity';
+import { Packing } from '../orders/entities/packing.entity';
+import { PackingBox } from '../orders/entities/packing-box.entity';
 import { DocumentService } from './services/document.service';
 import { TrackingService } from './services/tracking.service';
 import { PdfService } from './services/pdf.service';
@@ -43,6 +45,8 @@ import { QrCodeService } from '../../common/services/qr-code.service';
       Shipment,
       SupplierClaim,
       InventoryItem,
+      Packing,
+      PackingBox,
     ]),
     ConfigModule,
     StorageModule,

@@ -20,6 +20,10 @@ import { buildShipmentPdf } from '../pdf-templates/shipment.template';
 import { buildClaimReportPdf } from '../pdf-templates/claim-report.template';
 import { buildKartelaLabelsPdf } from '../pdf-templates/kartela-labels.template';
 import { buildCustomerTransferPdf } from '../pdf-templates/customer-transfer.template';
+import { buildShippingLabelsPdf } from '../pdf-templates/shipping-label.template';
+import { Packing } from '../../orders/entities/packing.entity';
+import { PackingBox } from '../../orders/entities/packing-box.entity';
+import { ShipmentDirection } from '../../logistics/entities/shipment.entity';
 
 /**
  * Result envelope returned by every render method.
@@ -699,6 +703,90 @@ export class PdfService {
 
     return {
       fileName: `transfer-${shShape.shipmentNumber}.pdf`,
+      mimeType: 'application/pdf',
+      buffer: await this.renderer.render(def),
+    };
+  }
+
+  // ── Shipping Labels (Sprint 10) ────────────────────────────
+
+  /**
+   * Render one shipping label per PackingBox for a given Packing.
+   * Each label carries a QR that deep-links to the public tracking
+   * page and a copy of the box barcode for fast handover scans.
+   */
+  async renderShippingLabels(packingId: string): Promise<RenderedPdf> {
+    const packing = await this.em.findOne(
+      Packing,
+      { id: packingId },
+      {
+        populate: [
+          'picking',
+          'picking.salesOrder',
+          'picking.salesOrder.partner',
+        ] as never[],
+      },
+    );
+    if (!packing) throw new NotFoundException(`Packing ${packingId}`);
+
+    const boxes = await this.em.find(
+      PackingBox,
+      { packing: packing.id },
+      { orderBy: { boxNumber: 'ASC' } },
+    );
+    if (boxes.length === 0) {
+      throw new NotFoundException(`No boxes on packing ${packingId}`);
+    }
+
+    const so = (packing as unknown as { picking: { salesOrder: unknown } })
+      .picking.salesOrder as {
+      id: string;
+      orderNumber?: string;
+      partner?: { name?: string; address?: string };
+    };
+
+    const shipment = await this.em.findOne(
+      Shipment,
+      { salesOrder: so.id, direction: ShipmentDirection.OUTBOUND },
+      { populate: ['carrier'] as never[] },
+    );
+    const shipmentNumber =
+      (shipment as unknown as { shipmentNumber?: string } | null)
+        ?.shipmentNumber ??
+      so.orderNumber ??
+      packing.packingNumber;
+    const carrierName = (
+      shipment as unknown as { carrier?: { name?: string } } | null
+    )?.carrier?.name;
+    const trackingNumber = (
+      shipment as unknown as { carrierTrackingNumber?: string } | null
+    )?.carrierTrackingNumber;
+
+    const totalBoxes = boxes.length;
+    const labels = await Promise.all(
+      boxes.map(async (box) => {
+        const qrPayload = `${this.publicBaseUrl}/track/shipment/${shipment?.id ?? so.id}/box/${box.id}`;
+        const qrDataUrl = await this.qr.generate(qrPayload, 240);
+        return {
+          boxBarcode: box.barcode,
+          boxNumber: box.boxNumber,
+          totalBoxes,
+          qrDataUrl,
+          shipmentNumber,
+          salesOrderNumber: so.orderNumber,
+          customerName: so.partner?.name ?? '-',
+          customerAddress: so.partner?.address,
+          carrierName,
+          trackingNumber,
+          weightKg: box.weightKg ? Number(box.weightKg) : undefined,
+          dimensionsCm: box.dimensionsCm,
+        };
+      }),
+    );
+
+    const def = buildShippingLabelsPdf(labels, await this.tenantName());
+    return {
+      fileName: `shipping-labels-${packing.packingNumber}.pdf`,
       mimeType: 'application/pdf',
       buffer: await this.renderer.render(def),
     };

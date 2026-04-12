@@ -363,3 +363,176 @@ export class UserTenantOwnerDeleteForbiddenException extends ConflictException {
     });
   }
 }
+
+// ── Picking / Packing (Sprint 10) ──
+
+export class PickingNotFoundException extends NotFoundException {
+  constructor(id: string) {
+    super({
+      error: ErrorCode.PICKING_NOT_FOUND,
+      message: 'errors.picking.not_found',
+      metadata: { id },
+    });
+  }
+}
+
+export class PickingAlreadyExistsException extends ConflictException {
+  constructor(salesOrderId: string, existingPickingId: string) {
+    super({
+      error: ErrorCode.PICKING_ALREADY_EXISTS,
+      message: 'errors.picking.already_exists',
+      metadata: { salesOrderId, existingPickingId },
+    });
+  }
+}
+
+export class PickingNotInProgressException extends BadRequestException {
+  constructor(id: string, status: string) {
+    super({
+      error: ErrorCode.PICKING_NOT_IN_PROGRESS,
+      message: 'errors.picking.not_in_progress',
+      metadata: { id, status },
+    });
+  }
+}
+
+export class PickingIncompleteException extends BadRequestException {
+  constructor(pickingId: string, remainingCount: number) {
+    super({
+      error: ErrorCode.PICKING_INCOMPLETE,
+      message: 'errors.picking.incomplete',
+      metadata: { pickingId, remainingCount },
+    });
+  }
+}
+
+export class SalesOrderNotAllocatedException extends BadRequestException {
+  constructor(salesOrderId: string, status: string) {
+    super({
+      error: ErrorCode.SALES_ORDER_NOT_ALLOCATED,
+      message: 'errors.orders.not_allocated',
+      metadata: { salesOrderId, status },
+    });
+  }
+}
+
+export class KartelaNotFoundForOrderException extends NotFoundException {
+  constructor(barcode: string, salesOrderId: string) {
+    super({
+      error: ErrorCode.KARTELA_NOT_FOUND_FOR_ORDER,
+      message: 'errors.picking.kartela_not_found_for_order',
+      metadata: { barcode, salesOrderId },
+    });
+  }
+}
+
+export class KartelaAlreadyPickedException extends ConflictException {
+  constructor(barcode: string) {
+    super({
+      error: ErrorCode.KARTELA_ALREADY_PICKED,
+      message: 'errors.picking.kartela_already_picked',
+      metadata: { barcode },
+    });
+  }
+}
+
+export class PackingNotFoundException extends NotFoundException {
+  constructor(id: string) {
+    super({
+      error: ErrorCode.PACKING_NOT_FOUND,
+      message: 'errors.packing.not_found',
+      metadata: { id },
+    });
+  }
+}
+
+export class PackingNotInProgressException extends BadRequestException {
+  constructor(id: string, status: string) {
+    super({
+      error: ErrorCode.PACKING_NOT_IN_PROGRESS,
+      message: 'errors.packing.not_in_progress',
+      metadata: { id, status },
+    });
+  }
+}
+
+export class PackingBoxNotFoundException extends NotFoundException {
+  constructor(id: string) {
+    super({
+      error: ErrorCode.PACKING_BOX_NOT_FOUND,
+      message: 'errors.packing.box_not_found',
+      metadata: { id },
+    });
+  }
+}
+
+export class PickingLineAlreadyBoxedException extends ConflictException {
+  constructor(pickingLineId: string, existingBoxId: string) {
+    super({
+      error: ErrorCode.PICKING_LINE_ALREADY_BOXED,
+      message: 'errors.packing.picking_line_already_boxed',
+      metadata: { pickingLineId, existingBoxId },
+    });
+  }
+}
+
+export class PickingLineNotInPickingException extends BadRequestException {
+  constructor(pickingLineId: string, pickingId: string) {
+    super({
+      error: ErrorCode.PICKING_LINE_NOT_IN_PICKING,
+      message: 'errors.packing.picking_line_not_in_picking',
+      metadata: { pickingLineId, pickingId },
+    });
+  }
+}
+
+// ── Outbound / delivery (Sprint 10) ──
+
+export class SalesOrderNotPackedException extends BadRequestException {
+  constructor(salesOrderId: string) {
+    super({
+      error: ErrorCode.SALES_ORDER_NOT_PACKED,
+      message: 'errors.orders.not_packed',
+      metadata: { salesOrderId },
+    });
+  }
+}
+
+export class OutboundShipmentAlreadyExistsException extends ConflictException {
+  constructor(salesOrderId: string, existingShipmentId: string) {
+    super({
+      error: ErrorCode.OUTBOUND_SHIPMENT_ALREADY_EXISTS,
+      message: 'errors.logistics.outbound_shipment_already_exists',
+      metadata: { salesOrderId, existingShipmentId },
+    });
+  }
+}
+
+export class DeliveryProofAlreadyRecordedException extends ConflictException {
+  constructor(shipmentId: string) {
+    super({
+      error: ErrorCode.DELIVERY_PROOF_ALREADY_RECORDED,
+      message: 'errors.logistics.delivery_proof_already_recorded',
+      metadata: { shipmentId },
+    });
+  }
+}
+
+export class DeliveryProofSignatureRequiredException extends BadRequestException {
+  constructor() {
+    super({
+      error: ErrorCode.DELIVERY_PROOF_SIGNATURE_REQUIRED,
+      message: 'errors.logistics.delivery_proof_signature_required',
+    });
+  }
+}
+
+export class ShipmentNotShippedException extends BadRequestException {
+  constructor(shipmentId: string, status: string) {
+    super({
+      error: ErrorCode.SHIPMENT_NOT_SHIPPED,
+      message: 'errors.logistics.shipment_not_shipped',
+      metadata: { shipmentId, status },
+    });
+  }
+}
