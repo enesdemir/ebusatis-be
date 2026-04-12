@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { EntityManager } from '@mikro-orm/postgresql';
 import { PartnerService } from '../services/partner.service';
 import { CreatePartnerDto } from '../dto/create-partner.dto';
-import { UpdatePartnerDto } from '../dto/update-partner.dto';
+import { UpdatePartnerDto } from '../dto/create-partner.dto';
 
 // EntityManager mock — tum metotlar
 const mockEm = {

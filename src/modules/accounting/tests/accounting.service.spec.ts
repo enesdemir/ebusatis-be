@@ -1,4 +1,8 @@
 import { AccountingService } from '../services/accounting.service';
+import { TaxReportStatus } from '../entities/tax-report.entity';
+import { CreateExchangeGainLossDto } from '../dto/create-exchange-gain-loss.dto';
+import { UpdateTaxReportDto } from '../dto/update-tax-report.dto';
+import { PaginatedQueryDto } from '../../../common/dto/paginated-query.dto';
 
 const mockValRepo = { findAndCount: jest.fn(), create: jest.fn() };
 const mockFxRepo = { findAndCount: jest.fn(), create: jest.fn() };
@@ -30,7 +34,14 @@ describe('AccountingService', () => {
   });
 
   it('createExchangeGainLoss auto-calculates gainLoss', async () => {
-    const data = { originalRate: 30, settlementRate: 32, amount: 1000 };
+    const data: CreateExchangeGainLossDto = {
+      fromCurrency: 'USD',
+      toCurrency: 'TRY',
+      transactionDate: '2026-01-01',
+      originalRate: 30,
+      settlementRate: 32,
+      amount: 1000,
+    };
     mockFxRepo.create.mockImplementation((d: object) => ({ id: '1', ...d }));
     mockEm.persistAndFlush.mockResolvedValue(undefined);
     const result = await service.createExchangeGainLoss(data);
@@ -39,23 +50,31 @@ describe('AccountingService', () => {
 
   it('findTaxReports filters by type', async () => {
     mockTaxRepo.findAndCount.mockResolvedValue([[], 0]);
-    await service.findTaxReports({ type: 'KDV' });
+    await service.findTaxReports({
+      type: 'KDV',
+    } as PaginatedQueryDto & { type?: string });
     expect(mockTaxRepo.findAndCount).toHaveBeenCalled();
   });
 
   it('updateTaxReport updates fields', async () => {
-    const r = { id: '1', status: 'DRAFT', payableTax: 0 };
+    const r = {
+      id: '1',
+      status: TaxReportStatus.DRAFT,
+      payableTax: 0,
+    };
     mockTaxRepo.findOne.mockResolvedValue(r);
     mockEm.flush.mockResolvedValue(undefined);
     await service.updateTaxReport('1', {
-      status: 'CALCULATED',
+      status: TaxReportStatus.CALCULATED,
       payableTax: 5000,
-    });
-    expect(r.status).toBe('CALCULATED');
+    } as UpdateTaxReportDto);
+    expect(r.status).toBe(TaxReportStatus.CALCULATED);
   });
 
   it('updateTaxReport throws when not found', async () => {
     mockTaxRepo.findOne.mockResolvedValue(null);
-    await expect(service.updateTaxReport('x', {})).rejects.toThrow();
+    await expect(
+      service.updateTaxReport('x', {} as UpdateTaxReportDto),
+    ).rejects.toThrow();
   });
 });

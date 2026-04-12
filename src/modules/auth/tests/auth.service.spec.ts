@@ -145,12 +145,14 @@ describe('AuthService', () => {
       mockUserRepo.findOne.mockResolvedValue(null);
       (bcrypt.compare as jest.Mock).mockResolvedValue(false);
 
+      // The service returns an error code + i18n key instead of a raw
+      // string; CLAUDE.md rule: every error message must be an i18n key.
       await expect(
         service.login({ email: 'test@example.com', password: 'wrong' }),
       ).rejects.toThrow(UnauthorizedException);
       await expect(
         service.login({ email: 'test@example.com', password: 'wrong' }),
-      ).rejects.toThrow('Invalid credentials');
+      ).rejects.toThrow('errors.auth.invalid_credentials');
     });
 
     it('should throw UnauthorizedException for inactive user', async () => {
@@ -163,7 +165,7 @@ describe('AuthService', () => {
       ).rejects.toThrow(UnauthorizedException);
       await expect(
         service.login({ email: 'test@example.com', password: 'password123' }),
-      ).rejects.toThrow('Account is deactivated');
+      ).rejects.toThrow('errors.auth.account_deactivated');
     });
 
     it('should build JWT payload with correct structure', async () => {
@@ -235,7 +237,7 @@ describe('AuthService', () => {
         UnauthorizedException,
       );
       await expect(service.impersonate('nonexistent-user')).rejects.toThrow(
-        'User not found for impersonation',
+        'errors.auth.user_not_found_for_impersonation',
       );
     });
   });
