@@ -1,0 +1,2 @@
+pnpm exec tsc --noEmit -p tsconfig.build.json
+pnpm exec lint-staged
