@@ -1,9 +1,10 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { EntityRepository, EntityManager } from '@mikro-orm/postgresql';
 import { SalesChannel } from '../entities/sales-channel.entity';
 import { ChannelProductMapping } from '../entities/channel-product-mapping.entity';
 import { ChannelOrder } from '../entities/channel-order.entity';
+import { EntityNotFoundException } from '../../../common/errors/app.exceptions';
 
 @Injectable()
 export class SalesChannelsService {
@@ -26,7 +27,7 @@ export class SalesChannelsService {
       { id },
       { populate: ['productMappings'] },
     );
-    if (!ch) throw new NotFoundException('Channel not found');
+    if (!ch) throw new EntityNotFoundException('SalesChannel', id);
     return ch;
   }
 

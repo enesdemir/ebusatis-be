@@ -1,8 +1,9 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { EntityRepository, EntityManager } from '@mikro-orm/postgresql';
 import { RFQ, RFQStatus } from '../entities/rfq.entity';
 import { RFQResponse } from '../entities/rfq-response.entity';
+import { EntityNotFoundException } from '../../../common/errors/app.exceptions';
 
 @Injectable()
 export class SourcingService {
@@ -39,7 +40,7 @@ export class SourcingService {
       { id },
       { populate: ['responses', 'createdBy'] },
     );
-    if (!rfq) throw new NotFoundException('RFQ not found');
+    if (!rfq) throw new EntityNotFoundException('RFQ', id);
     return rfq;
   }
 
@@ -70,7 +71,7 @@ export class SourcingService {
 
   async selectResponse(id: string) {
     const resp = await this.responseRepo.findOne({ id }, { populate: ['rfq'] });
-    if (!resp) throw new NotFoundException('Response not found');
+    if (!resp) throw new EntityNotFoundException('RFQResponse', id);
     const others = await this.responseRepo.find({
       rfq: (resp.rfq as any).id || resp.rfq,
       isSelected: true,

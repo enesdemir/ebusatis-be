@@ -465,7 +465,7 @@ describe('ClassificationService', () => {
       mockRepo.count.mockResolvedValue(3);
 
       await expect(service.remove('del-2')).rejects.toThrow(
-        'Cannot delete: 3 child nodes exist. Remove children first.',
+        BadRequestException,
       );
     });
 
@@ -546,7 +546,7 @@ describe('ClassificationService', () => {
 
       await expect(
         service.update('sys-upd', { isActive: false } as any),
-      ).rejects.toThrow('System nodes cannot be deactivated');
+      ).rejects.toThrow(BadRequestException);
     });
   });
 });

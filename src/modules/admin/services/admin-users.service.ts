@@ -1,11 +1,12 @@
-import {
-  Injectable,
-  NotFoundException,
-  ConflictException,
-} from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { EntityRepository, FilterQuery } from '@mikro-orm/postgresql';
 import { User } from '../../users/entities/user.entity';
+import {
+  EntityNotFoundException,
+  UserEmailDuplicateException,
+  UserTenantOwnerDeleteForbiddenException,
+} from '../../../common/errors/app.exceptions';
 
 /** Query parameters for cross-tenant user listing */
 interface AdminUserQueryInput {
@@ -91,7 +92,7 @@ export class AdminUsersService {
       { populate: ['tenant', 'roles', 'roles.permissions'] },
     );
     if (!user) {
-      throw new NotFoundException(`User with ID '${id}' not found`);
+      throw new EntityNotFoundException('User', id);
     }
     return {
       id: user.id,
@@ -124,7 +125,7 @@ export class AdminUsersService {
   async updateStatus(id: string, isActive: boolean) {
     const user = await this.userRepository.findOne({ id });
     if (!user) {
-      throw new NotFoundException(`User with ID '${id}' not found`);
+      throw new EntityNotFoundException('User', id);
     }
     user.isActive = isActive;
     await this.userRepository.getEntityManager().flush();
@@ -137,7 +138,7 @@ export class AdminUsersService {
   async createSuperAdmin(email: string) {
     const existing = await this.userRepository.findOne({ email });
     if (existing) {
-      throw new ConflictException('Bu e-posta adresi sistemde kayıtlı.');
+      throw new UserEmailDuplicateException(email);
     }
     const admin = new User(email, null as any); // Tenant is intentionally null
     admin.isSuperAdmin = true;
@@ -157,12 +158,10 @@ export class AdminUsersService {
   async delete(id: string) {
     const user = await this.userRepository.findOne({ id });
     if (!user) {
-      throw new NotFoundException(`User with ID '${id}' not found`);
+      throw new EntityNotFoundException('User', id);
     }
     if (user.isTenantOwner) {
-      throw new ConflictException(
-        'Firma sahipleri (Tenant Owner) sistemden direkt silinemez. Önce firmayı silmelisiniz.',
-      );
+      throw new UserTenantOwnerDeleteForbiddenException();
     }
     await this.userRepository.getEntityManager().removeAndFlush(user);
     return { success: true };

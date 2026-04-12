@@ -1,10 +1,11 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { EntityRepository } from '@mikro-orm/postgresql';
 import { Attribute } from '../entities/attribute.entity';
 import { CreateAttributeDto } from '../dto/create-attribute.dto';
 import { UpdateAttributeDto } from '../dto/update-attribute.dto';
 import { TenantContext } from '../../../common/context/tenant.context';
+import { EntityNotFoundException } from '../../../common/errors/app.exceptions';
 
 @Injectable()
 export class AttributesService {
@@ -44,9 +45,7 @@ export class AttributesService {
       tenant: { id: tenantId },
     });
     if (!attribute) {
-      throw new NotFoundException(
-        `Attribute with ID ${id} not found in current tenant`,
-      );
+      throw new EntityNotFoundException('Attribute', id);
     }
     return attribute;
   }

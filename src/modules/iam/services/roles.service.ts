@@ -1,9 +1,10 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { EntityRepository, EntityManager } from '@mikro-orm/core';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { Role } from '../entities/role.entity';
 import { Permission } from '../entities/permission.entity';
 import { Tenant } from '../../tenants/entities/tenant.entity';
+import { EntityNotFoundException } from '../../../common/errors/app.exceptions';
 
 @Injectable()
 export class RolesService {
@@ -28,7 +29,7 @@ export class RolesService {
       { populate: ['permissions'] },
     );
     if (!role) {
-      throw new NotFoundException(`System Role not found`);
+      throw new EntityNotFoundException('Role', id);
     }
     return role;
   }
@@ -105,7 +106,7 @@ export class RolesService {
     );
 
     if (!role) {
-      throw new NotFoundException('Role not found or access denied');
+      throw new EntityNotFoundException('Role', id);
     }
 
     return role;
@@ -141,7 +142,7 @@ export class RolesService {
     );
 
     if (!role) {
-      throw new NotFoundException('Role not found');
+      throw new EntityNotFoundException('Role', id);
     }
 
     if (!role.tenant) {
@@ -169,7 +170,7 @@ export class RolesService {
   async remove(id: string, tenantId: string): Promise<void> {
     const role = await this.roleRepository.findOne({ id, tenant: tenantId });
     if (!role) {
-      throw new NotFoundException('Role not found');
+      throw new EntityNotFoundException('Role', id);
     }
 
     if (role.isSystemRole) {

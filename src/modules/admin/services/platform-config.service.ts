@@ -1,10 +1,11 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { EntityRepository } from '@mikro-orm/postgresql';
 import {
   PlatformConfig,
   ConfigCategory,
 } from '../entities/platform-config.entity';
+import { EntityNotFoundException } from '../../../common/errors/app.exceptions';
 
 @Injectable()
 export class PlatformConfigService {
@@ -25,7 +26,7 @@ export class PlatformConfigService {
   async findByKey(key: string): Promise<PlatformConfig> {
     const config = await this.configRepository.findOne({ key });
     if (!config) {
-      throw new NotFoundException(`Config key '${key}' not found`);
+      throw new EntityNotFoundException('PlatformConfig', key);
     }
     return config;
   }

@@ -1,7 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { EntityRepository } from '@mikro-orm/postgresql';
 import { MenuNode, MenuScope } from '../entities/menu-node.entity';
+import { EntityNotFoundException } from '../../../common/errors/app.exceptions';
 
 /** DTO returned by tree builder */
 export interface MenuNodeDto {
@@ -125,7 +126,7 @@ export class MenuService {
     node.hasDivider = data.hasDivider ?? false;
     if (data.parentId) {
       const parent = await this.menuRepo.findOne({ id: data.parentId });
-      if (!parent) throw new NotFoundException('Parent menu node not found');
+      if (!parent) throw new EntityNotFoundException('MenuNode', data.parentId);
       node.parent = parent;
     }
     await this.menuRepo.getEntityManager().persistAndFlush(node);
@@ -150,7 +151,7 @@ export class MenuService {
     }>,
   ): Promise<MenuNode> {
     const node = await this.menuRepo.findOne({ id });
-    if (!node) throw new NotFoundException('Menu node not found');
+    if (!node) throw new EntityNotFoundException('MenuNode', id);
     if (data.label !== undefined) node.label = data.label;
     if (data.icon !== undefined) node.icon = data.icon;
     if (data.path !== undefined) node.path = data.path;
@@ -173,7 +174,7 @@ export class MenuService {
    */
   async remove(id: string): Promise<void> {
     const node = await this.menuRepo.findOne({ id });
-    if (!node) throw new NotFoundException('Menu node not found');
+    if (!node) throw new EntityNotFoundException('MenuNode', id);
     node.isActive = false;
     await this.menuRepo.getEntityManager().flush();
   }

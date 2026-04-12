@@ -189,9 +189,11 @@ export class SalesOrderService {
     const available =
       Number(roll.currentQuantity) - Number(roll.reservedQuantity);
     if (quantity > available) {
-      throw new BadRequestException(
-        `Yetersiz stok. Müsait: ${available}, İstenen: ${quantity}`,
-      );
+      throw new BadRequestException({
+        error: 'STOCK_INSUFFICIENT',
+        message: 'errors.orders.stock_insufficient',
+        metadata: { available, requested: quantity },
+      });
     }
 
     // Rezervasyon

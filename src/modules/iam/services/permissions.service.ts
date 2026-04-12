@@ -1,11 +1,11 @@
-import {
-  Injectable,
-  ConflictException,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { EntityRepository } from '@mikro-orm/core';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { Permission } from '../entities/permission.entity';
+import {
+  EntityNotFoundException,
+  CodeDuplicateException,
+} from '../../../common/errors/app.exceptions';
 
 /** Input shape for creating a permission */
 interface CreatePermissionInput {
@@ -59,9 +59,7 @@ export class PermissionsService {
       slug: input.slug,
     });
     if (existing) {
-      throw new ConflictException(
-        `Permission with slug '${input.slug}' already exists.`,
-      );
+      throw new CodeDuplicateException(input.slug);
     }
     const permission = new Permission(
       input.slug,
@@ -80,7 +78,7 @@ export class PermissionsService {
   async update(id: string, input: UpdatePermissionInput): Promise<Permission> {
     const permission = await this.permissionRepository.findOne({ id });
     if (!permission) {
-      throw new NotFoundException(`Permission with ID '${id}' not found.`);
+      throw new EntityNotFoundException('Permission', id);
     }
     if (input.category !== undefined) {
       permission.category = input.category;
@@ -101,7 +99,7 @@ export class PermissionsService {
   async remove(id: string): Promise<void> {
     const permission = await this.permissionRepository.findOne({ id });
     if (!permission) {
-      throw new NotFoundException(`Permission with ID '${id}' not found.`);
+      throw new EntityNotFoundException('Permission', id);
     }
     await this.permissionRepository
       .getEntityManager()

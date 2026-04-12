@@ -1,8 +1,4 @@
-import {
-  Injectable,
-  NotFoundException,
-  BadRequestException,
-} from '@nestjs/common';
+import { Injectable, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { EntityRepository, EntityManager } from '@mikro-orm/postgresql';
 import { ClassificationNode } from '../entities/classification-node.entity';
@@ -13,6 +9,7 @@ import {
   MoveNodeDto,
   ReorderDto,
 } from '../dto';
+import { EntityNotFoundException } from '../../../common/errors/app.exceptions';
 
 @Injectable()
 export class ClassificationService {
@@ -58,7 +55,7 @@ export class ClassificationService {
   /** Tek dugum getir */
   async findOne(id: string): Promise<ClassificationNode> {
     const node = await this.repo.findOne({ id }, { populate: ['parent'] });
-    if (!node) throw new NotFoundException('Classification node not found');
+    if (!node) throw new EntityNotFoundException('ClassificationNode', id);
     return node;
   }
 
@@ -118,7 +115,8 @@ export class ClassificationService {
     // Parent
     if (dto.parentId) {
       const parent = await this.repo.findOne({ id: dto.parentId });
-      if (!parent) throw new NotFoundException('Parent node not found');
+      if (!parent)
+        throw new EntityNotFoundException('ClassificationNode', dto.parentId);
       node.parent = parent;
       node.depth = parent.depth + 1;
       node.path = `${parent.path}.${dto.code.toLowerCase().replace(/[^a-z0-9]/g, '_')}`;
@@ -138,7 +136,10 @@ export class ClassificationService {
   ): Promise<ClassificationNode> {
     const node = await this.findOne(id);
     if (node.isSystem && dto.isActive === false) {
-      throw new BadRequestException('System nodes cannot be deactivated');
+      throw new BadRequestException({
+        error: 'SYSTEM_NODE_CANNOT_DEACTIVATE',
+        message: 'errors.classification.system_node_cannot_deactivate',
+      });
     }
 
     if (dto.names !== undefined) node.names = dto.names;
@@ -159,14 +160,19 @@ export class ClassificationService {
   async remove(id: string): Promise<void> {
     const node = await this.findOne(id);
     if (node.isSystem)
-      throw new BadRequestException('System nodes cannot be deleted');
+      throw new BadRequestException({
+        error: 'SYSTEM_NODE_CANNOT_DELETE',
+        message: 'errors.classification.system_node_cannot_delete',
+      });
 
     // Child var mi kontrol et
     const childCount = await this.repo.count({ parent: id } as any);
     if (childCount > 0) {
-      throw new BadRequestException(
-        `Cannot delete: ${childCount} child nodes exist. Remove children first.`,
-      );
+      throw new BadRequestException({
+        error: 'NODE_HAS_CHILDREN',
+        message: 'errors.classification.node_has_children',
+        metadata: { childCount },
+      });
     }
 
     node.deletedAt = new Date();
@@ -184,7 +190,10 @@ export class ClassificationService {
 
     // Dongusal referans kontrolu
     if (await this.isDescendant(id, dto.newParentId)) {
-      throw new BadRequestException('Cannot move node to its own descendant');
+      throw new BadRequestException({
+        error: 'NODE_CANNOT_MOVE_TO_DESCENDANT',
+        message: 'errors.classification.node_cannot_move_to_descendant',
+      });
     }
 
     // Ayni tip olmali
@@ -210,7 +219,10 @@ export class ClassificationService {
   async deactivate(id: string): Promise<void> {
     const node = await this.findOne(id);
     if (node.isSystem)
-      throw new BadRequestException('System nodes cannot be deactivated');
+      throw new BadRequestException({
+        error: 'SYSTEM_NODE_CANNOT_DEACTIVATE',
+        message: 'errors.classification.system_node_cannot_deactivate',
+      });
 
     node.isActive = false;
     // Alt agaci da deaktif et
