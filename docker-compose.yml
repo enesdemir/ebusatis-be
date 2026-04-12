@@ -30,8 +30,8 @@ services:
     image: minio/minio:latest
     container_name: ebusatis-minio
     ports:
-      - "9000:9000"   # API
-      - "9001:9001"   # Console (Web UI)
+      - "9100:9000"   # API (host 9100 — 9000 konflikti icin)
+      - "9101:9001"   # Console (Web UI)
     environment:
       MINIO_ROOT_USER: ebusatis_minio
       MINIO_ROOT_PASSWORD: ebusatis_minio_secret
