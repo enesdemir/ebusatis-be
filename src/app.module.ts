@@ -29,6 +29,7 @@ import { NotificationsModule } from './modules/notifications/notifications.modul
 import { DocumentsModule } from './modules/documents/documents.module';
 import { ApprovalsModule } from './modules/approvals/approvals.module';
 import { SupplierPortalModule } from './modules/supplier-portal/supplier-portal.module';
+import { CrmModule } from './modules/crm/crm.module';
 
 @Module({
   imports: [
@@ -65,6 +66,7 @@ import { SupplierPortalModule } from './modules/supplier-portal/supplier-portal.
     DocumentsModule,
     ApprovalsModule,
     SupplierPortalModule,
+    CrmModule,
   ],
   controllers: [AppController],
   providers: [
