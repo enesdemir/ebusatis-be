@@ -2,29 +2,32 @@ import { EntityManager } from '@mikro-orm/core';
 import { v4 } from 'uuid';
 
 /**
- * Test icin tenant helper'lari.
- * Hizlica test tenant'i olustur, izolasyon kontrol et.
+ * Test helpers for tenant lifecycle.
+ *
+ * Creates tenants and users via raw SQL to avoid triggering entity
+ * hooks, seeders or filter interference — the test suite needs full
+ * control over which tenant context is active.
  */
 export class TenantHelper {
   constructor(private em: EntityManager) {}
 
-  /** Test tenant'i olustur */
+  /** Create a test tenant and return its ID. */
   async createTenant(name = 'Test Tenant', domain = 'test'): Promise<string> {
     const id = v4();
     await this.em
       .getConnection()
       .execute(
-        `INSERT INTO tenants (id, name, domain, is_active, created_at, updated_at) VALUES (?, ?, ?, true, now(), now())`,
+        `INSERT INTO tenants (id, name, domain, type, subscription_status, features, created_at, updated_at) VALUES (?, ?, ?, 'SAAS', 'ACTIVE', '{}', now(), now())`,
         [id, name, domain],
       );
     return id;
   }
 
-  /** Test kullanicisi olustur (tenant'a bagli) */
+  /** Create a test user bound to a tenant and return its ID. */
   async createUser(
     tenantId: string,
     email = 'user@test.com',
-    passwordHash = '$2b$10$abcdefghijklmnopqrstuuABCDEFGHIJKLMNOPQRSTUVWXYZ12', // dummy hash
+    passwordHash = '$2b$10$abcdefghijklmnopqrstuuABCDEFGHIJKLMNOPQRSTUVWXYZ12',
     isSuperAdmin = false,
   ): Promise<string> {
     const id = v4();
@@ -37,10 +40,11 @@ export class TenantHelper {
     return id;
   }
 
-  /** Iki farkli tenant olustur (izolasyon testi icin) */
+  /** Create two isolated tenants for cross-tenant isolation tests. */
   async createTwoTenants(): Promise<{ tenantA: string; tenantB: string }> {
-    const tenantA = await this.createTenant('Tenant A', 'tenant-a');
-    const tenantB = await this.createTenant('Tenant B', 'tenant-b');
+    const suffix = Date.now();
+    const tenantA = await this.createTenant('Tenant A', `tenant-a-${suffix}`);
+    const tenantB = await this.createTenant('Tenant B', `tenant-b-${suffix}`);
     return { tenantA, tenantB };
   }
 }

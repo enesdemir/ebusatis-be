@@ -1,16 +1,20 @@
-import * as request from 'supertest';
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const request = require('supertest');
 import { INestApplication } from '@nestjs/common';
 
 /**
- * Test icin auth helper'lari.
- * Login yapip JWT token alir, authenticated request yapar.
+ * Auth helper for integration / e2e tests.
+ *
+ * Logs in via the real `/api/auth/login` endpoint and provides
+ * convenience methods for making authenticated requests with an
+ * optional `x-tenant-id` header.
  */
 export class AuthHelper {
   private token: string;
 
   constructor(private app: INestApplication) {}
 
-  /** Admin kullanici ile login */
+  /** Log in and return the JWT access token. */
   async loginAsAdmin(
     email = 'admin@test.com',
     password = 'Admin123!',
@@ -18,13 +22,13 @@ export class AuthHelper {
     const res = await request(this.app.getHttpServer())
       .post('/api/auth/login')
       .send({ email, password })
-      .expect(201);
+      .expect(200);
 
     this.token = res.body?.data?.access_token || res.body?.access_token;
     return this.token;
   }
 
-  /** Authenticated GET request */
+  /** Authenticated GET request. */
   get(url: string, tenantId?: string) {
     const req = request(this.app.getHttpServer())
       .get(`/api${url}`)
@@ -33,7 +37,7 @@ export class AuthHelper {
     return req;
   }
 
-  /** Authenticated POST request */
+  /** Authenticated POST request. */
   post(url: string, body: any, tenantId?: string) {
     const req = request(this.app.getHttpServer())
       .post(`/api${url}`)
@@ -43,7 +47,7 @@ export class AuthHelper {
     return req;
   }
 
-  /** Authenticated PATCH request */
+  /** Authenticated PATCH request. */
   patch(url: string, body: any, tenantId?: string) {
     const req = request(this.app.getHttpServer())
       .patch(`/api${url}`)
@@ -53,7 +57,7 @@ export class AuthHelper {
     return req;
   }
 
-  /** Authenticated DELETE request */
+  /** Authenticated DELETE request. */
   delete(url: string, tenantId?: string) {
     const req = request(this.app.getHttpServer())
       .delete(`/api${url}`)
