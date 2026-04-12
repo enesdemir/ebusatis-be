@@ -2,6 +2,8 @@ import { Entity, Property, ManyToOne, Index, Enum } from '@mikro-orm/core';
 import { BaseEntity } from '../../../common/entities/base.entity';
 import { Tenant } from '../../tenants/entities/tenant.entity';
 import { User } from '../../users/entities/user.entity';
+import { NotificationTemplate } from './notification-template.entity';
+import { UserGroup } from '../../iam/entities/user-group.entity';
 
 export enum NotificationType {
   ORDER = 'ORDER',
@@ -18,6 +20,15 @@ export enum NotificationSeverity {
   CRITICAL = 'CRITICAL',
 }
 
+/**
+ * Notification
+ *
+ * A single notification delivered to a user. Can be created ad-hoc by
+ * any service or generated automatically by a ScheduledNotificationTrigger.
+ *
+ * Stage 0.C additions: `scheduledAt`, `triggerEvent`, `template` FK and
+ * `targetGroup` FK to support the scheduled notification pipeline.
+ */
 @Entity({ tableName: 'notifications' })
 @Index({ properties: ['recipient', 'isRead'], name: 'idx_notification_recipient_read' })
 @Index({ properties: ['tenant', 'createdAt'], name: 'idx_notification_tenant_date' })
@@ -57,4 +68,22 @@ export class Notification extends BaseEntity {
 
   @Property({ nullable: true, type: 'datetime' })
   readAt?: Date;
+
+  // ── Scheduling fields (stage 0.C) ──
+
+  /** When this notification should be delivered. Null = immediate. */
+  @Property({ nullable: true, type: 'datetime' })
+  scheduledAt?: Date;
+
+  /** Trigger event that generated this notification (if scheduled). */
+  @Property({ nullable: true })
+  triggerEvent?: string;
+
+  /** Template used to generate this notification (if templated). */
+  @ManyToOne(() => NotificationTemplate, { nullable: true })
+  template?: NotificationTemplate;
+
+  /** User group this notification was targeted at (for analytics). */
+  @ManyToOne(() => UserGroup, { nullable: true })
+  targetGroup?: UserGroup;
 }
