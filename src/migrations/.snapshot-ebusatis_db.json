@@ -8694,6 +8694,56 @@
           "length": 255,
           "mappedType": "string"
         },
+        "tracking_uuid": {
+          "name": "tracking_uuid",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "mappedType": "uuid"
+        },
+        "workflow_status": {
+          "name": "workflow_status",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "default": "'DRAFT'",
+          "enumItems": [
+            "DRAFT",
+            "PENDING_APPROVAL",
+            "APPROVED",
+            "SENT_TO_SUPPLIER",
+            "IN_PRODUCTION",
+            "SHIPPED",
+            "RECEIVED",
+            "REVISED",
+            "CANCELLED",
+            "CLOSED"
+          ],
+          "mappedType": "enum"
+        },
+        "revision_number": {
+          "name": "revision_number",
+          "type": "int",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "default": "1",
+          "mappedType": "integer"
+        },
+        "revised_from_id": {
+          "name": "revised_from_id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "mappedType": "uuid"
+        },
         "supplier_id": {
           "name": "supplier_id",
           "type": "uuid",
@@ -8898,6 +8948,16 @@
           "unique": false
         },
         {
+          "columnNames": [
+            "tracking_uuid"
+          ],
+          "composite": false,
+          "keyName": "purchase_orders_tracking_uuid_index",
+          "constraint": false,
+          "primary": false,
+          "unique": false
+        },
+        {
           "keyName": "purchase_orders_pkey",
           "columnNames": [
             "id"
@@ -8920,6 +8980,19 @@
             "id"
           ],
           "referencedTableName": "public.tenants",
+          "updateRule": "cascade"
+        },
+        "purchase_orders_revised_from_id_foreign": {
+          "constraintName": "purchase_orders_revised_from_id_foreign",
+          "columnNames": [
+            "revised_from_id"
+          ],
+          "localTableName": "public.purchase_orders",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.purchase_orders",
+          "deleteRule": "set null",
           "updateRule": "cascade"
         },
         "purchase_orders_supplier_id_foreign": {

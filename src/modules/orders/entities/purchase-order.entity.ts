@@ -1,5 +1,6 @@
 import {
   Entity,
+  Enum,
   Property,
   ManyToOne,
   OneToMany,
@@ -12,6 +13,26 @@ import { Counterparty } from '../../partners/entities/counterparty.entity';
 import { Currency } from '../../definitions/entities/currency.entity';
 import { StatusDefinition } from '../../definitions/entities/status-definition.entity';
 import { User } from '../../users/entities/user.entity';
+
+/**
+ * Lifecycle state of a purchase order.
+ *
+ * `StatusDefinition` (FK above) keeps the tenant-configurable workflow
+ * label, but the core transitions here are enforced in code and gate
+ * features like "can this PO be edited?" and "can it be revised?".
+ */
+export enum PurchaseOrderWorkflowStatus {
+  DRAFT = 'DRAFT',
+  PENDING_APPROVAL = 'PENDING_APPROVAL',
+  APPROVED = 'APPROVED',
+  SENT_TO_SUPPLIER = 'SENT_TO_SUPPLIER',
+  IN_PRODUCTION = 'IN_PRODUCTION',
+  SHIPPED = 'SHIPPED',
+  RECEIVED = 'RECEIVED',
+  REVISED = 'REVISED',
+  CANCELLED = 'CANCELLED',
+  CLOSED = 'CLOSED',
+}
 
 /**
  * Purchase Order
@@ -27,6 +48,36 @@ export class PurchaseOrder extends BaseTenantEntity {
   @Property()
   @Index()
   orderNumber!: string; // e.g. "PO-2026-0001"
+
+  /**
+   * Opaque per-PO UUID used for QR codes and the public tracking URL
+   * (`/track/:uuid`). Generated on creation; never exposed to the
+   * supplier in its own right — they scan the QR on the printed PDF.
+   */
+  @Property({ type: 'uuid', nullable: true })
+  @Index()
+  trackingUuid?: string;
+
+  /**
+   * Workflow state driven from code (DRAFT, PENDING_APPROVAL, APPROVED
+   * …). Gates editing / revisioning / approval actions. Sits alongside
+   * the tenant-configurable `status` label so teams keep their naming
+   * while the engine keeps authoritative transitions.
+   */
+  @Enum(() => PurchaseOrderWorkflowStatus)
+  workflowStatus: PurchaseOrderWorkflowStatus =
+    PurchaseOrderWorkflowStatus.DRAFT;
+
+  /**
+   * Revision number. A fresh PO starts at 1; calling
+   * `createRevision()` marks the old version REVISED and clones it as
+   * a new row at `revisionNumber + 1` linking back via `revisedFrom`.
+   */
+  @Property({ default: 1 })
+  revisionNumber: number = 1;
+
+  @ManyToOne(() => PurchaseOrder, { nullable: true })
+  revisedFrom?: PurchaseOrder;
 
   @ManyToOne(() => Partner)
   supplier!: Partner;

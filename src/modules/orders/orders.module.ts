@@ -23,6 +23,7 @@ import { PurchaseOrderController } from './controllers/purchase-order.controller
 
 import { AuthModule } from '../auth/auth.module';
 import { InventoryModule } from '../inventory/inventory.module';
+import { QrCodeService } from '../../common/services/qr-code.service';
 
 @Module({
   imports: [
@@ -49,6 +50,7 @@ import { InventoryModule } from '../inventory/inventory.module';
     CreditStatusService,
     AllocationService,
     BomCheckService,
+    QrCodeService,
   ],
   exports: [
     MikroOrmModule,

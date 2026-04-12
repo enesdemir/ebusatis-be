@@ -20,7 +20,10 @@ import {
   TrackingStrategy,
 } from '../modules/products/entities/product.entity';
 import { ProductVariant } from '../modules/products/entities/product-variant.entity';
-import { PurchaseOrder } from '../modules/orders/entities/purchase-order.entity';
+import {
+  PurchaseOrder,
+  PurchaseOrderWorkflowStatus,
+} from '../modules/orders/entities/purchase-order.entity';
 import { PurchaseOrderLine } from '../modules/orders/entities/purchase-order-line.entity';
 import {
   SupplierProductionOrder,
@@ -425,6 +428,9 @@ export class PilotSeeder extends Seeder {
     const po = em.create(PurchaseOrder, {
       tenant,
       orderNumber: 'PO-2026-PILOT-001',
+      trackingUuid: '11111111-2222-3333-4444-555566667777',
+      workflowStatus: PurchaseOrderWorkflowStatus.APPROVED,
+      revisionNumber: 1,
       supplier,
       currency: usdCurrency,
       exchangeRate: 1,
@@ -440,6 +446,7 @@ export class PilotSeeder extends Seeder {
           daysBefore: 7,
           recipientGroupCodes: ['logistics_team', 'finance_team'],
         },
+        { daysBefore: 1, recipientGroupCodes: ['warehouse_team'] },
       ],
       note: 'Pilot PO for end-to-end import scenario verification.',
       createdBy: adminUser,
