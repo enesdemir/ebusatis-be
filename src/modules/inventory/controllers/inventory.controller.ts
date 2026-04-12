@@ -12,80 +12,87 @@ import { InventoryService } from '../services/inventory.service';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { TenantGuard } from '../../../common/guards/tenant.guard';
 import { PaginatedQueryDto } from '../../../common/dto/paginated-query.dto';
+import {
+  CreateRollDto,
+  CutRollDto,
+  WasteRollDto,
+  AdjustStockDto,
+} from '../dto';
 
+/**
+ * Inventory controller.
+ *
+ * CLAUDE.md compliance:
+ *   - JwtAuthGuard + TenantGuard on all endpoints.
+ *   - Every @Body uses a class-validator DTO.
+ */
 @Controller('inventory')
 @UseGuards(JwtAuthGuard, TenantGuard)
 export class InventoryController {
   constructor(private readonly inventoryService: InventoryService) {}
 
   @Get('rolls')
-  async findAll(@Query() query: PaginatedQueryDto & Record<string, any>) {
+  findAll(@Query() query: PaginatedQueryDto) {
     return this.inventoryService.findAll(query);
   }
 
   @Get('rolls/:id')
-  async findOne(@Param('id') id: string) {
+  findOne(@Param('id') id: string) {
     return this.inventoryService.findOne(id);
   }
 
   @Post('rolls')
-  async createRoll(@Body() data: any, @Req() req: any) {
-    return this.inventoryService.createRoll(data, req.user?.sub);
+  createRoll(
+    @Body() dto: CreateRollDto,
+    @Req() req: { user?: { sub?: string } },
+  ) {
+    return this.inventoryService.createRoll(dto, req.user?.sub);
   }
 
   @Post('cut')
-  async cutRoll(
-    @Body()
-    body: {
-      rollId: string;
-      amount: number;
-      referenceId?: string;
-      note?: string;
-    },
-    @Req() req: any,
-  ) {
+  cutRoll(@Body() dto: CutRollDto, @Req() req: { user?: { sub?: string } }) {
     return this.inventoryService.cutRoll(
-      body.rollId,
-      body.amount,
-      body.referenceId,
-      body.note,
+      dto.rollId,
+      dto.amount,
+      dto.referenceId,
+      dto.note,
       req.user?.sub,
     );
   }
 
   @Post('waste')
-  async markWaste(
-    @Body() body: { rollId: string; amount: number; note?: string },
-    @Req() req: any,
+  markWaste(
+    @Body() dto: WasteRollDto,
+    @Req() req: { user?: { sub?: string } },
   ) {
     return this.inventoryService.markWaste(
-      body.rollId,
-      body.amount,
-      body.note,
+      dto.rollId,
+      dto.amount,
+      dto.note,
       req.user?.sub,
     );
   }
 
   @Post('adjust')
-  async adjustStock(
-    @Body() body: { rollId: string; newQuantity: number; note?: string },
-    @Req() req: any,
+  adjustStock(
+    @Body() dto: AdjustStockDto,
+    @Req() req: { user?: { sub?: string } },
   ) {
     return this.inventoryService.adjustStock(
-      body.rollId,
-      body.newQuantity,
-      body.note,
+      dto.rollId,
+      dto.newQuantity,
+      dto.note,
       req.user?.sub,
     );
   }
 
   @Get('movements/:rollId')
-  async getMovements(@Param('rollId') rollId: string) {
+  getMovements(@Param('rollId') rollId: string) {
     return this.inventoryService.getMovements(rollId);
   }
 
   @Get('summary')
-  async getSummary() {
+  getSummary() {
     return this.inventoryService.getSummary();
   }
 }

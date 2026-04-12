@@ -10,47 +10,65 @@ import {
 } from '@nestjs/common';
 import { AccountingService } from '../services/accounting.service';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
+import { TenantGuard } from '../../../common/guards/tenant.guard';
+import { PaginatedQueryDto } from '../../../common/dto/paginated-query.dto';
+import {
+  CreateStockValuationDto,
+  CreateExchangeGainLossDto,
+  CreateTaxReportDto,
+  UpdateTaxReportDto,
+} from '../dto';
 
-@UseGuards(JwtAuthGuard)
+/**
+ * Accounting controller.
+ *
+ * CLAUDE.md compliance:
+ *   - JwtAuthGuard + TenantGuard on all endpoints.
+ *   - Every @Body / @Query uses a class-validator DTO.
+ */
+@UseGuards(JwtAuthGuard, TenantGuard)
 @Controller('accounting')
 export class AccountingController {
   constructor(private readonly service: AccountingService) {}
 
-  // Stok Degerleme
+  // ── Stock valuation ──
+
   @Get('valuations')
-  findValuations(@Query() params: any) {
-    return this.service.findValuations(params);
+  findValuations(@Query() query: PaginatedQueryDto) {
+    return this.service.findValuations(query);
   }
 
   @Post('valuations')
-  createValuation(@Body() data: any) {
-    return this.service.createValuation(data);
+  createValuation(@Body() dto: CreateStockValuationDto) {
+    return this.service.createValuation(dto);
   }
 
-  // Kur Farki
+  // ── Exchange gain/loss ──
+
   @Get('exchange-gains')
-  findExchangeGains(@Query() params: any) {
-    return this.service.findExchangeGainLosses(params);
+  findExchangeGains(@Query() query: PaginatedQueryDto) {
+    return this.service.findExchangeGainLosses(query);
   }
 
   @Post('exchange-gains')
-  createExchangeGain(@Body() data: any) {
-    return this.service.createExchangeGainLoss(data);
+  createExchangeGain(@Body() dto: CreateExchangeGainLossDto) {
+    return this.service.createExchangeGainLoss(dto);
   }
 
-  // Vergi Raporlari
+  // ── Tax reports ──
+
   @Get('tax-reports')
-  findTaxReports(@Query() params: any) {
-    return this.service.findTaxReports(params);
+  findTaxReports(@Query() query: PaginatedQueryDto) {
+    return this.service.findTaxReports(query);
   }
 
   @Post('tax-reports')
-  createTaxReport(@Body() data: any) {
-    return this.service.createTaxReport(data);
+  createTaxReport(@Body() dto: CreateTaxReportDto) {
+    return this.service.createTaxReport(dto);
   }
 
   @Patch('tax-reports/:id')
-  updateTaxReport(@Param('id') id: string, @Body() data: any) {
-    return this.service.updateTaxReport(id, data);
+  updateTaxReport(@Param('id') id: string, @Body() dto: UpdateTaxReportDto) {
+    return this.service.updateTaxReport(id, dto);
   }
 }
