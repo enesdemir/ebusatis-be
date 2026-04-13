@@ -9850,6 +9850,17 @@
           "unique": false
         },
         {
+          "keyName": "uq_purchase_order_number_per_tenant",
+          "columnNames": [
+            "tenant_id",
+            "order_number"
+          ],
+          "composite": true,
+          "constraint": true,
+          "primary": false,
+          "unique": true
+        },
+        {
           "keyName": "purchase_orders_pkey",
           "columnNames": [
             "id"
@@ -15574,6 +15585,17 @@
           "constraint": false,
           "primary": false,
           "unique": false
+        },
+        {
+          "keyName": "uq_sales_order_number_per_tenant",
+          "columnNames": [
+            "tenant_id",
+            "order_number"
+          ],
+          "composite": true,
+          "constraint": true,
+          "primary": false,
+          "unique": true
         },
         {
           "keyName": "sales_orders_pkey",

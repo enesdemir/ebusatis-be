@@ -6,6 +6,7 @@ import {
   OneToMany,
   Collection,
   Index,
+  Unique,
 } from '@mikro-orm/core';
 import { BaseTenantEntity } from '../../../common/entities/base-tenant.entity';
 import { Partner } from '../../partners/entities/partner.entity';
@@ -44,6 +45,10 @@ export enum PurchaseOrderWorkflowStatus {
  * once the shipment lands.
  */
 @Entity({ tableName: 'purchase_orders' })
+@Unique({
+  properties: ['tenant', 'orderNumber'],
+  name: 'uq_purchase_order_number_per_tenant',
+})
 export class PurchaseOrder extends BaseTenantEntity {
   @Property()
   @Index()

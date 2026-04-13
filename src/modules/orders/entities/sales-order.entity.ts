@@ -7,6 +7,7 @@ import {
   Collection,
   Enum,
   Index,
+  Unique,
 } from '@mikro-orm/core';
 import { BaseTenantEntity } from '../../../common/entities/base-tenant.entity';
 import { Partner } from '../../partners/entities/partner.entity';
@@ -71,6 +72,10 @@ export enum SalesOrderStatus {
  * Akış: Taslak → Onay → Hazırlık (rulo tahsis + kesim) → Sevk → Teslim
  */
 @Entity({ tableName: 'sales_orders' })
+@Unique({
+  properties: ['tenant', 'orderNumber'],
+  name: 'uq_sales_order_number_per_tenant',
+})
 export class SalesOrder extends BaseTenantEntity {
   @Property()
   @Index()
