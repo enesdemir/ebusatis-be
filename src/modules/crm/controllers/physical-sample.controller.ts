@@ -11,6 +11,7 @@ import { Request as ExpressRequest } from 'express';
 import { PhysicalSampleService } from '../services/physical-sample.service';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { TenantGuard } from '../../../common/guards/tenant.guard';
+import { LendSampleDto, ReturnSampleDto } from '../dto';
 
 interface AuthedRequest extends ExpressRequest {
   user?: { sub?: string; id?: string };
@@ -39,13 +40,7 @@ export class PhysicalSampleController {
   @Post(':id/lend')
   lend(
     @Param('id') id: string,
-    @Body()
-    data: {
-      partnerId?: string;
-      userId?: string;
-      expectedReturnDate?: string;
-      notes?: string;
-    },
+    @Body() data: LendSampleDto,
     @Req() req: AuthedRequest,
   ) {
     const userId = req.user?.sub ?? req.user?.id;
@@ -55,7 +50,7 @@ export class PhysicalSampleController {
   @Post(':id/return')
   returnSample(
     @Param('id') id: string,
-    @Body() data: { notes?: string },
+    @Body() data: ReturnSampleDto,
     @Req() req: AuthedRequest,
   ) {
     const userId = req.user?.sub ?? req.user?.id;

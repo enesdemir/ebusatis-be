@@ -343,6 +343,16 @@ export class UserNotFoundForImpersonationException extends UnauthorizedException
   }
 }
 
+export class ImpersonateNoUsersException extends NotFoundException {
+  constructor(tenantId: string) {
+    super({
+      error: ErrorCode.IMPERSONATE_NO_USERS,
+      message: 'errors.auth.impersonate_no_users',
+      metadata: { tenantId },
+    });
+  }
+}
+
 // ── Users ──
 
 export class UserEmailDuplicateException extends ConflictException {

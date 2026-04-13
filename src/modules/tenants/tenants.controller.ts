@@ -9,9 +9,9 @@ import {
   Query,
   Req,
   UseGuards,
-  NotFoundException,
 } from '@nestjs/common';
 import { Request as ExpressRequest } from 'express';
+import { ImpersonateNoUsersException } from '../../common/errors/app.exceptions';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { TenantsService } from './tenants.service';
 import { CreateTenantDto } from './dto/create-tenant.dto';
@@ -44,9 +44,7 @@ export class TenantsController {
   ) {
     const tenant = await this.tenantsService.findOne(id);
     if (!tenant.users || tenant.users.length === 0) {
-      throw new NotFoundException(
-        'No users found in this tenant to impersonate.',
-      );
+      throw new ImpersonateNoUsersException(id);
     }
     const targetUser = tenant.users[0] as { id: string };
     const impersonatorId = req.user?.sub ?? req.user?.id;
