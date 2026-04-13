@@ -26,6 +26,7 @@ import { PaymentMethodService } from './services/payment-method.service';
 import { DeliveryMethodService } from './services/delivery-method.service';
 import { WarehouseLocationService } from './services/warehouse-location.service';
 import { WarehouseLocationController } from './controllers/warehouse-location.controller';
+import { ExchangeRateService } from './services/exchange-rate.service';
 import { InventoryItem } from '../inventory/entities/inventory-item.entity';
 
 // Controllers
@@ -82,6 +83,7 @@ import { AuthModule } from '../auth/auth.module';
     PaymentMethodService,
     DeliveryMethodService,
     WarehouseLocationService,
+    ExchangeRateService,
   ],
   exports: [
     MikroOrmModule,
@@ -95,6 +97,7 @@ import { AuthModule } from '../auth/auth.module';
     PaymentMethodService,
     DeliveryMethodService,
     WarehouseLocationService,
+    ExchangeRateService,
   ],
 })
 export class DefinitionsModule {}

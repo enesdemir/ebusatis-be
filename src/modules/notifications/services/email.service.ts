@@ -2,13 +2,22 @@ import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as nodemailer from 'nodemailer';
 
+export interface EmailAttachment {
+  fileName: string;
+  content: Buffer;
+  contentType?: string;
+}
+
 interface EmailMessage {
   to: string;
   subject: string;
   /** Plain-text body. */
   text?: string;
+  /** Convenience alias for `text` — used by ScheduledReportService. */
+  body?: string;
   /** Optional HTML body — preferred when set. */
   html?: string;
+  attachments?: EmailAttachment[];
 }
 
 /**
@@ -71,13 +80,17 @@ export class EmailService {
    * fails the parent business operation — emails are best-effort.
    */
   async send(message: EmailMessage): Promise<boolean> {
+    const text = message.text ?? message.body;
     if (!this.transporter) {
       this.logger.log(
         `[stub email] to=${message.to} subject="${message.subject}" body=${(
-          message.text ??
+          text ??
           message.html ??
           ''
-        ).slice(0, 200)}`,
+        ).slice(
+          0,
+          200,
+        )}${message.attachments?.length ? ` attachments=${message.attachments.length}` : ''}`,
       );
       return true;
     }
@@ -86,8 +99,13 @@ export class EmailService {
         from: this.fromAddress,
         to: message.to,
         subject: message.subject,
-        text: message.text,
+        text,
         html: message.html,
+        attachments: message.attachments?.map((a) => ({
+          filename: a.fileName,
+          content: a.content,
+          contentType: a.contentType,
+        })),
       });
       return true;
     } catch (err) {
